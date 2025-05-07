@@ -1,0 +1,31 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block title %}About{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="p-5 mb-4 bg-light rounded-3">
+        <div class="container-fluid py-3">
+            <h1 class="display-5 fw-bold">About</h1>
+            <p class="col-md-10 fs-5">
+                Hello Cyber World! We are a team that was formed to handle Group Projects Each with unique strenghts and quirks. Current Members are Anthony, Francisco, Ish, Chris, and Abdurrahman
+                We are looking forward to see what we are capable of accomplishing. Stay tunned for when we do our Final project! Also please hire us we need jobs...
+            </p>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for member in team_members %}
+        <div class="col">
+            <div class="card h-100 text-center">
+                <img src="{% static member.image %}" class="card-img-top" alt="{{ member.name }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ member.name }}</h5>
+                    <p class="card-text">{{ member.bio }}</p>
+                    <p class="card-text"><small class="text-muted">{{ member.role }}</small></p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
