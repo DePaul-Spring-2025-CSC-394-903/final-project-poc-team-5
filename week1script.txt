@@ -1,0 +1,9 @@
+Start by presenting our landing page
+Go through the About page, talk about each group member and what role they play within the group
+Show our login page, and make sure we show how we cannot login without registration
+Continue to registration page and showcase what is needed in order to register, then create registration
+Showcase how we need to fill out all fields in order to be able to register for an account
+Login to site and show case: todo/dashboard/teams
+Start with creating team click create new team, fill out team name and description and save 
+Go to todo, fill out title, description, due date, and category then save 
+It will then take us to the Dashboard, where we will explain the different teams, showcase the Timer, show Start, edit, and delete.
