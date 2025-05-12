@@ -16,6 +16,7 @@
       {{ formset.management_form }}
 
       {% for form in formset %}
+        {% if not form.cleaned_data.DELETE %}
         <div class="card mb-3 p-3">
           <h5>Loan {{ forloop.counter }}</h5>
           <div class="mb-2">
@@ -34,6 +35,7 @@
             {{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Delete this loan</label>
           </div>
         </div>
+        {% endif %}
       {% endfor %}
 
       <div class="d-flex justify-content-between">
@@ -113,3 +115,4 @@ function addLoan() {
 }
 </script>
 {% endblock %}
+
