@@ -1,41 +1,41 @@
 {% extends "main/base.html" %}
 {% block content %}
 <div style="padding: 20px;">
-    <h1>Dashboard</h1>
-    <p>This is now a blank page.</p>
+  <h1>Dashboard</h1>
 
-    <p style="margin-top: 20px;">
-      <a href="{% url 'debt_calculator' %}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
-        Try the Snowball Debt Calculator
-      </a>
-    </p>
+  <p style="margin-top: 20px;">
+    <a href="{% url 'debt_calculator' %}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+      Try the Snowball Debt Calculator
+    </a>
+  </p>
 
-    {% if history %}
-      <div style="margin-top: 40px;">
-        <h3>Your Recent Snowball Calculations</h3>
-        <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; margin-top: 10px; border-collapse: collapse;">
-          <thead style="background-color: #f1f1f1;">
+  {% if history %}
+    <div style="margin-top: 40px;">
+      <h3>Your Recent Snowball Calculations</h3>
+      <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+        <thead style="background-color: #f1f1f1;">
+          <tr>
+            <th>Date</th>
+            <th>Loan Summary</th>
+            <th>Total Balance</th>
+            <th>Total Payment</th>
+            <th>Months to Freedom</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in history %}
             <tr>
-              <th>Date</th>
-              <th>Balance</th>
-              <th>Monthly Payment</th>
-              <th>Additional Payment</th>
-              <th>Months to Freedom</th>
+              <td>{{ item.created_at|date:"M d, Y H:i" }}</td>
+              <td>{{ item.loan_summary }}</td>
+              <td>${{ item.total_balance }}</td>
+              <td>${{ item.total_payment }}</td>
+              <td>{{ item.months_to_freedom }}</td>
             </tr>
-          </thead>
-          <tbody>
-            {% for item in history %}
-              <tr>
-                <td>{{ item.created_at|date:"M d, Y H:i" }}</td>
-                <td>${{ item.balance }}</td>
-                <td>${{ item.monthly_payment }}</td>
-                <td>${{ item.additional_payment }}</td>
-                <td>{{ item.months_to_freedom }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    {% endif %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
 </div>
 {% endblock %}
+

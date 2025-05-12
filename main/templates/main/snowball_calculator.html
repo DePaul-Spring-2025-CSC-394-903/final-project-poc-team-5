@@ -16,8 +16,7 @@
       {{ formset.management_form }}
 
       {% for form in formset %}
-        {% if not form.cleaned_data.DELETE %}
-        <div class="card mb-3 p-3">
+        <div class="card mb-3 p-3 loan-form">
           <h5>Loan {{ forloop.counter }}</h5>
           <div class="mb-2">
             {{ form.name.label_tag }} {{ form.name }}
@@ -35,7 +34,6 @@
             {{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Delete this loan</label>
           </div>
         </div>
-        {% endif %}
       {% endfor %}
 
       <div class="d-flex justify-content-between">
@@ -98,8 +96,8 @@ function addLoan() {
   const totalForms = document.getElementById('id_form-TOTAL_FORMS');
   const formCount = parseInt(totalForms.value);
   const formContainer = document.querySelector('#loan-form');
-  const firstForm = document.querySelectorAll('.card.mb-3')[0];
-  const newForm = firstForm.cloneNode(true);
+  const lastForm = document.querySelectorAll('.loan-form')[formCount - 1];
+  const newForm = lastForm.cloneNode(true);
 
   newForm.querySelectorAll('input').forEach(input => {
     const name = input.name.replace(/-(\d+)-/, `-${formCount}-`);
@@ -115,4 +113,5 @@ function addLoan() {
 }
 </script>
 {% endblock %}
+
 

@@ -76,27 +76,49 @@ def snowball_calculator(request):
                     'balance': cd['balance'],
                     'monthly_payment': cd['monthly_payment'],
                     'monthly_rate': Decimal(cd['interest_rate']) / 100 / 12,
+                    'interest_rate': cd['interest_rate']
                 })
+
+        # Save initial totals before any simulation
+        total_balance = sum(loan['balance'] for loan in loans)
+        total_payment = sum(loan['monthly_payment'] for loan in loans)
 
         chart_data = []
         months = 0
+        total_interest_paid = 0
 
         while any(loan['balance'] > 0 for loan in loans) and months < 600:
             for loan in sorted(loans, key=lambda x: x['balance']):
                 if loan['balance'] <= 0:
                     continue
                 interest = loan['balance'] * loan['monthly_rate']
+                total_interest_paid += interest
                 loan['balance'] += interest
                 loan['balance'] -= loan['monthly_payment']
                 loan['balance'] = max(loan['balance'], 0)
-            total_balance = sum(loan['balance'] for loan in loans)
-            chart_data.append(round(total_balance, 2))
+            chart_data.append(round(sum(loan['balance'] for loan in loans), 2))
             months += 1
 
         result = {
             'months': months,
             'data_json': json.dumps([float(x) for x in chart_data]),
         }
+
+        # Format loan summary for dashboard
+        loan_summary = "; ".join(
+            f"{loan['name']} (${loan['balance']:.2f} at {loan['interest_rate']}%) → "
+            f"Paid ${loan['monthly_payment'] * months:.2f}, Interest ${total_interest_paid:.2f}"
+            for loan in loans
+        )
+
+        # Save the calculation
+        DebtCalculation.objects.create(
+            user=request.user,
+            months_to_freedom=months,
+            total_balance=total_balance,
+            total_payment=total_payment,
+            loan_summary=loan_summary
+        )
 
     return render(request, 'main/snowball_calculator.html', {
         'formset': formset,
