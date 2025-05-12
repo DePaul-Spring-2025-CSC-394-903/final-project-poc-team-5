@@ -11,6 +11,8 @@ from django import forms
 import json
 from .models import DebtCalculation
 from decimal import Decimal
+from django.forms import formset_factory
+
 
 
 User = get_user_model()
@@ -52,70 +54,54 @@ def about(request):
 #@login_required
 #def dashboard_view(request):
     #return render(request, 'main/dashboard.html')
+class LoanForm(forms.Form):
+    name = forms.CharField(label="Loan Name", required=True)
+    balance = forms.DecimalField(label="Balance ($)", min_value=0)
+    monthly_payment = forms.DecimalField(label="Monthly Payment ($)", min_value=0)
+    interest_rate = forms.DecimalField(label="Annual Interest Rate (%)", min_value=0)
 
-class SnowballForm(forms.Form):
-    balance = forms.DecimalField(
-        label="Credit Card Debt",
-        min_value=0,
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
-    )
-    monthly_payment = forms.DecimalField(
-        label="Current Monthly Payment",
-        min_value=0,
-        widget=forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'})
-    )
-    additional_payment = forms.DecimalField(
-        label="Additional Payment",
-        min_value=0,
-        initial=0,
-        widget=forms.NumberInput(attrs={
-            'type': 'range', 'min': '0', 'max': '1000', 'step': '5',
-            'class': 'form-range',
-            'id': 'id_additional_payment'
-        })
-    )
+LoanFormSet = formset_factory(LoanForm, extra=1, can_delete=True)
 
-
-@login_required
 def snowball_calculator(request):
     result = None
-    if request.method == 'POST':
-        form = SnowballForm(request.POST)
-        if form.is_valid():
-            balance = form.cleaned_data['balance']
-            monthly = form.cleaned_data['monthly_payment']
-            extra = form.cleaned_data['additional_payment']
-            payment = monthly + extra
-            current = balance
-            months = 0
-            chart_data = []
+    formset = LoanFormSet(request.POST or None)
 
-            while current > 0:
-                interest = current * Decimal("0.02")
-                current += interest - payment
-                current = max(current, 0)
-                chart_data.append(round(current, 2))
-                months += 1
-                if months > 600:
-                    break
+    if request.method == 'POST' and formset.is_valid():
+        loans = []
+        for form in formset:
+            if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                cd = form.cleaned_data
+                loans.append({
+                    'name': cd['name'],
+                    'balance': cd['balance'],
+                    'monthly_payment': cd['monthly_payment'],
+                    'monthly_rate': Decimal(cd['interest_rate']) / 100 / 12,
+                })
 
-            result = {
-                'months': months,
-                'final_payment': float(payment),
-                'data_json': json.dumps([float(x) for x in chart_data])  # ✅ convert Decimals to float
-            }
+        chart_data = []
+        months = 0
 
-            DebtCalculation.objects.create(
-                user=request.user,
-                balance=balance,
-                monthly_payment=monthly,
-                additional_payment=extra,
-                months_to_freedom=months
-            )
-    else:
-        form = SnowballForm()
+        while any(loan['balance'] > 0 for loan in loans) and months < 600:
+            for loan in sorted(loans, key=lambda x: x['balance']):
+                if loan['balance'] <= 0:
+                    continue
+                interest = loan['balance'] * loan['monthly_rate']
+                loan['balance'] += interest
+                loan['balance'] -= loan['monthly_payment']
+                loan['balance'] = max(loan['balance'], 0)
+            total_balance = sum(loan['balance'] for loan in loans)
+            chart_data.append(round(total_balance, 2))
+            months += 1
 
-    return render(request, 'main/snowball_calculator.html', {'form': form, 'result': result})
+        result = {
+            'months': months,
+            'data_json': json.dumps([float(x) for x in chart_data]),
+        }
+
+    return render(request, 'main/snowball_calculator.html', {
+        'formset': formset,
+        'result': result
+    })
 
 @login_required
 def dashboard_view(request):

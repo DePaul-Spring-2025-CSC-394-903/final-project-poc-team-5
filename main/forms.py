@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
-
+from django.forms import formset_factory
 
 
 User = get_user_model()
@@ -50,3 +50,22 @@ class CustomRegisterForm(UserCreationForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("A user with this email already exists.")
         return email
+    
+class LoanForm(forms.Form):
+    balance = forms.DecimalField(label="Balance ($)", min_value=0, decimal_places=2)
+    interest_rate = forms.DecimalField(label="Annual Interest Rate (%)", min_value=0, max_value=100, decimal_places=2)
+
+class MainPaymentForm(forms.Form):
+    monthly_payment = forms.DecimalField(
+        label="Total Monthly Payment", min_value=0, decimal_places=2,
+        widget=forms.NumberInput(attrs={'type': 'number', 'step': '0.01'})
+    )
+    additional_payment = forms.DecimalField(
+        label="Additional Payment", min_value=0, initial=0, decimal_places=2,
+        widget=forms.NumberInput(attrs={
+            'type': 'range', 'min': '0', 'max': '1000', 'step': '5',
+            'oninput': 'this.nextElementSibling.value = this.value'
+        })
+    )
+
+LoanFormSet = formset_factory(LoanForm, extra=2)

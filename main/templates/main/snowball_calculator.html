@@ -7,26 +7,39 @@
 
     {% if result %}
       <div class="alert alert-info text-center">
-        <strong>Paying ${{ result.final_payment }}</strong> per month pays off your debt in <strong>{{ result.months }} months</strong>.
+        <strong>All loans paid off in {{ result.months }} months.</strong>
       </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" id="loan-form">
       {% csrf_token %}
-      <div class="mb-3">
-        <label for="id_balance" class="form-label">Credit Card Debt:</label>
-        {{ form.balance }}
+      {{ formset.management_form }}
+
+      {% for form in formset %}
+        <div class="card mb-3 p-3">
+          <h5>Loan {{ forloop.counter }}</h5>
+          <div class="mb-2">
+            {{ form.name.label_tag }} {{ form.name }}
+          </div>
+          <div class="mb-2">
+            {{ form.balance.label_tag }} {{ form.balance }}
+          </div>
+          <div class="mb-2">
+            {{ form.monthly_payment.label_tag }} {{ form.monthly_payment }}
+          </div>
+          <div class="mb-2">
+            {{ form.interest_rate.label_tag }} {{ form.interest_rate }}
+          </div>
+          <div class="mb-2">
+            {{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Delete this loan</label>
+          </div>
+        </div>
+      {% endfor %}
+
+      <div class="d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" onclick="addLoan()">+ Add Another Loan</button>
+        <button type="submit" class="btn btn-primary">Calculate</button>
       </div>
-      <div class="mb-3">
-        <label for="id_monthly_payment" class="form-label">Current Monthly Payment:</label>
-        {{ form.monthly_payment }}
-      </div>
-      <div class="mb-3">
-        <label for="id_additional_payment" class="form-label d-block">Additional Payment:</label>
-        {{ form.additional_payment }}
-        <output class="ms-2" id="additional_output">{{ form.additional_payment.value }}</output>
-      </div>
-      <button type="submit" class="btn btn-primary w-100">Calculate</button>
     </form>
 
     {% if result %}
@@ -75,15 +88,28 @@
         }
       }
     });
-
-    const slider = document.getElementById("id_additional_payment");
-    const output = document.getElementById("additional_output");
-    if (slider && output) {
-      output.textContent = slider.value;
-      slider.addEventListener("input", () => {
-        output.textContent = slider.value;
-      });
-    }
   </script>
 {% endif %}
+
+<script>
+function addLoan() {
+  const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+  const formCount = parseInt(totalForms.value);
+  const formContainer = document.querySelector('#loan-form');
+  const firstForm = document.querySelectorAll('.card.mb-3')[0];
+  const newForm = firstForm.cloneNode(true);
+
+  newForm.querySelectorAll('input').forEach(input => {
+    const name = input.name.replace(/-(\d+)-/, `-${formCount}-`);
+    const id = input.id.replace(/-(\d+)-/, `-${formCount}-`);
+    input.name = name;
+    input.id = id;
+    if (input.type === 'text' || input.type === 'number') input.value = '';
+    if (input.type === 'checkbox') input.checked = false;
+  });
+
+  formContainer.insertBefore(newForm, formContainer.querySelector('.d-flex'));
+  totalForms.value = formCount + 1;
+}
+</script>
 {% endblock %}
