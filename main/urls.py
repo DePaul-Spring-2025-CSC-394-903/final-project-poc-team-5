@@ -2,7 +2,7 @@ from django.urls import path
 from .views import landing, login_view, about, register, dashboard_view
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
-from .views import get_team_members
+
 
 urlpatterns = [
     path('', landing, name='landing'),
