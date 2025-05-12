@@ -1,0 +1,89 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container my-5">
+  <div class="card shadow p-4">
+    <h2 class="text-center mb-4">Snowball Debt Calculator</h2>
+
+    {% if result %}
+      <div class="alert alert-info text-center">
+        <strong>Paying ${{ result.final_payment }}</strong> per month pays off your debt in <strong>{{ result.months }} months</strong>.
+      </div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label for="id_balance" class="form-label">Credit Card Debt:</label>
+        {{ form.balance }}
+      </div>
+      <div class="mb-3">
+        <label for="id_monthly_payment" class="form-label">Current Monthly Payment:</label>
+        {{ form.monthly_payment }}
+      </div>
+      <div class="mb-3">
+        <label for="id_additional_payment" class="form-label d-block">Additional Payment:</label>
+        {{ form.additional_payment }}
+        <output class="ms-2" id="additional_output">{{ form.additional_payment.value }}</output>
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Calculate</button>
+    </form>
+
+    {% if result %}
+      <div class="mt-5">
+        <canvas id="chart" height="120"></canvas>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% if result %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('chart').getContext('2d');
+    const chartData = JSON.parse('{{ result.data_json|escapejs }}');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chartData.map((_, i) => `Month ${i + 1}`),
+        datasets: [{
+          label: 'Remaining Balance',
+          data: chartData,
+          borderColor: 'blue',
+          backgroundColor: 'rgba(0,123,255,0.1)',
+          borderWidth: 2,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Balance ($)'
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: 'Months'
+            }
+          }
+        }
+      }
+    });
+
+    const slider = document.getElementById("id_additional_payment");
+    const output = document.getElementById("additional_output");
+    if (slider && output) {
+      output.textContent = slider.value;
+      slider.addEventListener("input", () => {
+        output.textContent = slider.value;
+      });
+    }
+  </script>
+{% endif %}
+{% endblock %}
