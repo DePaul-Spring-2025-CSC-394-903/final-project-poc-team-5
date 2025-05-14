@@ -88,8 +88,16 @@ def snowball_calculator(request):
         for form in formset:
             if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
                 cd = form.cleaned_data
+                #oans.append({
+                    #name': cd['name'],
+                    #balance': cd['balance'],
+                    #monthly_payment': cd['monthly_payment'],
+                    #monthly_rate': Decimal(cd['interest_rate']) / 100 / 12,
+                    #interest_rate': cd['interest_rate'],
+                #)
                 loans.append({
                     'name': cd['name'],
+                    'initial_balance': cd['balance'],  # <-- NEW
                     'balance': cd['balance'],
                     'monthly_payment': cd['monthly_payment'],
                     'monthly_rate': Decimal(cd['interest_rate']) / 100 / 12,
@@ -124,7 +132,8 @@ def snowball_calculator(request):
             # Apply interest
             for loan in loans:
                 if loan['balance'] > 0:
-                    interest = loan['balance'] * loan['monthly_rate']
+                    #interest = loan['balance'] * loan['monthly_rate']
+                    interest = round(loan['balance'] * loan['monthly_rate'], 2)
                     loan['balance'] += interest
                     total_interest += interest
 
@@ -164,8 +173,12 @@ def snowball_calculator(request):
             'strategy_used': strategy,
         }
 
-        loan_summary = "; ".join(
-            f"{l['name']} (${l['balance']:.2f} at {l['interest_rate']}%)" for l in loans
+        #oan_summary = "; ".join(
+            #"{l['name']} (${l['balance']:.2f} at {l['interest_rate']}%)" for l in loans
+        #
+        loan_summary = f"Strategy: {strategy.title()} | " + "; ".join(
+            f"{l['name']} (Initial: ${l['initial_balance']:.2f}, Rate: {l['interest_rate']}%)"
+            for l in loans
         )
 
         DebtCalculation.objects.create(
@@ -186,7 +199,7 @@ def snowball_calculator(request):
 
 @login_required
 def dashboard_view(request):
-    history = DebtCalculation.objects.filter(user=request.user).order_by('-created_at')
+    history = DebtCalculation.objects.filter(user=request.user).order_by('-created_at')[:3]
     return render(request, 'main/dashboard.html', {'history': history})
 
 
