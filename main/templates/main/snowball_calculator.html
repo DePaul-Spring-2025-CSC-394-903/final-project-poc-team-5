@@ -17,42 +17,46 @@
       {% csrf_token %}
       {{ formset.management_form }}
 
-      {% for form in formset %}
-        <div class="card mb-3 p-3 loan-form">
-          <h5>Loan {{ forloop.counter }}</h5>
-          <div class="mb-2">
-            {{ form.name.label_tag }} {{ form.name }}
+      <div id="formset-container">
+        {% for form in formset %}
+          <div class="card mb-3 p-3 loan-form">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="loan-title">Loan {{ forloop.counter }}</h5>
+              {% if not forloop.first %}
+                <button type="button" class="btn btn-danger btn-sm remove-loan">Remove</button>
+              {% endif %}
+            </div>
+            <div class="mb-2">
+              {{ form.name.label_tag }} {{ form.name }}
+            </div>
+            <div class="mb-2">
+              {{ form.balance.label_tag }} {{ form.balance }}
+            </div>
+            <div class="mb-2">
+              {{ form.monthly_payment.label_tag }} {{ form.monthly_payment }}
+            </div>
+            <div class="mb-2">
+              {{ form.interest_rate.label_tag }} {{ form.interest_rate }}
+            </div>
+            {{ form.DELETE.as_hidden }}  {# This ensures DELETE is included but not visible #}
           </div>
-          <div class="mb-2">
-            {{ form.balance.label_tag }} {{ form.balance }}
-          </div>
-          <div class="mb-2">
-            {{ form.monthly_payment.label_tag }} {{ form.monthly_payment }}
-          </div>
-          <div class="mb-2">
-            {{ form.interest_rate.label_tag }} {{ form.interest_rate }}
-          </div>
-          <div class="mb-2">
-            {{ form.DELETE }} <label for="{{ form.DELETE.id_for_label }}">Delete this loan</label>
-          </div>
-        </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
 
+      <div class="mb-3">
+        <label>Total Monthly Payment:</label>
+        <input type="text" class="form-control" value="{{ total_monthly_payment }}" readonly>
+      </div>
 
-    <div class="mb-3">
-      <label>Total Monthly Payment:</label>
-      <input type="text" class="form-control" value="{{ total_monthly_payment }}" readonly>
-    </div>
+      <div class="mb-3">
+        {{ main_form.additional_payment.label_tag }}
+        {{ main_form.additional_payment }}
+      </div>
 
-    <div class="mb-3">
-      {{ main_form.additional_payment.label_tag }}
-      {{ main_form.additional_payment }}
-    </div>
-
-    <div class="mb-3">
-      {{ main_form.strategy.label_tag }}
-      {{ main_form.strategy }}
-    </div>
+      <div class="mb-3">
+        {{ main_form.strategy.label_tag }}
+        {{ main_form.strategy }}
+      </div>
 
       <div class="d-flex justify-content-between">
         <button type="button" class="btn btn-secondary" onclick="addLoan()">+ Add Another Loan</button>
@@ -92,16 +96,10 @@
         scales: {
           y: {
             beginAtZero: true,
-            title: {
-              display: true,
-              text: 'Balance ($)'
-            }
+            title: { display: true, text: 'Balance ($)' }
           },
           x: {
-            title: {
-              display: true,
-              text: 'Months'
-            }
+            title: { display: true, text: 'Months' }
           }
         }
       }
@@ -113,21 +111,69 @@
 function addLoan() {
   const totalForms = document.getElementById('id_form-TOTAL_FORMS');
   const formCount = parseInt(totalForms.value);
-  const formContainer = document.querySelector('#loan-form');
-  const lastForm = document.querySelectorAll('.loan-form')[formCount - 1];
+  const container = document.getElementById('formset-container');
+  const lastForm = container.querySelector('.loan-form:last-of-type');
   const newForm = lastForm.cloneNode(true);
 
   newForm.querySelectorAll('input').forEach(input => {
-    const name = input.name.replace(/-(\d+)-/, `-${formCount}-`);
-    const id = input.id.replace(/-(\d+)-/, `-${formCount}-`);
-    input.name = name;
-    input.id = id;
+    input.name = input.name.replace(/-\d+-/, `-${formCount}-`);
+    input.id = input.id.replace(/-\d+-/, `-${formCount}-`);
     if (input.type === 'text' || input.type === 'number') input.value = '';
     if (input.type === 'checkbox') input.checked = false;
+    if (input.name.includes('-DELETE')) input.value = 'false';
   });
 
-  formContainer.insertBefore(newForm, formContainer.querySelector('.d-flex'));
+  const title = newForm.querySelector('.loan-title');
+  if (title) title.textContent = `Loan ${formCount + 1}`;
+
+
+  let removeBtn = newForm.querySelector('.remove-loan');
+  if (!removeBtn) {
+    removeBtn = document.createElement('button');
+    removeBtn.className = 'btn btn-danger btn-sm remove-loan';
+    removeBtn.type = 'button';
+    removeBtn.textContent = 'Remove';
+    newForm.querySelector('.loan-title').insertAdjacentElement('afterend', removeBtn);
+  }
+
+  removeBtn.style.display = 'inline-block';
+  removeBtn.onclick = () => {
+    newForm.remove();
+    updateLoanNumbers();
+  };
+
+  container.appendChild(newForm);
   totalForms.value = formCount + 1;
+}
+
+function updateLoanNumbers() {
+  const forms = document.querySelectorAll('.loan-form');
+  const totalForms = document.getElementById('id_form-TOTAL_FORMS');
+
+  forms.forEach((form, index) => {
+    form.querySelectorAll('input').forEach(input => {
+      input.name = input.name.replace(/-\d+-/, `-${index}-`);
+      input.id = input.id.replace(/-\d+-/, `-${index}-`);
+    });
+
+    const title = form.querySelector('.loan-title');
+    if (title) title.textContent = `Loan ${index + 1}`;
+
+    const removeBtn = form.querySelector('.remove-loan');
+    if (removeBtn) {
+      if (forms.length === 1) {
+        removeBtn.style.display = 'none';
+      } else {
+        removeBtn.style.display = 'inline-block';
+        removeBtn.onclick = () => {
+          form.remove();
+          updateLoanNumbers();
+        };
+      }
+    }
+  });
+
+  totalForms.value = forms.length;
 }
 </script>
 {% endblock %}
