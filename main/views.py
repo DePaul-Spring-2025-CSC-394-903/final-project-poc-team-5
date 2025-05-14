@@ -12,6 +12,17 @@ import json
 from .models import DebtCalculation
 from decimal import Decimal
 from django.forms import formset_factory, BaseFormSet
+from django.shortcuts import render
+from .utils import calcGains
+import json
+from django.contrib.auth.views import LogoutView
+from django.http import HttpResponseNotAllowed
+
+class SafeLogoutView(LogoutView):
+    def dispatch(self, request, *args, **kwargs):
+        if request.method != "GET":
+            return HttpResponseNotAllowed(['GET'])
+        return super().dispatch(request, *args, **kwargs)
 
 
 
@@ -129,3 +140,38 @@ def snowball_calculator(request):
 def dashboard_view(request):
     history = DebtCalculation.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'main/dashboard.html', {'history': history})
+
+
+
+def calculator_401k(request):
+    context = {}
+
+    if request.method == 'POST':
+        try:
+            year_of_retirement = int(request.POST.get("year_of_retirement"))
+            init_deposit = float(request.POST.get("init_deposit"))
+            salary = float(request.POST.get("salary"))
+            salary_growth = float(request.POST.get("salary_growth_percent")) / 100
+            contribution = float(request.POST.get("contribution_percent")) / 100
+            match = float(request.POST.get("employer_match_percent")) / 100
+            yield_rate = float(request.POST.get("annual_yield")) / 100
+
+            total, growth_data = calcGains(init_deposit, year_of_retirement, salary, salary_growth, contribution, match, yield_rate)
+
+            context = {
+                "result": {
+                    "projected_balance": total,
+                    "data_json": json.dumps(growth_data),
+                },
+                "year_of_retirement": year_of_retirement,
+                "init_deposit": init_deposit,
+                "salary": salary,
+                "salary_growth_percent": salary_growth * 100,
+                "contribution_percent": contribution * 100,
+                "employer_match_percent": match * 100,
+                "annual_yield": yield_rate * 100,
+            }
+        except Exception as e:
+            context["error"] = f"Error processing form: {e}"
+
+    return render(request, "main/401k_calculator.html", context)
