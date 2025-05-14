@@ -79,14 +79,13 @@ def snowball_calculator(request):
     formset = LoanFormSet(request.POST or None)
 
     strategy = request.POST.get('strategy', 'smallest_balance')
-    extra_payment = Decimal(request.POST.get('extra_payment', '0'))
+    raw_extra = request.POST.get('extra_payment', '').strip()
+    try:
+        extra_payment = Decimal(raw_extra) if raw_extra else Decimal('0')
+    except InvalidOperation:
+        extra_payment = Decimal('0')
 
     if request.method == 'POST' and formset.is_valid():
-        raw_extra = request.POST.get('extra_payment', '').strip()
-        try:
-            extra_payment = Decimal(raw_extra) if raw_extra else Decimal('0')
-        except InvalidOperation:
-            extra_payment = Decimal('0')
         loans = []
         for form in formset:
             if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
@@ -100,12 +99,16 @@ def snowball_calculator(request):
                 })
 
         total_balance = sum(loan['balance'] for loan in loans)
-        total_payment = 0
-        total_interest_paid = 0
+        total_payment = Decimal('0')
+        total_interest_paid = Decimal('0')
         chart_data = []
         months = 0
 
+        base_total_payment = sum(l['monthly_payment'] for l in loans)
+
         while any(loan['balance'] > 0 for loan in loans) and months < 600:
+            available_payment = base_total_payment + extra_payment
+
             # Apply interest
             for loan in loans:
                 if loan['balance'] > 0:
@@ -113,8 +116,19 @@ def snowball_calculator(request):
                     loan['balance'] += interest
                     total_interest_paid += interest
 
-            # Choose loan to target based on strategy
-            unpaid_loans = [loan for loan in loans if loan['balance'] > 0]
+            # Apply minimum payments
+            for loan in loans:
+                if loan['balance'] > 0:
+                    payment = min(loan['monthly_payment'], loan['balance'])
+                    loan['balance'] -= payment
+                    total_payment += payment
+                    available_payment -= payment
+
+            # Apply remaining payment (snowball)
+            unpaid_loans = [l for l in loans if l['balance'] > 0]
+            if not unpaid_loans:
+                break
+
             if strategy == 'highest_interest':
                 target_loan = max(unpaid_loans, key=lambda l: l['monthly_rate'])
             elif strategy == 'fewest_payments':
@@ -122,15 +136,10 @@ def snowball_calculator(request):
             else:
                 target_loan = min(unpaid_loans, key=lambda l: l['balance'])
 
-            for loan in loans:
-                if loan['balance'] <= 0:
-                    continue
-                payment = loan['monthly_payment']
-                if loan == target_loan:
-                    payment += extra_payment
-                loan['balance'] -= payment
-                total_payment += payment
-                loan['balance'] = max(loan['balance'], 0)
+            if available_payment > 0:
+                extra_to_apply = min(available_payment, target_loan['balance'])
+                target_loan['balance'] -= extra_to_apply
+                total_payment += extra_to_apply
 
             chart_data.append(round(sum(l['balance'] for l in loans), 2))
             months += 1
@@ -159,7 +168,6 @@ def snowball_calculator(request):
         'formset': formset,
         'result': result
     })
-
 
 @login_required
 def dashboard_view(request):
