@@ -7,9 +7,9 @@
 
     {% if result %}
       <div class="alert alert-info text-center">
-        <strong>All loans paid off in {{ result.months }} months.</strong><br>
-        <strong>Total Paid:</strong> ${{ result.total_paid }}<br>
-        <strong>Total Interest:</strong> ${{ result.total_interest }}
+        <strong>All loans paid off in {{ result.months }} months.<br>
+        Total Paid: ${{ result.total_paid }}<br>
+        Total Interest: ${{ result.total_interest }}</strong>
       </div>
     {% endif %}
 
@@ -37,6 +37,20 @@
           </div>
         </div>
       {% endfor %}
+
+      <div class="mb-3">
+        <label for="extra_payment">Additional Payment ($):</label>
+        <input type="number" name="extra_payment" step="0.01" class="form-control">
+      </div>
+
+      <div class="mb-3">
+        <label for="strategy">Start Payoff With:</label>
+        <select name="strategy" class="form-control">
+          <option value="smallest_balance">Debt with smallest balance</option>
+          <option value="highest_interest">Debt with highest interest rate</option>
+          <option value="fewest_payments">Debt with fewest payments left</option>
+        </select>
+      </div>
 
       <div class="d-flex justify-content-between">
         <button type="button" class="btn btn-secondary" onclick="addLoan()">+ Add Another Loan</button>

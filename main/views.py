@@ -77,7 +77,14 @@ def snowball_calculator(request):
     result = None
     formset = LoanFormSet(request.POST or None)
 
+    strategy = request.POST.get('strategy', 'smallest_balance')
+    extra_payment = Decimal(request.POST.get('extra_payment', '0'))
+
     if request.method == 'POST' and formset.is_valid():
+        try:
+            extra_payment = Decimal(request.POST.get('extra_payment') or '0')
+        except InvalidOperation:
+            extra_payment = Decimal('0')
         loans = []
         for form in formset:
             if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
@@ -87,49 +94,62 @@ def snowball_calculator(request):
                     'balance': cd['balance'],
                     'monthly_payment': cd['monthly_payment'],
                     'monthly_rate': Decimal(cd['interest_rate']) / 100 / 12,
-                    'interest_rate': cd['interest_rate']
+                    'interest_rate': cd['interest_rate'],
                 })
 
-        # Save initial totals before any simulation
         total_balance = sum(loan['balance'] for loan in loans)
-        total_payment = sum(loan['monthly_payment'] for loan in loans)
-
+        total_payment = 0
+        total_interest_paid = 0
         chart_data = []
         months = 0
-        total_interest_paid = 0
 
         while any(loan['balance'] > 0 for loan in loans) and months < 600:
-            for loan in sorted(loans, key=lambda x: x['balance']):
+            # Apply interest
+            for loan in loans:
+                if loan['balance'] > 0:
+                    interest = loan['balance'] * loan['monthly_rate']
+                    loan['balance'] += interest
+                    total_interest_paid += interest
+
+            # Choose loan to target based on strategy
+            unpaid_loans = [loan for loan in loans if loan['balance'] > 0]
+            if strategy == 'highest_interest':
+                target_loan = max(unpaid_loans, key=lambda l: l['monthly_rate'])
+            elif strategy == 'fewest_payments':
+                target_loan = min(unpaid_loans, key=lambda l: l['balance'] / l['monthly_payment'])
+            else:
+                target_loan = min(unpaid_loans, key=lambda l: l['balance'])
+
+            for loan in loans:
                 if loan['balance'] <= 0:
                     continue
-                interest = loan['balance'] * loan['monthly_rate']
-                total_interest_paid += interest
-                loan['balance'] += interest
-                loan['balance'] -= loan['monthly_payment']
+                payment = loan['monthly_payment']
+                if loan == target_loan:
+                    payment += extra_payment
+                loan['balance'] -= payment
+                total_payment += payment
                 loan['balance'] = max(loan['balance'], 0)
-            chart_data.append(round(sum(loan['balance'] for loan in loans), 2))
+
+            chart_data.append(round(sum(l['balance'] for l in loans), 2))
             months += 1
 
         result = {
             'months': months,
             'data_json': json.dumps([float(x) for x in chart_data]),
-            'total_paid': round(total_payment * months, 2),
+            'total_paid': round(total_payment, 2),
             'total_interest': round(total_interest_paid, 2),
         }
 
-        # Format loan summary for dashboard
         loan_summary = "; ".join(
-            f"{loan['name']} (${loan['balance']:.2f} at {loan['interest_rate']}%) → "
-            f"Paid ${loan['monthly_payment'] * months:.2f}, Interest ${total_interest_paid:.2f}"
-            for loan in loans
+            f"{l['name']} (${l['balance']:.2f} at {l['interest_rate']}%)" for l in loans
         )
 
-        # Save the calculation
         DebtCalculation.objects.create(
             user=request.user,
             months_to_freedom=months,
             total_balance=total_balance,
             total_payment=total_payment,
+            total_interest=total_interest_paid,
             loan_summary=loan_summary
         )
 
@@ -137,6 +157,7 @@ def snowball_calculator(request):
         'formset': formset,
         'result': result
     })
+
 
 @login_required
 def dashboard_view(request):
