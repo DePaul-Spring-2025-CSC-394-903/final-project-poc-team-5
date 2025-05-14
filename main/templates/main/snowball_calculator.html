@@ -38,19 +38,21 @@
         </div>
       {% endfor %}
 
-      <div class="mb-3">
-        <label for="extra_payment">Additional Payment ($):</label>
-        <input type="number" name="extra_payment" step="0.01" min="0" value="0" class="form-control" required>
-      </div>
 
-      <div class="mb-3">
-        <label for="strategy">Start Payoff With:</label>
-        <select name="strategy" class="form-control">
-          <option value="smallest_balance">Debt with smallest balance</option>
-          <option value="highest_interest">Debt with highest interest rate</option>
-          <option value="fewest_payments">Debt with fewest payments left</option>
-        </select>
-      </div>
+    <div class="mb-3">
+      <label>Total Monthly Payment:</label>
+      <input type="text" class="form-control" value="{{ total_monthly_payment }}" readonly>
+    </div>
+
+    <div class="mb-3">
+      {{ main_form.additional_payment.label_tag }}
+      {{ main_form.additional_payment }}
+    </div>
+
+    <div class="mb-3">
+      {{ main_form.strategy.label_tag }}
+      {{ main_form.strategy }}
+    </div>
 
       <div class="d-flex justify-content-between">
         <button type="button" class="btn btn-secondary" onclick="addLoan()">+ Add Another Loan</button>
