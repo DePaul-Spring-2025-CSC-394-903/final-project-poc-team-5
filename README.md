@@ -33,7 +33,7 @@ git clone https://github.com/DePaul-Spring-2025-CSC-394-903/mini-project-team-5.
 
 Example:(Dont forget using some kind of bash ie powershell cmd etc)
 
-git clone https://github.com/DePaul-Spring-2025-CSC-394-903/mini-project-team-5.git Desktop/Csc394/mini-project-team-5
+git clone https://github.com/DePaul-Spring-2025-CSC-394-903/final-project-poc-team-5.git Desktop/Csc394/mini-project-team-5
 
 To access in terminal cd Desktop/projects/mini-project-team-5
 
