@@ -21,7 +21,7 @@ class DebtCalculation(models.Model):
     months_to_freedom = models.IntegerField()
     total_balance = models.DecimalField(max_digits=10, decimal_places=2)
     total_payment = models.DecimalField(max_digits=10, decimal_places=2)
-    total_interest = models.DecimalField(max_digits=10, decimal_places=2)
+    total_interest = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     loan_summary = models.TextField(blank=True)
 

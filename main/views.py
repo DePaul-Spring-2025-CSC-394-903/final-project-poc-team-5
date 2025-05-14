@@ -10,13 +10,14 @@ from .forms import EmailLoginForm, CustomRegisterForm
 from django import forms
 import json
 from .models import DebtCalculation
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.forms import formset_factory, BaseFormSet
 from django.shortcuts import render
 from .utils import calcGains
 import json
 from django.contrib.auth.views import LogoutView
 from django.http import HttpResponseNotAllowed
+
 
 class SafeLogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
@@ -81,8 +82,9 @@ def snowball_calculator(request):
     extra_payment = Decimal(request.POST.get('extra_payment', '0'))
 
     if request.method == 'POST' and formset.is_valid():
+        raw_extra = request.POST.get('extra_payment', '').strip()
         try:
-            extra_payment = Decimal(request.POST.get('extra_payment') or '0')
+            extra_payment = Decimal(raw_extra) if raw_extra else Decimal('0')
         except InvalidOperation:
             extra_payment = Decimal('0')
         loans = []
