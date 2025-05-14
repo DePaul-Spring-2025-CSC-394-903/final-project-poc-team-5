@@ -7,7 +7,9 @@
 
     {% if result %}
       <div class="alert alert-info text-center">
-        <strong>All loans paid off in {{ result.months }} months.</strong>
+        <strong>All loans paid off in {{ result.months }} months.</strong><br>
+        <strong>Total Paid:</strong> ${{ result.total_paid }}<br>
+        <strong>Total Interest:</strong> ${{ result.total_interest }}
       </div>
     {% endif %}
 
@@ -113,5 +115,3 @@ function addLoan() {
 }
 </script>
 {% endblock %}
-
-

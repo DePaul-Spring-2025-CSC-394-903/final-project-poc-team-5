@@ -113,6 +113,8 @@ def snowball_calculator(request):
         result = {
             'months': months,
             'data_json': json.dumps([float(x) for x in chart_data]),
+            'total_paid': round(total_payment * months, 2),
+            'total_interest': round(total_interest_paid, 2),
         }
 
         # Format loan summary for dashboard
