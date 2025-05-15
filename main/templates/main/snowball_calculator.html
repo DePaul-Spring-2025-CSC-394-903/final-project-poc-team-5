@@ -19,7 +19,7 @@
 
       <div id="formset-container">
         {% for form in formset %}
-          <div class="card mb-3 p-3 loan-form">
+          <div class="card mb-3 p-3 loan-form" {% if form.DELETE.value %}style="display:none"{% endif %}>
             <div class="d-flex justify-content-between align-items-center">
               <h5 class="loan-title">Loan {{ forloop.counter }}</h5>
               {% if not forloop.first %}
@@ -38,7 +38,7 @@
             <div class="mb-2">
               {{ form.interest_rate.label_tag }} {{ form.interest_rate }}
             </div>
-            {{ form.DELETE.as_hidden }}  {# This ensures DELETE is included but not visible #}
+            {{ form.DELETE.as_hidden }}
           </div>
         {% endfor %}
       </div>
@@ -73,45 +73,46 @@
 </div>
 
 {% if result %}
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    const ctx = document.getElementById('chart').getContext('2d');
-    const chartData = JSON.parse('{{ result.data_json|escapejs }}');
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('chart').getContext('2d');
+  const chartData = JSON.parse('{{ result.data_json|escapejs }}');
 
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: chartData.map((_, i) => `Month ${i + 1}`),
-        datasets: [{
-          label: 'Remaining Balance',
-          data: chartData,
-          borderColor: 'blue',
-          backgroundColor: 'rgba(0,123,255,0.1)',
-          borderWidth: 2,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            title: { display: true, text: 'Balance ($)' }
-          },
-          x: {
-            title: { display: true, text: 'Months' }
-          }
-        }
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartData.map((_, i) => `Month ${i + 1}`),
+      datasets: [{
+        label: 'Remaining Balance',
+        data: chartData,
+        borderColor: 'blue',
+        backgroundColor: 'rgba(0,123,255,0.1)',
+        borderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: 'Balance ($)' } },
+        x: { title: { display: true, text: 'Months' } }
       }
-    });
-  </script>
+    }
+  });
+</script>
 {% endif %}
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+  attachRemoveEvents();
+  updateLoanTitles();
+});
+
 function addLoan() {
   const totalForms = document.getElementById('id_form-TOTAL_FORMS');
   const formCount = parseInt(totalForms.value);
   const container = document.getElementById('formset-container');
+
   const lastForm = container.querySelector('.loan-form:last-of-type');
   const newForm = lastForm.cloneNode(true);
 
@@ -119,61 +120,57 @@ function addLoan() {
     input.name = input.name.replace(/-\d+-/, `-${formCount}-`);
     input.id = input.id.replace(/-\d+-/, `-${formCount}-`);
     if (input.type === 'text' || input.type === 'number') input.value = '';
-    if (input.type === 'checkbox') input.checked = false;
-    if (input.name.includes('-DELETE')) input.value = 'false';
+    if (input.name.includes('-DELETE')) input.value = '';
   });
+
+  newForm.style.display = '';
 
   const title = newForm.querySelector('.loan-title');
   if (title) title.textContent = `Loan ${formCount + 1}`;
 
-
   let removeBtn = newForm.querySelector('.remove-loan');
   if (!removeBtn) {
     removeBtn = document.createElement('button');
-    removeBtn.className = 'btn btn-danger btn-sm remove-loan';
     removeBtn.type = 'button';
+    removeBtn.className = 'btn btn-danger btn-sm remove-loan';
     removeBtn.textContent = 'Remove';
-    newForm.querySelector('.loan-title').insertAdjacentElement('afterend', removeBtn);
+    title.parentNode.appendChild(removeBtn);
   }
 
   removeBtn.style.display = 'inline-block';
-  removeBtn.onclick = () => {
-    newForm.remove();
-    updateLoanNumbers();
-  };
+  removeBtn.onclick = () => removeLoan(newForm);
 
   container.appendChild(newForm);
   totalForms.value = formCount + 1;
+
+  updateLoanTitles();
 }
 
-function updateLoanNumbers() {
+function removeLoan(formElement) {
+  const deleteInput = formElement.querySelector('input[name$="-DELETE"]');
+  if (deleteInput) {
+    deleteInput.value = 'on';
+  }
+  formElement.style.display = 'none';
+  updateLoanTitles();
+}
+
+function updateLoanTitles() {
   const forms = document.querySelectorAll('.loan-form');
-  const totalForms = document.getElementById('id_form-TOTAL_FORMS');
-
-  forms.forEach((form, index) => {
-    form.querySelectorAll('input').forEach(input => {
-      input.name = input.name.replace(/-\d+-/, `-${index}-`);
-      input.id = input.id.replace(/-\d+-/, `-${index}-`);
-    });
-
-    const title = form.querySelector('.loan-title');
-    if (title) title.textContent = `Loan ${index + 1}`;
-
-    const removeBtn = form.querySelector('.remove-loan');
-    if (removeBtn) {
-      if (forms.length === 1) {
-        removeBtn.style.display = 'none';
-      } else {
-        removeBtn.style.display = 'inline-block';
-        removeBtn.onclick = () => {
-          form.remove();
-          updateLoanNumbers();
-        };
-      }
+  let visibleIndex = 1;
+  forms.forEach(form => {
+    if (form.style.display !== 'none') {
+      const title = form.querySelector('.loan-title');
+      if (title) title.textContent = `Loan ${visibleIndex++}`;
     }
   });
+}
 
-  totalForms.value = forms.length;
+function attachRemoveEvents() {
+  document.querySelectorAll('.remove-loan').forEach(btn => {
+    btn.onclick = () => removeLoan(btn.closest('.loan-form'));
+  });
 }
 </script>
 {% endblock %}
+
