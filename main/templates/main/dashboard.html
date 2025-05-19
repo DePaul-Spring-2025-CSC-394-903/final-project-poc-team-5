@@ -7,7 +7,7 @@
 
   <div class="row row-cols-1 row-cols-md-3 g-4">
 
-    <!-- Combined Snowball Calculator + Result -->
+    <!-- Combined Snowball Calculator -->
     <div class="col">
       <div class="card h-100 text-center border-primary">
         <div class="card-body">
@@ -18,8 +18,11 @@
           {% if has_result %}
           <hr>
           <p class="card-text">You have a recent result saved.</p>
-          <a href="{% url 'snowball_result' %}" class="btn btn-outline-info">View Last Result</a>
+          <a href="{% url 'snowball_result' %}" class="btn btn-outline-info mb-2">View Last Result</a>
           {% endif %}
+
+          <hr>
+          <a href="{% url 'snowball_history' %}" class="btn btn-outline-secondary">View All Past Calculations</a>
         </div>
       </div>
     </div>

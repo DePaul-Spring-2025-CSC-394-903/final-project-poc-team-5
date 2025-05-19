@@ -74,12 +74,50 @@ class LoanForm(forms.Form):
 LoanFormSet = formset_factory(LoanForm, extra=1, can_delete=True)
 
 
+from decimal import Decimal
+from django.shortcuts import render, redirect, get_object_or_404
+from .forms import MainPaymentForm
+from .models import DebtCalculation
+from .views import LoanFormSet
+import json
+
 def snowball_calculator(request):
     result = None
-    formset = LoanFormSet(request.POST or None)
-    main_form = MainPaymentForm(request.POST or None)
     base_total_payment = Decimal('0')
 
+    # Step 1: Load previous calculation if ?load=ID is in query
+    load_id = request.GET.get('load')
+    initial_data = None
+    strategy_initial = 'snowball'
+    extra_payment_initial = Decimal('0')
+
+    if load_id:
+        try:
+            calc = DebtCalculation.objects.get(pk=load_id, user=request.user)
+            initial_data = [{
+                'name': loan['name'],
+                'balance': loan['initial_balance'],
+                'monthly_payment': loan['monthly_payment'],
+                'interest_rate': loan['interest_rate'],
+            } for loan in calc.loan_data]
+
+            strategy_initial = calc.strategy
+            extra_payment_initial = calc.extra_payment
+        except DebtCalculation.DoesNotExist:
+            pass
+
+    # Step 2: Initialize forms
+    if request.method == 'POST':
+        formset = LoanFormSet(request.POST)
+        main_form = MainPaymentForm(request.POST)
+    else:
+        formset = LoanFormSet(initial=initial_data)
+        main_form = MainPaymentForm(initial={
+            'strategy': strategy_initial,
+            'additional_payment': extra_payment_initial
+        })
+
+    # Step 3: Process the form on POST
     if request.method == 'POST' and formset.is_valid() and main_form.is_valid():
         strategy = main_form.cleaned_data.get('strategy', 'snowball')
         extra_payment = main_form.cleaned_data.get('additional_payment', Decimal('0'))
@@ -97,6 +135,7 @@ def snowball_calculator(request):
                     'interest_rate': cd['interest_rate'],
                 })
 
+        # Baseline interest calculation
         baseline_loans = [l.copy() for l in loans]
         baseline_interest = Decimal('0')
         for _ in range(240):
@@ -110,6 +149,7 @@ def snowball_calculator(request):
                     payment = min(l['monthly_payment'], l['balance'])
                     l['balance'] -= payment
 
+        # Main snowball calculation
         total_balance = sum(l['balance'] for l in loans)
         total_payment = Decimal('0')
         total_interest = Decimal('0')
@@ -150,6 +190,7 @@ def snowball_calculator(request):
             chart_data.append(float(sum(l['balance'] for l in loans)))
             months += 1
 
+        # Step 4: Build result
         result = {
             'months': months,
             'data_json': json.dumps(chart_data),
@@ -159,20 +200,40 @@ def snowball_calculator(request):
             'interest_saved': float(round(baseline_interest - total_interest, 2)),
             'strategy_used': strategy,
         }
+                # Convert Decimal values in each loan dict to float for JSON serialization
+        loan_data_serialized = [
+            {
+                'name': l['name'],
+                'initial_balance': float(l['initial_balance']),
+                'balance': float(l['balance']),
+                'monthly_payment': float(l['monthly_payment']),
+                'monthly_rate': float(l['monthly_rate']),
+                'interest_rate': float(l['interest_rate']),
+            }
+            for l in loans
+        ]
+
 
         request.session['snowball_result'] = result
 
+        # Step 5: Save to database
         loan_summary = f"Strategy: {strategy.title()} | " + "; ".join(
             f"{l['name']} (Initial: ${l['initial_balance']:.2f}, Rate: {l['interest_rate']}%)"
             for l in loans
         )
+
+
+        
         DebtCalculation.objects.create(
             user=request.user,
             months_to_freedom=months,
             total_balance=total_balance,
             total_payment=total_payment,
             total_interest=total_interest,
-            loan_summary=loan_summary
+            strategy=strategy,
+            extra_payment=extra_payment,
+            loan_summary=loan_summary,
+            loan_data=loan_data_serialized
         )
 
         return redirect('snowball_result')
@@ -183,6 +244,20 @@ def snowball_calculator(request):
         'result': result,
         'total_monthly_payment': base_total_payment,
     })
+
+
+@login_required
+@require_POST
+def delete_calculation(request, pk):
+    calc = get_object_or_404(DebtCalculation, pk=pk, user=request.user)
+    calc.delete()
+    return redirect('snowball_history')
+
+
+@login_required
+def snowball_history(request):
+    calculations = DebtCalculation.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'main/snowball_history.html', {'calculations': calculations})
 
 
 def snowball_result_view(request):

@@ -1,0 +1,29 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center">Your Past Snowball Calculations</h2>
+
+  {% if calculations %}
+    <div class="list-group">
+      {% for calc in calculations %}
+        <div class="list-group-item d-flex justify-content-between align-items-start flex-column flex-md-row">
+          <div>
+            <h5 class="mb-1">📅 {{ calc.created_at|date:"M d, Y H:i" }}</h5>
+            <p class="mb-1">{{ calc.loan_summary }}</p>
+            <p>Total Interest: ${{ calc.total_interest }} | Paid: ${{ calc.total_payment }}</p>
+          </div>
+          <div class="mt-3 mt-md-0 text-end">
+            <form method="post" action="{% url 'delete_calculation' calc.pk %}" onsubmit="return confirm('Delete this calculation?');">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+            </form>
+            <a href="{% url 'debt_calculator' %}?load={{ calc.pk }}" class="btn btn-sm btn-outline-primary mt-2">Edit</a>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="text-center">You haven't made any calculations yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
