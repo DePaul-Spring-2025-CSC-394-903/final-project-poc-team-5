@@ -10,7 +10,12 @@
       <strong>Total Interest:</strong> ${{ result.total_interest }}
     </div>
 
-    <canvas id="chart" height="120"></canvas>
+    <!-- Responsive chart container -->
+    <div class="mt-5">
+      <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+        <canvas id="chart"></canvas>
+      </div>
+    </div>
 
     <div class="text-center mt-4">
       <a href="{% url 'debt_calculator' %}" class="btn btn-secondary">Back to Calculator</a>
@@ -18,6 +23,7 @@
   </div>
 </div>
 
+<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const chartData = JSON.parse('{{ result.data_json|escapejs }}');
@@ -38,9 +44,15 @@
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       scales: {
-        y: { beginAtZero: true, title: { display: true, text: 'Balance ($)' } },
-        x: { title: { display: true, text: 'Months' } }
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Balance ($)' }
+        },
+        x: {
+          title: { display: true, text: 'Months' }
+        }
       }
     }
   });
