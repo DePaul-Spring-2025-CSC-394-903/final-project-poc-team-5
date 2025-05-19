@@ -2,7 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import (
     landing, login_view, about, register, dashboard_view,
-    snowball_calculator, calculator_401k, SafeLogoutView
+    snowball_calculator, calculator_401k, budgeting_tool, SafeLogoutView
 )
 
 urlpatterns = [
@@ -24,5 +24,6 @@ urlpatterns = [
     # Tools
     path('debt-calculator/', snowball_calculator, name='debt_calculator'),
     path('401k-calculator/', calculator_401k, name='calculator_401k'),
+    path('budgeting-tool/', budgeting_tool, name='budgeting_tool'),
     
 ]
