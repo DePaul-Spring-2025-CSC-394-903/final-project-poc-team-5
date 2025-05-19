@@ -24,4 +24,5 @@ urlpatterns = [
     # Tools
     path('debt-calculator/', snowball_calculator, name='debt_calculator'),
     path('401k-calculator/', calculator_401k, name='calculator_401k'),
+    
 ]

@@ -1,52 +1,56 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ APPNAME|default:"Elite 5" }}</title>
-    
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        body { margin: 0; font-family: Arial;}
-        header {
-            display: flex; justify-content: space-between;
-            padding: 1em; background: #222; color: white; align-items: center;
+        body {
+            font-family: Arial, sans-serif;
         }
-        img { max-width: 100%; height: auto; }
-        
-        .logo { text-align: center; margin-top: 5vh; max-width:100%; height: auto;}
-        .nav-links span { color: white; padding: 0.5em; float: right;}
-        .nav-links a { color: white; text-decoration: none; padding: 0.5em; float: right;}
-        .responsive { padding: 1em; text-align: center; }
-
-        /* Fix your CSS comments like this */
-        /*
-        @media (max-width: 768px) {
-            header { flex-direction: column; align-items: flex-start; }
-            .nav-links { margin-top: 0.5em; }
+        .navbar-brand {
+            font-weight: bold;
         }
-        */
+        main {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <div style="display: flex; align-items: center; gap: 30px;">
-            <strong style="color:white;">{{ APPNAME|default:"Elite 5" }}</strong>
-            <a href="{% url 'landing' %}" style="color: white; text-decoration: none;">Homepage</a>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'landing' %}">
+                {{ APPNAME|default:"Elite 5" }}
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><span class="nav-link disabled">{{ user.username }}</span></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-        <div class="nav-links">
-            <a href="{% url 'about' %}">About</a>
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            {% if user.is_authenticated %}
-                <span>{{ user.username }}</span>
-                <a href="{% url 'logout' %}">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}">Login</a>
-            {% endif %}
-        </div>
-    </header>
+    </nav>
 
-    {% block content %}{% endblock %}
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
