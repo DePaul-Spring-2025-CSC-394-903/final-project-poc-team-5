@@ -196,8 +196,11 @@ def snowball_result_view(request):
 @login_required
 def dashboard_view(request):
     history = DebtCalculation.objects.filter(user=request.user).order_by('-created_at')[:3]
-    return render(request, 'main/dashboard.html', {'history': history})
-
+    has_result = 'snowball_result' in request.session
+    return render(request, 'main/dashboard.html', {
+        'history': history,
+        'has_result': has_result
+    })
 
 def calculator_401k(request):
     context = {}
