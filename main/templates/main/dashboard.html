@@ -1,0 +1,50 @@
+{% extends "main/base.html" %}
+
+{% block content %}
+<div style="padding: 20px;">
+  <h1>Dashboard</h1>
+
+  <p style="margin-top: 20px;">
+    <a href="{% url 'debt_calculator' %}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+      Try the Snowball Debt Calculator
+    </a>
+  </p>
+
+  <p style="margin-top: 10px;">
+    <a href="{% url 'calculator_401k' %}" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px;">
+      Try the 401(k) Retirement Calculator
+    </a>
+  </p>
+
+  {% if history %}
+    <div style="margin-top: 40px;">
+      <h3>Your Recent Snowball Calculations</h3>
+      <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+        <thead style="background-color: #f1f1f1;">
+          <tr>
+            <th>Date</th>
+            <th>Overview</th>
+            <th>Total Balance</th>
+            <th>Total Payment</th>
+            <th>Months to Freedom</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in history|slice:":3" %}
+            <tr>
+              <td>{{ item.created_at|date:"M d, Y H:i" }}</td>
+              <td>
+                <strong>{{ item.loan_summary }}</strong><br>
+                <span>Total Interest: ${{ item.total_interest|floatformat:2 }}</span>
+              </td>
+              <td>${{ item.total_balance|floatformat:2 }}</td>
+              <td>${{ item.total_payment|floatformat:2 }}</td>
+              <td>{{ item.months_to_freedom }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

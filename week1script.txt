@@ -1,0 +1,8 @@
+Start by presenting our landing page
+Go to Snowball Calculator and showcase its can help userwith paying off their debt
+Show updated Snowball Calculator Based on added loans and deleted loans
+Explain how the Snowball calculator works to people who may not know
+Show how each field impacts the calculator
+Go to 401K Calculator and show that it can calculate users 401k estimate
+Show different results based on user inputs
+Explain how each field goes into the final output, and how these inputs change over time

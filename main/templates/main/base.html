@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ APPNAME|default:"Elite 5" }}</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body { margin: 0; font-family: Arial;}
+        header {
+            display: flex; justify-content: space-between;
+            padding: 1em; background: #222; color: white; align-items: center;
+        }
+        img { max-width: 100%; height: auto; }
+        
+        .logo { text-align: center; margin-top: 5vh; max-width:100%; height: auto;}
+        .nav-links span { color: white; padding: 0.5em; float: right;}
+        .nav-links a { color: white; text-decoration: none; padding: 0.5em; float: right;}
+        .responsive { padding: 1em; text-align: center; }
+
+        /* Fix your CSS comments like this */
+        /*
+        @media (max-width: 768px) {
+            header { flex-direction: column; align-items: flex-start; }
+            .nav-links { margin-top: 0.5em; }
+        }
+        */
+    </style>
+</head>
+<body>
+    <header>
+        <div style="display: flex; align-items: center; gap: 30px;">
+            <strong style="color:white;">{{ APPNAME|default:"Elite 5" }}</strong>
+            <a href="{% url 'landing' %}" style="color: white; text-decoration: none;">Homepage</a>
+        </div>
+        <div class="nav-links">
+            <a href="{% url 'about' %}">About</a>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            {% if user.is_authenticated %}
+                <span>{{ user.username }}</span>
+                <a href="{% url 'logout' %}">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
+        </div>
+    </header>
+
+    {% block content %}{% endblock %}
+</body>
+</html>
