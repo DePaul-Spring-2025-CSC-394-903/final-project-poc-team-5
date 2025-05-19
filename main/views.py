@@ -237,3 +237,37 @@ def calculator_401k(request):
 
     return render(request, "main/401k_calculator.html", context)
 
+@login_required
+def budgeting_tool(request):
+    context = {
+        'income': '',
+        'result': None,
+        'labels': json.dumps([
+            'Housing', 'Food', 'Utilities', 'Transportation',
+            'Healthcare', 'Savings', 'Debt', 'Entertainment'
+        ]),
+        'colors': json.dumps([
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+            '#9966FF', '#FF9F40', '#C9CBCF', '#6FCF97'
+        ]),
+        'allocations': None
+    }
+
+    if request.method == 'POST':
+        try:
+            income = float(request.POST.get('income'))
+            ratios = [0.25, 0.1, 0.05, 0.2, 0.1, 0.1, 0.1, 0.1]
+            allocations = [round(income * r, 2) for r in ratios]
+            context['income'] = income
+            context['result'] = json.dumps(allocations)
+            context['allocations'] = zip(
+                ['Housing', 'Food', 'Utilities', 'Transportation',
+                 'Healthcare', 'Savings', 'Debt', 'Entertainment'],
+                allocations,
+                ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0',
+                 '#9966FF', '#FF9F40', '#C9CBCF', '#6FCF97']
+            )
+        except (ValueError, TypeError):
+            context['error'] = "Invalid input. Please enter a numeric income."
+
+    return render(request, 'main/budgeting_tool.html', context)
