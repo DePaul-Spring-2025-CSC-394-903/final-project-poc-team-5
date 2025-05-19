@@ -1,4 +1,6 @@
 from django.urls import path
+from main.views import snowball_result_view
+
 from django.contrib.auth import views as auth_views
 from .views import (
     landing, login_view, about, register, dashboard_view,
@@ -25,5 +27,6 @@ urlpatterns = [
     path('debt-calculator/', snowball_calculator, name='debt_calculator'),
     path('401k-calculator/', calculator_401k, name='calculator_401k'),
     path('budgeting-tool/', budgeting_tool, name='budgeting_tool'),
-    
+    path('snowball-result/', snowball_result_view, name='snowball_result'),
+
 ]

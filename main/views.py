@@ -12,9 +12,7 @@ import json
 from .models import DebtCalculation
 from decimal import Decimal, InvalidOperation
 from django.forms import formset_factory, BaseFormSet
-from django.shortcuts import render
 from .utils import calcGains
-import json
 from django.contrib.auth.views import LogoutView
 from django.http import HttpResponseNotAllowed
 
@@ -26,11 +24,11 @@ class SafeLogoutView(LogoutView):
         return super().dispatch(request, *args, **kwargs)
 
 
-
 User = get_user_model()
 
 def landing(request):
     return render(request, 'main/landing.html', {'APPNAME': 'Elite 5'})
+
 
 def login_view(request):
     if request.method == 'POST':
@@ -41,6 +39,7 @@ def login_view(request):
     else:
         form = EmailLoginForm()
     return render(request, 'main/login.html', {'form': form, 'APPNAME': 'Elite 5'})
+
 
 def register(request):
     if request.method == "POST":
@@ -53,6 +52,7 @@ def register(request):
         form = CustomRegisterForm()
     return render(request, 'main/register.html', {'form': form, 'APPNAME': 'Elite 5'})
 
+
 def about(request):
     team_members = [
         {'name': 'Anthony', 'bio': 'SupremeLeader', 'role': 'Project Manager', 'image': 'team/Anthony.jpg'},
@@ -63,16 +63,16 @@ def about(request):
     ]
     return render(request, 'main/About.html', {'team_members': team_members, 'APPNAME': 'Elite 5'})
 
-#@login_required
-#def dashboard_view(request):
-    #return render(request, 'main/dashboard.html')
+
 class LoanForm(forms.Form):
     name = forms.CharField(label="Loan Name", required=True)
     balance = forms.DecimalField(label="Balance ($)", min_value=0)
     monthly_payment = forms.DecimalField(label="Monthly Payment ($)", min_value=0)
     interest_rate = forms.DecimalField(label="Annual Interest Rate (%)", min_value=0)
 
+
 LoanFormSet = formset_factory(LoanForm, extra=1, can_delete=True)
+
 
 def snowball_calculator(request):
     result = None
@@ -83,31 +83,23 @@ def snowball_calculator(request):
     if request.method == 'POST' and formset.is_valid() and main_form.is_valid():
         strategy = main_form.cleaned_data.get('strategy', 'snowball')
         extra_payment = main_form.cleaned_data.get('additional_payment', Decimal('0'))
-
         loans = []
+
         for form in formset:
             if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
                 cd = form.cleaned_data
-                #oans.append({
-                    #name': cd['name'],
-                    #balance': cd['balance'],
-                    #monthly_payment': cd['monthly_payment'],
-                    #monthly_rate': Decimal(cd['interest_rate']) / 100 / 12,
-                    #interest_rate': cd['interest_rate'],
-                #)
                 loans.append({
                     'name': cd['name'],
-                    'initial_balance': cd['balance'],  # <-- NEW
+                    'initial_balance': cd['balance'],
                     'balance': cd['balance'],
                     'monthly_payment': cd['monthly_payment'],
                     'monthly_rate': Decimal(cd['interest_rate']) / 100 / 12,
                     'interest_rate': cd['interest_rate'],
                 })
 
-        # Calculate baseline interest for comparison (minimum payments only)
-        baseline_loans = [loan.copy() for loan in loans]
+        baseline_loans = [l.copy() for l in loans]
         baseline_interest = Decimal('0')
-        for _ in range(240):  # Max 20 years of months
+        for _ in range(240):
             if all(l['balance'] <= 0 for l in baseline_loans):
                 break
             for l in baseline_loans:
@@ -129,15 +121,12 @@ def snowball_calculator(request):
         while any(l['balance'] > 0 for l in loans) and months < 240:
             available = base_total_payment + extra_payment
 
-            # Apply interest
             for loan in loans:
                 if loan['balance'] > 0:
-                    #interest = loan['balance'] * loan['monthly_rate']
                     interest = round(loan['balance'] * loan['monthly_rate'], 2)
                     loan['balance'] += interest
                     total_interest += interest
 
-            # Apply minimum payments
             for loan in loans:
                 if loan['balance'] > 0:
                     payment = min(loan['monthly_payment'], loan['balance'], available)
@@ -145,7 +134,6 @@ def snowball_calculator(request):
                     total_payment += payment
                     available -= payment
 
-            # Sort strategy
             unpaid = [l for l in loans if l['balance'] > 0]
             if strategy == 'avalanche':
                 unpaid.sort(key=lambda l: (-l['monthly_rate'], l['balance']))
@@ -154,7 +142,6 @@ def snowball_calculator(request):
             else:
                 unpaid.sort(key=lambda l: l['balance'])
 
-            # Apply remaining to target
             if unpaid and available > 0:
                 extra = min(unpaid[0]['balance'], available)
                 unpaid[0]['balance'] -= extra
@@ -166,21 +153,19 @@ def snowball_calculator(request):
         result = {
             'months': months,
             'data_json': json.dumps(chart_data),
-            'total_paid': round(total_payment, 2),
-            'total_interest': round(total_interest, 2),
-            'baseline_interest': round(baseline_interest, 2),
-            'interest_saved': round(baseline_interest - total_interest, 2),
+            'total_paid': float(round(total_payment, 2)),
+            'total_interest': float(round(total_interest, 2)),
+            'baseline_interest': float(round(baseline_interest, 2)),
+            'interest_saved': float(round(baseline_interest - total_interest, 2)),
             'strategy_used': strategy,
         }
 
-        #oan_summary = "; ".join(
-            #"{l['name']} (${l['balance']:.2f} at {l['interest_rate']}%)" for l in loans
-        #
+        request.session['snowball_result'] = result
+
         loan_summary = f"Strategy: {strategy.title()} | " + "; ".join(
             f"{l['name']} (Initial: ${l['initial_balance']:.2f}, Rate: {l['interest_rate']}%)"
             for l in loans
         )
-
         DebtCalculation.objects.create(
             user=request.user,
             months_to_freedom=months,
@@ -190,6 +175,8 @@ def snowball_calculator(request):
             loan_summary=loan_summary
         )
 
+        return redirect('snowball_result')
+
     return render(request, 'main/snowball_calculator.html', {
         'formset': formset,
         'main_form': main_form,
@@ -197,11 +184,19 @@ def snowball_calculator(request):
         'total_monthly_payment': base_total_payment,
     })
 
+
+def snowball_result_view(request):
+    result = request.session.get('snowball_result')
+    if not result:
+        return redirect('debt_calculator')
+
+    return render(request, 'main/snowball_result.html', {'result': result})
+
+
 @login_required
 def dashboard_view(request):
     history = DebtCalculation.objects.filter(user=request.user).order_by('-created_at')[:3]
     return render(request, 'main/dashboard.html', {'history': history})
-
 
 
 def calculator_401k(request):
@@ -236,6 +231,7 @@ def calculator_401k(request):
             context["error"] = f"Error processing form: {e}"
 
     return render(request, "main/401k_calculator.html", context)
+
 
 @login_required
 def budgeting_tool(request):
