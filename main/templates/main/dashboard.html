@@ -1,50 +1,43 @@
 {% extends "main/base.html" %}
+{% load static %}
 
 {% block content %}
-<div style="padding: 20px;">
-  <h1>Dashboard</h1>
+<div class="container py-5">
+  <h1 class="mb-4 text-center">Your Financial Tools</h1>
 
-  <p style="margin-top: 20px;">
-    <a href="{% url 'debt_calculator' %}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
-      Try the Snowball Debt Calculator
-    </a>
-  </p>
-
-  <p style="margin-top: 10px;">
-    <a href="{% url 'calculator_401k' %}" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px;">
-      Try the 401(k) Retirement Calculator
-    </a>
-  </p>
-
-  {% if history %}
-    <div style="margin-top: 40px;">
-      <h3>Your Recent Snowball Calculations</h3>
-      <table border="1" cellpadding="8" cellspacing="0" style="width: 100%; margin-top: 10px; border-collapse: collapse;">
-        <thead style="background-color: #f1f1f1;">
-          <tr>
-            <th>Date</th>
-            <th>Overview</th>
-            <th>Total Balance</th>
-            <th>Total Payment</th>
-            <th>Months to Freedom</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in history|slice:":3" %}
-            <tr>
-              <td>{{ item.created_at|date:"M d, Y H:i" }}</td>
-              <td>
-                <strong>{{ item.loan_summary }}</strong><br>
-                <span>Total Interest: ${{ item.total_interest|floatformat:2 }}</span>
-              </td>
-              <td>${{ item.total_balance|floatformat:2 }}</td>
-              <td>${{ item.total_payment|floatformat:2 }}</td>
-              <td>{{ item.months_to_freedom }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    <!-- Snowball Debt Calculator -->
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">Snowball Debt Calculator</h5>
+          <p class="card-text">Create a payoff plan using the snowball method.</p>
+          <a href="{% url 'debt_calculator' %}" class="btn btn-primary">Try It</a>
+        </div>
+      </div>
     </div>
-  {% endif %}
+
+    <!-- 401(k) Calculator -->
+    <div class="col">
+      <div class="card h-100 text-center">
+        <div class="card-body">
+          <h5 class="card-title">401(k) Retirement Calculator</h5>
+          <p class="card-text">Estimate your retirement savings and growth.</p>
+          <a href="{% url 'calculator_401k' %}" class="btn btn-success">Try It</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budgeting Calculator -->
+<div class="col">
+  <div class="card h-100 text-center">
+    <div class="card-body">
+      <h5 class="card-title">Budgeting Calculator</h5>
+      <p class="card-text">Plan your monthly income and expenses.</p>
+       <a href="{% url 'budgeting_tool' %}" class="btn btn-success">Try It</a>
+    </div>
+  </div>
+</div>
+  </div>
 </div>
 {% endblock %}

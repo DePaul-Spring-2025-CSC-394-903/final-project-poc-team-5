@@ -1,9 +1,9 @@
 {% extends "main/base.html" %}
+{% load static %}
+
 {% block content %}
-<div class="logo">
-    <img src="https://assets.bwbx.io/images/users/iqjWHBFdfxIU/iB14rkXrk760/v0/-1x-1.webp" alt="App Logo">
-</div>
-<div class="responsive">
-    <h1>Welcome to Luxury by {{ APPNAME|default:"Elite 5" }}</h1>
+<div class="d-flex flex-column justify-content-center align-items-center text-center" style="min-height: 90vh;">
+    <img src="{% static 'team/elite_5.png' %}" alt="Elite 5" class="img-fluid mb-4" style="max-height: 300px;">
+    <h1 class="display-5">Welcome to Luxury by Elite 5</h1>
 </div>
 {% endblock %}
