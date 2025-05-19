@@ -1,0 +1,60 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container py-5">
+  <div class="card shadow p-4">
+    <h2 class="text-center mb-4">Your Snowball Results</h2>
+
+    <div class="alert alert-success text-center">
+      <strong>All loans paid off in {{ result.months }} months.</strong><br>
+      <strong>Total Paid:</strong> ${{ result.total_paid }}<br>
+      <strong>Total Interest:</strong> ${{ result.total_interest }}
+    </div>
+
+    <!-- Responsive chart container -->
+    <div class="mt-5">
+      <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+        <canvas id="chart"></canvas>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="{% url 'debt_calculator' %}" class="btn btn-secondary">Back to Calculator</a>
+    </div>
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const chartData = JSON.parse('{{ result.data_json|escapejs }}');
+  const ctx = document.getElementById('chart').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: chartData.map((_, i) => `Month ${i + 1}`),
+      datasets: [{
+        label: 'Remaining Balance',
+        data: chartData,
+        borderColor: 'blue',
+        backgroundColor: 'rgba(0,123,255,0.1)',
+        borderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Balance ($)' }
+        },
+        x: {
+          title: { display: true, text: 'Months' }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}
