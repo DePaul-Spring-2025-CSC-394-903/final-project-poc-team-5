@@ -1,14 +1,16 @@
 {% extends "main/base.html" %}
 {% load static %}
 {% block content %}
-
+{% load humanize %}
 <div class="container my-5">
   <div class="card shadow p-4">
     <h2 class="text-center mb-4">401(k) Calculator</h2>
 
     {% if result %}
       <div class="alert alert-success text-center">
-        <strong>Projected Balance at Retirement: ${{ result.projected_balance }}</strong>
+      <strong>Projected Balance at Retirement: ${{ result.projected_balance|intcomma}}</strong>
+      
+                    
       </div>
     {% endif %}
 
