@@ -31,4 +31,9 @@ urlpatterns = [
     path('snowball-result/', snowball_result_view, name='snowball_result'),
     path('snowball-history/', views.snowball_history, name='snowball_history'),
     path('delete-calculation/<int:pk>/', views.delete_calculation, name='delete_calculation'),
+    path("401k-history/", views.retirement_history, name="retirement_history"),
+    path("401k-result/", views.retirement_result_view, name="retirement_result"),
+    path("401k-history/delete/<int:pk>/", views.delete_retirement_entry, name="delete_401k"),
+
+
 ]

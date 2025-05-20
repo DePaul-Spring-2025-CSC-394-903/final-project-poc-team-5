@@ -27,16 +27,30 @@
       </div>
     </div>
 
-    <!-- 401(k) Calculator -->
-    <div class="col">
-      <div class="card h-100 text-center">
-        <div class="card-body">
-          <h5 class="card-title">401(k) Retirement Calculator</h5>
-          <p class="card-text">Estimate your retirement savings and growth.</p>
-          <a href="{% url 'calculator_401k' %}" class="btn btn-success">Try It</a>
-        </div>
+   <!-- 401(k) Calculator -->
+   <div class="col">
+    <div class="card h-100 text-center border-success">
+      <div class="card-body">
+        <h5 class="card-title">401(k) Retirement Calculator</h5>
+        <p class="card-text">Estimate your retirement savings and growth.</p>
+  
+        <!-- Try Calculator -->
+        <a href="{% url 'calculator_401k' %}" class="btn btn-success mb-2">Try Calculator</a>
+  
+        {% if has_401k_result %}
+        <!-- View Last Result -->
+        <hr>
+        <p class="card-text">You have a recent result saved.</p>
+        <a href="{% url 'retirement_result' %}" class="btn btn-outline-info mb-2">View Last Result</a>
+        {% endif %}
+  
+        <!-- View All History -->
+        <hr>
+        <a href="{% url 'retirement_history' %}" class="btn btn-outline-secondary">View All Past Calculations</a>
       </div>
     </div>
+  </div>
+
 
     <!-- Budgeting Calculator -->
     <div class="col">

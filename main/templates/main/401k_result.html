@@ -1,0 +1,46 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container py-5">
+  <div class="card shadow p-4">
+    <h2 class="text-center mb-4">401(k) Projection Summary</h2>
+
+    <div class="alert alert-info text-center">
+      <strong>Projected Balance by {{ result.year_of_retirement }}: ${{ result.projected_balance }}</strong>
+    </div>
+
+    <canvas id="chart" height="120"></canvas>
+
+    <div class="mt-4 text-center">
+      <a href="{% url 'calculator_401k' %}" class="btn btn-secondary">Back to Calculator</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const data = JSON.parse('{{ result.data_json|escapejs }}');
+  const ctx = document.getElementById('chart').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map((_, i) => `Month ${i + 1}`),
+      datasets: [{
+        label: 'Projected Balance Over Time',
+        data: data,
+        borderColor: 'green',
+        backgroundColor: 'rgba(0,200,100,0.1)',
+        borderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: true, title: { display: true, text: 'Balance ($)' } },
+        x: { title: { display: true, text: 'Months' } }
+      }
+    }
+  });
+</script>
+{% endblock %}

@@ -15,6 +15,11 @@ from django.forms import formset_factory, BaseFormSet
 from .utils import calcGains
 from django.contrib.auth.views import LogoutView
 from django.http import HttpResponseNotAllowed
+from .models import RetirementCalculation
+from datetime import datetime
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
 
 
 class SafeLogoutView(LogoutView):
@@ -85,7 +90,7 @@ def snowball_calculator(request):
     result = None
     base_total_payment = Decimal('0')
 
-    # Step 1: Load previous calculation if ?load=ID is in query
+    #Load previous calculation if ?load=ID is in query
     load_id = request.GET.get('load')
     initial_data = None
     strategy_initial = 'snowball'
@@ -106,7 +111,7 @@ def snowball_calculator(request):
         except DebtCalculation.DoesNotExist:
             pass
 
-    # Step 2: Initialize forms
+    # Initialize forms
     if request.method == 'POST':
         formset = LoanFormSet(request.POST)
         main_form = MainPaymentForm(request.POST)
@@ -117,7 +122,7 @@ def snowball_calculator(request):
             'additional_payment': extra_payment_initial
         })
 
-    # Step 3: Process the form on POST
+    # Process the form on POST
     if request.method == 'POST' and formset.is_valid() and main_form.is_valid():
         strategy = main_form.cleaned_data.get('strategy', 'snowball')
         extra_payment = main_form.cleaned_data.get('additional_payment', Decimal('0'))
@@ -190,7 +195,7 @@ def snowball_calculator(request):
             chart_data.append(float(sum(l['balance'] for l in loans)))
             months += 1
 
-        # Step 4: Build result
+        # Build result
         result = {
             'months': months,
             'data_json': json.dumps(chart_data),
@@ -200,7 +205,7 @@ def snowball_calculator(request):
             'interest_saved': float(round(baseline_interest - total_interest, 2)),
             'strategy_used': strategy,
         }
-                # Convert Decimal values in each loan dict to float for JSON serialization
+        # Convert Decimal values in each loan dict to float for JSON serialization
         loan_data_serialized = [
             {
                 'name': l['name'],
@@ -216,7 +221,7 @@ def snowball_calculator(request):
 
         request.session['snowball_result'] = result
 
-        # Step 5: Save to database
+        # Save to database
         loan_summary = f"Strategy: {strategy.title()} | " + "; ".join(
             f"{l['name']} (Initial: ${l['initial_balance']:.2f}, Rate: {l['interest_rate']}%)"
             for l in loans
@@ -270,13 +275,22 @@ def snowball_result_view(request):
 
 @login_required
 def dashboard_view(request):
+    # Recent Snowball history 
     history = DebtCalculation.objects.filter(user=request.user).order_by('-created_at')[:3]
+
+    # Flags for session-based "last result" buttons
     has_result = 'snowball_result' in request.session
+    has_401k_result = 'last_401k_result' in request.session
+
     return render(request, 'main/dashboard.html', {
         'history': history,
-        'has_result': has_result
+        'has_result': has_result,
+        'has_401k_result': has_401k_result,
     })
 
+
+
+@login_required
 def calculator_401k(request):
     context = {}
 
@@ -290,11 +304,23 @@ def calculator_401k(request):
             match = float(request.POST.get("employer_match_percent")) / 100
             yield_rate = float(request.POST.get("annual_yield")) / 100
 
-            total, growth_data = calcGains(init_deposit, year_of_retirement, salary, salary_growth, contribution, match, yield_rate)
+            
+            total, growth_data = calcGains(
+                init_deposit,
+                year_of_retirement,
+                salary,
+                salary_growth,
+                contribution,
+                match,
+                yield_rate
+            )
 
-            context = {
+            current_year = datetime.now().year
+            current_age = year_of_retirement - (len(growth_data))
+
+            context.update({
                 "result": {
-                    "projected_balance": total,
+                    "projected_balance": round(total, 2),
                     "data_json": json.dumps(growth_data),
                 },
                 "year_of_retirement": year_of_retirement,
@@ -304,12 +330,37 @@ def calculator_401k(request):
                 "contribution_percent": contribution * 100,
                 "employer_match_percent": match * 100,
                 "annual_yield": yield_rate * 100,
-            }
+                "current_age": current_age  #pass to chart
+            })
+
+            request.session["last_401k_result"] = context["result"]
+
         except Exception as e:
             context["error"] = f"Error processing form: {e}"
 
     return render(request, "main/401k_calculator.html", context)
 
+
+@login_required
+def retirement_history(request):
+    history = RetirementCalculation.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'main/401k_history.html', {'history': history})
+
+@login_required
+def retirement_result_view(request):
+    result = request.session.get('last_401k_result')
+    if not result:
+        return redirect('calculator_401k')  # Fallback if nothing stored
+
+    return render(request, 'main/401k_result.html', {'result': result})
+
+@login_required
+def delete_retirement_entry(request, pk):
+    entry = get_object_or_404(RetirementCalculation, pk=pk, user=request.user)
+    if request.method == "POST":
+        entry.delete()
+        return redirect('retirement_history')
+    return render(request, 'main/confirm_delete.html', {'entry': entry})
 
 @login_required
 def budgeting_tool(request):
