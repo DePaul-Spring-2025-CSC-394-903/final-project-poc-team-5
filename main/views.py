@@ -296,18 +296,23 @@ def calculator_401k(request):
 
     if request.method == 'POST':
         try:
-            year_of_retirement = int(request.POST.get("year_of_retirement"))
+            # Get raw user input
+            current_age = int(request.POST.get("current_age"))
+            retirement_age = int(request.POST.get("retirement_age"))
             init_deposit = float(request.POST.get("init_deposit"))
             salary = float(request.POST.get("salary"))
+
+            # Convert % inputs from whole number to decimal (e.g. 5% → 0.05)
             salary_growth = float(request.POST.get("salary_growth_percent")) / 100
             contribution = float(request.POST.get("contribution_percent")) / 100
             match = float(request.POST.get("employer_match_percent")) / 100
             yield_rate = float(request.POST.get("annual_yield")) / 100
 
-            
+            # Calculate projected retirement savings
             total, growth_data = calcGains(
                 init_deposit,
-                year_of_retirement,
+                current_age,
+                retirement_age,
                 salary,
                 salary_growth,
                 contribution,
@@ -315,30 +320,43 @@ def calculator_401k(request):
                 yield_rate
             )
 
-            current_year = datetime.now().year
-            current_age = year_of_retirement - (len(growth_data))
+            # Store result in session for access later
+            context["result"] = {
+                "projected_balance": round(total, 2),
+                "data_json": json.dumps(growth_data),
+                "year_of_retirement": retirement_age
+            }
 
+            # Include user input values back into the form for context
             context.update({
-                "result": {
-                    "projected_balance": round(total, 2),
-                    "data_json": json.dumps(growth_data),
-                },
-                "year_of_retirement": year_of_retirement,
+                "current_age": current_age,
+                "retirement_age": retirement_age,
                 "init_deposit": init_deposit,
                 "salary": salary,
                 "salary_growth_percent": salary_growth * 100,
                 "contribution_percent": contribution * 100,
                 "employer_match_percent": match * 100,
                 "annual_yield": yield_rate * 100,
-                "current_age": current_age  #pass to chart
             })
 
             request.session["last_401k_result"] = context["result"]
+
+            # Save to RetirementCalculation model
+            RetirementCalculation.objects.create(
+                user=request.user,
+                current_age=current_age,
+                retirement_age=retirement_age,
+                projected_balance=total,
+                init_deposit=init_deposit,
+                salary=salary,
+                contribution=contribution * 100  # store as percentage
+            )
 
         except Exception as e:
             context["error"] = f"Error processing form: {e}"
 
     return render(request, "main/401k_calculator.html", context)
+
 
 
 @login_required

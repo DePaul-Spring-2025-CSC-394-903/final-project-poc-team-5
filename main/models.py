@@ -33,14 +33,13 @@ class DebtCalculation(models.Model):
 class RetirementCalculation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    year_of_retirement = models.IntegerField()
-    init_deposit = models.DecimalField(max_digits=12, decimal_places=2)
-    salary = models.DecimalField(max_digits=12, decimal_places=2)
-    salary_growth = models.DecimalField(max_digits=5, decimal_places=2)
+    current_age = models.IntegerField()
+    retirement_age = models.IntegerField()
+    projected_balance = models.DecimalField(max_digits=12, decimal_places=2)
+    init_deposit = models.DecimalField(max_digits=10, decimal_places=2)
+    salary = models.DecimalField(max_digits=10, decimal_places=2)
     contribution = models.DecimalField(max_digits=5, decimal_places=2)
-    match = models.DecimalField(max_digits=5, decimal_places=2)
-    yield_rate = models.DecimalField(max_digits=5, decimal_places=2)
-    projected_balance = models.DecimalField(max_digits=15, decimal_places=2)
+
 
     def __str__(self):
         return f"401k Result: ${self.projected_balance} in {self.year_of_retirement}"

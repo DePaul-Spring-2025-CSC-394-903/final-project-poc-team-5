@@ -18,8 +18,12 @@
     <form method="post">
       {% csrf_token %}
       <div class="mb-3">
-        <label for="year_of_retirement">Retirement Age</label>
-        <input type="number" class="form-control" name="year_of_retirement" value="{{ year_of_retirement|default:'' }}" required>
+        <label for="current_age">Current Age</label>
+        <input type="number" class="form-control" name="current_age" value="{{ current_age|default:'' }}" required>
+      </div>
+      <div class="mb-3">
+        <label for="retirement_age">Retirement Age</label>
+        <input type="number" class="form-control" name="retirement_age" value="{{ retirement_age|default:'' }}" required>
       </div>
       <div class="mb-3">
         <label for="init_deposit">Initial Deposit ($)</label>
