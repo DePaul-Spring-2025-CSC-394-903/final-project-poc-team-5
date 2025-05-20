@@ -88,7 +88,7 @@ import json
 
 def snowball_calculator(request):
     result = None
-    base__payment = Decimal('0')
+    base_total_payment = Decimal('0')
 
     #Load previous calculation if ?load=ID is in query
     load_id = request.GET.get('load')
