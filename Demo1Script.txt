@@ -1,0 +1,11 @@
+Start with Snowball Calculator
+Showcase new additions added to our dashboard (Try new Calculation, previous calculations, view last calculation)
+For snowball calculator, go to previous calculations, and edit first calculation
+Once the calculation is completed, go back to https://www.schwabmoneywise.com/snowball-debt-elimination-calculator, and show the margin of error for the snowball calc
+There should only be around a 0.1% chance of error between our calculator and the schwabmoney calculator
+Next showcase 401K calculator through the dashboard, and again edit the first calculation done
+After the calculation is complete compare our calculation with the https://www.adp.com/resources/tools/calculators/states/illinois-salary-paycheck-calculator.aspx
+Our calculation should once again be around 2-4% margin of error and explain how we got these numbers
+Lastly showcase the budget calculator, and try a new calculation
+Explain how we now have a way to implement snowball and 401k calculations into the budget calculation, and give the percentages that are calculated based on other calculators
+Fin.
