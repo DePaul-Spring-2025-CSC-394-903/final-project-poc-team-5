@@ -24,8 +24,12 @@
           <td>${{ entry.salary }}</td>
           <td>{{ entry.contribution }}%</td>
           <td>
-            <a href="{% url 'delete_401k' entry.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+            <div class="d-flex gap-2">
+              <a href="{% url 'edit_401k' entry.pk %}" class="btn btn-sm btn-outline-primary w-100">Edit</a>
+              <a href="{% url 'delete_401k' entry.pk %}" class="btn btn-sm btn-outline-danger w-100">Delete</a>
+            </div>
           </td>
+                
         </tr>
         {% endfor %}
       </tbody>      

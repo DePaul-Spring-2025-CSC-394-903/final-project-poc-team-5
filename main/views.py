@@ -385,6 +385,70 @@ def delete_retirement_entry(request, pk):
     return render(request, 'main/confirm_delete.html', {'entry': entry})
 
 @login_required
+def edit_retirement_entry(request, pk):
+    entry = get_object_or_404(RetirementCalculation, pk=pk, user=request.user)
+
+    if request.method == "POST":
+        try:
+            current_age = int(request.POST.get("current_age"))
+            retirement_age = int(request.POST.get("retirement_age"))
+            init_deposit = float(request.POST.get("init_deposit"))
+            salary = float(request.POST.get("salary"))
+            salary_growth = float(request.POST.get("salary_growth_percent")) / 100
+            contribution = float(request.POST.get("contribution_percent")) / 100
+            employer_match = float(request.POST.get("employer_match_percent")) / 100
+            employer_match_limit = float(request.POST.get("employer_match_limit")) / 100
+            yield_rate = float(request.POST.get("annual_yield")) / 100
+
+            # Run calculation again
+            total, growth_data, emp_contrib, match_contrib = calcGains(
+                init_deposit,
+                current_age,
+                retirement_age,
+                salary,
+                salary_growth,
+                contribution,
+                employer_match,
+                employer_match_limit,
+                yield_rate
+            )
+
+            # Update the DB entry
+            entry.current_age = current_age
+            entry.retirement_age = retirement_age
+            entry.init_deposit = init_deposit
+            entry.salary = salary
+            entry.salary_growth = salary_growth * 100
+            entry.contribution = contribution * 100
+            entry.yield_rate = yield_rate * 100
+            entry.total_employee_contrib = emp_contrib
+            entry.total_employer_contrib = match_contrib
+            entry.projected_balance = round(total, 2)
+
+            entry.save()
+
+            # ✅ ADD chart result to context
+            context = {
+                'entry': entry,
+                'result': {
+                    'projected_balance': round(total, 2),
+                    'data_json': json.dumps(growth_data)
+                }
+            }
+            return render(request, 'main/edit_401k.html', context)
+
+        except Exception as e:
+            return render(request, 'main/edit_401k.html', {
+                'entry': entry,
+                'error': f"Error: {e}"
+            })
+
+    return render(request, 'main/edit_401k.html', {'entry': entry})
+
+
+
+
+@login_required
 def budgeting_tool(request):
     context = {
         'income': '',
