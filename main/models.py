@@ -41,5 +41,8 @@ class RetirementCalculation(models.Model):
     contribution = models.DecimalField(max_digits=5, decimal_places=2)
 
 
+    total_employee_contrib = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_employer_contrib = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    
     def __str__(self):
         return f"401k Result: ${self.projected_balance} in {self.year_of_retirement}"

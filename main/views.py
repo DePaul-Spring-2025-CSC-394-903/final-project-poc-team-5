@@ -88,7 +88,7 @@ import json
 
 def snowball_calculator(request):
     result = None
-    base_total_payment = Decimal('0')
+    base__payment = Decimal('0')
 
     #Load previous calculation if ?load=ID is in query
     load_id = request.GET.get('load')
@@ -302,14 +302,15 @@ def calculator_401k(request):
             init_deposit = float(request.POST.get("init_deposit"))
             salary = float(request.POST.get("salary"))
 
-            # Convert % inputs from whole number to decimal (e.g. 5% → 0.05)
+            # Convert % inputs from whole number to decimal
             salary_growth = float(request.POST.get("salary_growth_percent")) / 100
             contribution = float(request.POST.get("contribution_percent")) / 100
             match = float(request.POST.get("employer_match_percent")) / 100
+            employer_match_limit = float(request.POST.get("employer_match_limit")) / 100  
             yield_rate = float(request.POST.get("annual_yield")) / 100
 
             # Calculate projected retirement savings
-            total, growth_data = calcGains(
+            total, growth_data, emp_contrib, match_contrib = calcGains(
                 init_deposit,
                 current_age,
                 retirement_age,
@@ -317,17 +318,20 @@ def calculator_401k(request):
                 salary_growth,
                 contribution,
                 match,
+                employer_match_limit, 
                 yield_rate
             )
 
-            # Store result in session for access later
+            # Store result in session
             context["result"] = {
                 "projected_balance": round(total, 2),
                 "data_json": json.dumps(growth_data),
-                "year_of_retirement": retirement_age
+                "year_of_retirement": retirement_age,
+                "employee_total": round(emp_contrib, 2),
+                "employer_total": round(match_contrib, 2),
             }
 
-            # Include user input values back into the form for context
+            # Include user input values back into form
             context.update({
                 "current_age": current_age,
                 "retirement_age": retirement_age,
@@ -336,12 +340,11 @@ def calculator_401k(request):
                 "salary_growth_percent": salary_growth * 100,
                 "contribution_percent": contribution * 100,
                 "employer_match_percent": match * 100,
+                "employer_match_limit": employer_match_limit * 100,  
                 "annual_yield": yield_rate * 100,
             })
 
-            request.session["last_401k_result"] = context["result"]
-
-            # Save to RetirementCalculation model
+            # Save to DB
             RetirementCalculation.objects.create(
                 user=request.user,
                 current_age=current_age,
@@ -349,14 +352,15 @@ def calculator_401k(request):
                 projected_balance=total,
                 init_deposit=init_deposit,
                 salary=salary,
-                contribution=contribution * 100  # store as percentage
+                contribution=contribution * 100,
+                total_employee_contrib=emp_contrib,
+                total_employer_contrib=match_contrib
             )
 
         except Exception as e:
             context["error"] = f"Error processing form: {e}"
 
     return render(request, "main/401k_calculator.html", context)
-
 
 
 @login_required
