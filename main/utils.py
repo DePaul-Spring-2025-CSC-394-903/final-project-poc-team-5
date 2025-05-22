@@ -1,6 +1,6 @@
 import datetime
 from decimal import Decimal, getcontext
-
+from .tax_data import federal_tax_brackets, state_tax_brackets_2025
 getcontext().prec = 12
 
 EMPLOYEE_LIMIT = Decimal('23000')
@@ -61,12 +61,12 @@ def calcGains(init_deposit, current_age, retirement_age, salary,
 
     return round(float(balance), 2), balance_by_year, float(total_emp), float(total_em)
 
-federal_tax_brackets = {
-    "single": [(0, 11000, 0.10), (11001, 44725, 0.12), (44726, 95375, 0.22), (95376, 182100, 0.24)],
-    "married": [(0, 22000, 0.10), (22001, 89450, 0.12), (89451, 190750, 0.22), (190751, 364200, 0.24)]
-}
+#federal_tax_brackets = {
+    #"single": [(0, 11000, 0.10), (11001, 44725, 0.12), (44726, 95375, 0.22), (95376, 182100, 0.24)],
+    #"married": [(0, 22000, 0.10), (22001, 89450, 0.12), (89451, 190750, 0.22), (190751, 364200, 0.24)]
+#}
 
-full_state_tax_rates = {
+"""full_state_tax_rates = {
     "AL": {"single_rate": 0.05, "married_rate": 0.05},
     "AK": {"single_rate": 0.00, "married_rate": 0.00},
     "AZ": {"single_rate": 0.025, "married_rate": 0.025},
@@ -118,7 +118,7 @@ full_state_tax_rates = {
     "WI": {"single_rate": 0.045, "married_rate": 0.045},
     "WY": {"single_rate": 0.00, "married_rate": 0.00},
     "DC": {"single_rate": 0.06, "married_rate": 0.06}
-}
+}"""
 
 def calculate_federal_tax(income, status, allowances=0):
     brackets = federal_tax_brackets
@@ -144,10 +144,19 @@ def calculate_federal_tax(income, status, allowances=0):
     return round(tax, 2)
 
 def calculate_state_tax(income, state, status, allowances=0):
-    rate_info = full_state_tax_rates.get(state, {"single_rate": 0.05, "married_rate": 0.05})
-    rate = rate_info[f"{status}_rate"]
+    brackets = state_tax_brackets_2025.get(state)
+    if not brackets:
+        return 0.0  # No state income tax
+
     taxable_income = max(0, income - allowances * 1000)
-    return round(taxable_income * rate, 2)
+    tax = 0.0
+    for lower, upper, rate in brackets[status]:
+        if taxable_income > upper:
+            tax += (upper - lower) * rate
+        else:
+            tax += (taxable_income - lower) * rate
+            break
+    return round(tax, 2)
 
 def calculate_fica_breakdown(income, status="single"):
     ss = round(min(income, 168600) * 0.062, 2)

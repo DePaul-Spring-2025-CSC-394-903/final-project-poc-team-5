@@ -19,9 +19,7 @@ from .models import RetirementCalculation
 from datetime import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from main.tax_data import federal_tax_brackets, full_state_tax_rates
-from .tax_data import full_state_tax_rates, federal_tax_brackets
-
+from .tax_data import federal_tax_brackets, state_tax_brackets_2025
 
 class SafeLogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
