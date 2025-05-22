@@ -71,51 +71,57 @@
       <li class="list-group-item fw-bold">Annual Take Home: ${{ result.annual_take_home|floatformat:2 }}</li>
     </ul>
 
-    <h4>Tax Breakdown</h4>
-    <canvas id="taxChart" width="400" height="200"></canvas>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      const data = {
-        labels: ['Federal Tax', 'State Tax', 'FICA Tax', 'Take Home'],
-        datasets: [{
-          label: 'Pay Breakdown',
-          data: [
-            {{ result.federal_tax|floatformat:2 }},
-            {{ result.state_tax|floatformat:2 }},
-            {{ result.fica_tax|floatformat:2 }},
-            {{ result.take_home_pay|floatformat:2 }}
-          ],
-          backgroundColor: [
-            '#FFC107',
-            '#17A2B8',
-            '#6C757D',
-            '#28A745'
-          ]
-        }]
-      };
+<h4>Tax Breakdown</h4>
+<div class="mb-5" style="max-width: 600px; margin: 0 auto;">
+  <canvas id="taxChart"></canvas>
+</div>
 
-      const config = {
-        type: 'pie',
-        data: data,
-        options: {
-          responsive: true,
-          plugins: {
-            legend: {
-              position: 'top',
-            },
-            title: {
-              display: false,
-              text: 'Pay Breakdown'
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('taxChart');
+
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: ['Federal Tax', 'State Tax', 'FICA Tax', 'Take Home'],
+      datasets: [{
+        label: 'Tax Breakdown',
+        data: [
+          {{ result.federal_tax|floatformat:2 }},
+          {{ result.state_tax|floatformat:2 }},
+          {{ result.fica_tax|floatformat:2 }},
+          {{ result.take_home_pay|floatformat:2 }}
+        ],
+        backgroundColor: ['#FFC107', '#17A2B8', '#6C757D', '#28A745'],
+        borderColor: '#fff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: {
+              size: 14
             }
           }
         },
-      };
-
-      new Chart(document.getElementById('taxChart'), config);
-    </script>
-  {% elif error %}
-    <div class="alert alert-danger mt-3">{{ error }}</div>
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.parsed;
+              return `${label}: $${value.toLocaleString()}`;
+            }
+          }
+        }
+      }
+    }
+  });
+</script>
   {% endif %}
 </div>
 {% endblock %}
-
