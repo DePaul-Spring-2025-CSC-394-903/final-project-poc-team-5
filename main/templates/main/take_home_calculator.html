@@ -5,36 +5,49 @@
 
   <form method="POST" class="mb-4">
     {% csrf_token %}
+
+    <!-- Income -->
     <div class="mb-3">
       <label for="income" class="form-label">Gross Income ($)</label>
-      <input type="number" step="0.01" name="income" id="income" class="form-control" required>
+      <input
+        type="number"
+        step="0.01"
+        name="income"
+        id="income"
+        class="form-control"
+        required
+        value="{{ request.POST.income|default_if_none:'' }}"
+      >
     </div>
 
+    <!-- Filing Status -->
     <div class="mb-3">
       <label for="status" class="form-label">Filing Status</label>
       <select name="status" id="status" class="form-select">
-        <option value="single">Single</option>
-        <option value="married">Married</option>
+        <option value="single" {% if request.POST.status == 'single' %}selected{% endif %}>Single</option>
+        <option value="married" {% if request.POST.status == 'married' %}selected{% endif %}>Married</option>
       </select>
     </div>
 
+    <!-- State -->
     <div class="mb-3">
       <label for="state" class="form-label">State</label>
       <select name="state" id="state" class="form-select">
         {% for code, name in states.items %}
-          <option value="{{ code }}">{{ name }}</option>
+          <option value="{{ code }}" {% if request.POST.state == code %}selected{% endif %}>{{ name }}</option>
         {% endfor %}
       </select>
     </div>
 
+    <!-- Pay Frequency -->
     <div class="mb-3">
       <label for="pay_frequency" class="form-label">Pay Frequency</label>
       <select name="pay_frequency" id="pay_frequency" class="form-select">
-        <option value="annual">Annually</option>
-        <option value="monthly">Monthly</option>
-        <option value="semi_monthly">Semi-Monthly</option>
-        <option value="bi_weekly">Bi-Weekly</option>
-        <option value="weekly">Weekly</option>
+        <option value="annual" {% if request.POST.pay_frequency == 'annual' %}selected{% endif %}>Annually</option>
+        <option value="monthly" {% if request.POST.pay_frequency == 'monthly' %}selected{% endif %}>Monthly</option>
+        <option value="semi_monthly" {% if request.POST.pay_frequency == 'semi_monthly' %}selected{% endif %}>Semi-Monthly</option>
+        <option value="bi_weekly" {% if request.POST.pay_frequency == 'bi_weekly' %}selected{% endif %}>Bi-Weekly</option>
+        <option value="weekly" {% if request.POST.pay_frequency == 'weekly' %}selected{% endif %}>Weekly</option>
       </select>
     </div>
 
@@ -42,7 +55,7 @@
   </form>
 
   {% if result %}
-    <h4>Per {{ result.pay_frequency }} Paycheck</h4>
+    <h4>Per {{ result.pay_frequency|title }} Paycheck</h4>
     <ul class="list-group mb-3">
       <li class="list-group-item">Gross Income: ${{ result.gross_income|floatformat:2 }}</li>
       <li class="list-group-item">Federal Tax: ${{ result.federal_tax|floatformat:2 }}</li>
@@ -98,13 +111,11 @@
         },
       };
 
-      const taxChart = new Chart(
-        document.getElementById('taxChart'),
-        config
-      );
+      new Chart(document.getElementById('taxChart'), config);
     </script>
   {% elif error %}
     <div class="alert alert-danger mt-3">{{ error }}</div>
   {% endif %}
 </div>
 {% endblock %}
+
