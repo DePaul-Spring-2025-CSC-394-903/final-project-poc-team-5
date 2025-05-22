@@ -12,14 +12,15 @@ import json
 from .models import DebtCalculation
 from decimal import Decimal, InvalidOperation
 from django.forms import formset_factory, BaseFormSet
-from .utils import calcGains
+from .utils import calcGains, calculate_take_home
 from django.contrib.auth.views import LogoutView
 from django.http import HttpResponseNotAllowed
 from .models import RetirementCalculation
 from datetime import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-
+from main.tax_data import federal_tax_brackets, full_state_tax_rates
+from .tax_data import full_state_tax_rates, federal_tax_brackets
 
 
 class SafeLogoutView(LogoutView):
@@ -482,3 +483,85 @@ def budgeting_tool(request):
             context['error'] = "Invalid input. Please enter a numeric income."
 
     return render(request, 'main/budgeting_tool.html', context)
+
+def take_home_calculator(request):
+    pay_periods = {
+        "annual": 1,
+        "monthly": 12,
+        "semi_monthly": 24,
+        "bi_weekly": 26,
+        "weekly": 52
+    }
+
+    us_states = {
+        "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas", "CA": "California",
+        "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware", "DC": "District of Columbia",
+        "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho", "IL": "Illinois",
+        "IN": "Indiana", "IA": "Iowa", "KS": "Kansas", "KY": "Kentucky", "LA": "Louisiana",
+        "ME": "Maine", "MD": "Maryland", "MA": "Massachusetts", "MI": "Michigan",
+        "MN": "Minnesota", "MS": "Mississippi", "MO": "Missouri", "MT": "Montana",
+        "NE": "Nebraska", "NV": "Nevada", "NH": "New Hampshire", "NJ": "New Jersey",
+        "NM": "New Mexico", "NY": "New York", "NC": "North Carolina", "ND": "North Dakota",
+        "OH": "Ohio", "OK": "Oklahoma", "OR": "Oregon", "PA": "Pennsylvania",
+        "RI": "Rhode Island", "SC": "South Carolina", "SD": "South Dakota", "TN": "Tennessee",
+        "TX": "Texas", "UT": "Utah", "VT": "Vermont", "VA": "Virginia", "WA": "Washington",
+        "WV": "West Virginia", "WI": "Wisconsin", "WY": "Wyoming"
+    }
+
+    context = {"result": None, "states": us_states}
+
+    if request.method == "POST":
+        try:
+            annual_income = float(request.POST.get("income"))
+            status = request.POST.get("status", "single")
+            state = request.POST.get("state", "Other")
+            frequency = request.POST.get("pay_frequency", "annual")
+            fed_allowances = int(request.POST.get("fed_allowances", 1))
+            state_allowances = int(request.POST.get("state_allowances", 1))
+            local_rate = float(request.POST.get("local_tax_rate", 0)) / 100
+            pre_tax = float(request.POST.get("pre_tax", 0))
+            post_tax = float(request.POST.get("post_tax", 0))
+
+            periods = pay_periods.get(frequency, 1)
+            per_period_income = annual_income / periods
+
+            tax_data = calculate_take_home(
+                annual_income,
+                status,
+                state,
+                fed_allowances,
+                state_allowances,
+                local_rate,
+                pre_tax,
+                post_tax
+            )
+
+            context["result"] = {
+                "gross_income": round(per_period_income, 2),
+                "federal_tax": round(tax_data["federal_tax"] / periods, 2),
+                "state_tax": round(tax_data["state_tax"] / periods, 2),
+                "fica_tax": round(tax_data["fica_tax"] / periods, 2),
+                "local_tax": round(tax_data["local_tax"] / periods, 2),
+                "total_tax": round(tax_data["total_tax"] / periods, 2),
+                "take_home_pay": round(tax_data["take_home_pay"] / periods, 2),
+                "annual_take_home": tax_data["take_home_pay"],
+                "annual_gross": annual_income,
+                "pay_frequency": frequency.replace("_", " ").title()
+            }
+
+            context.update({
+                "income": annual_income,
+                "status": status,
+                "state": state,
+                "pay_frequency": frequency,
+                "fed_allowances": fed_allowances,
+                "state_allowances": state_allowances,
+                "local_tax_rate": local_rate * 100,
+                "pre_tax": pre_tax,
+                "post_tax": post_tax
+            })
+
+        except Exception as e:
+            context["error"] = f"Invalid input: {e}"
+
+    return render(request, "main/take_home_calculator.html", context)

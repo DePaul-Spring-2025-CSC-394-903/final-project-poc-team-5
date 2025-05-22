@@ -35,6 +35,6 @@ urlpatterns = [
     path("401k-result/", views.retirement_result_view, name="retirement_result"),
     path("401k-history/delete/<int:pk>/", views.delete_retirement_entry, name="delete_401k"),
     path("401k-history/edit/<int:pk>/", views.edit_retirement_entry, name="edit_401k"),
-
+    path("take-home-calculator/", views.take_home_calculator, name="take_home_calculator"),
 
 ]

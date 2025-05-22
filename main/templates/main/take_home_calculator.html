@@ -1,0 +1,110 @@
+{% extends 'main/base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Take-Home Pay Calculator (2025)</h2>
+
+  <form method="POST" class="mb-4">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="income" class="form-label">Gross Income ($)</label>
+      <input type="number" step="0.01" name="income" id="income" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="status" class="form-label">Filing Status</label>
+      <select name="status" id="status" class="form-select">
+        <option value="single">Single</option>
+        <option value="married">Married</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="state" class="form-label">State</label>
+      <select name="state" id="state" class="form-select">
+        {% for code, name in states.items %}
+          <option value="{{ code }}">{{ name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label for="pay_frequency" class="form-label">Pay Frequency</label>
+      <select name="pay_frequency" id="pay_frequency" class="form-select">
+        <option value="annual">Annually</option>
+        <option value="monthly">Monthly</option>
+        <option value="semi_monthly">Semi-Monthly</option>
+        <option value="bi_weekly">Bi-Weekly</option>
+        <option value="weekly">Weekly</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Calculate</button>
+  </form>
+
+  {% if result %}
+    <h4>Per {{ result.pay_frequency }} Paycheck</h4>
+    <ul class="list-group mb-3">
+      <li class="list-group-item">Gross Income: ${{ result.gross_income|floatformat:2 }}</li>
+      <li class="list-group-item">Federal Tax: ${{ result.federal_tax|floatformat:2 }}</li>
+      <li class="list-group-item">State Tax: ${{ result.state_tax|floatformat:2 }}</li>
+      <li class="list-group-item">FICA Tax: ${{ result.fica_tax|floatformat:2 }}</li>
+      <li class="list-group-item">Total Tax: ${{ result.total_tax|floatformat:2 }}</li>
+      <li class="list-group-item fw-bold">Take Home Pay: ${{ result.take_home_pay|floatformat:2 }}</li>
+    </ul>
+
+    <h4>Annual Summary</h4>
+    <ul class="list-group mb-4">
+      <li class="list-group-item">Annual Gross: ${{ result.annual_gross|floatformat:2 }}</li>
+      <li class="list-group-item fw-bold">Annual Take Home: ${{ result.annual_take_home|floatformat:2 }}</li>
+    </ul>
+
+    <h4>Tax Breakdown</h4>
+    <canvas id="taxChart" width="400" height="200"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      const data = {
+        labels: ['Federal Tax', 'State Tax', 'FICA Tax', 'Take Home'],
+        datasets: [{
+          label: 'Pay Breakdown',
+          data: [
+            {{ result.federal_tax|floatformat:2 }},
+            {{ result.state_tax|floatformat:2 }},
+            {{ result.fica_tax|floatformat:2 }},
+            {{ result.take_home_pay|floatformat:2 }}
+          ],
+          backgroundColor: [
+            '#FFC107',
+            '#17A2B8',
+            '#6C757D',
+            '#28A745'
+          ]
+        }]
+      };
+
+      const config = {
+        type: 'pie',
+        data: data,
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            title: {
+              display: false,
+              text: 'Pay Breakdown'
+            }
+          }
+        },
+      };
+
+      const taxChart = new Chart(
+        document.getElementById('taxChart'),
+        config
+      );
+    </script>
+  {% elif error %}
+    <div class="alert alert-danger mt-3">{{ error }}</div>
+  {% endif %}
+</div>
+{% endblock %}
