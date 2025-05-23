@@ -2,38 +2,41 @@
 {% block content %}
 <div class="container py-5">
   <h2 class="mb-4">Your Past 401(k) Calculations</h2>
+
   {% if history %}
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>Date</th>
-          <th>Year of Retirement</th>
-          <th>Projected Balance</th>
-          <th>Initial Deposit</th>
-          <th>Salary</th>
-          <th>Contribution %</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for entry in history %}
-        <tr>
-          <td>{{ entry.created_at|date:"M d, Y" }}</td>
-          <td>{{ entry.year_of_retirement }}</td>
-          <td>${{ entry.projected_balance }}</td>
-          <td>${{ entry.init_deposit }}</td>
-          <td>${{ entry.salary }}</td>
-          <td>{{ entry.contribution }}%</td>
-          <td>
-            <div class="d-flex gap-2">
-              <a href="{% url 'edit_401k' entry.pk %}" class="btn btn-sm btn-outline-primary w-100">Edit</a>
-              <a href="{% url 'delete_401k' entry.pk %}" class="btn btn-sm btn-outline-danger w-100">Delete</a>
-            </div>
-          </td>
-                
-        </tr>
-        {% endfor %}
-      </tbody>      
-    </table>
+    <div class="table-responsive">
+      <table class="table table-striped align-middle">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Year of Retirement</th>
+            <th>Projected Balance</th>
+            <th>Initial Deposit</th>
+            <th>Salary</th>
+            <th>Contribution %</th>
+            <th class="text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in history %}
+          <tr>
+            <td>{{ entry.created_at|date:"M d, Y" }}</td>
+            <td>{{ entry.retirement_age }}</td>
+            <td>${{ entry.projected_balance }}</td>
+            <td>${{ entry.init_deposit }}</td>
+            <td>${{ entry.salary }}</td>
+            <td>{{ entry.contribution }}%</td>
+            <td>
+              <div class="d-flex flex-column flex-md-row gap-2 justify-content-center">
+                <a href="{% url 'edit_401k' entry.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                <a href="{% url 'delete_401k' entry.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   {% else %}
     <p>No previous calculations found.</p>
   {% endif %}

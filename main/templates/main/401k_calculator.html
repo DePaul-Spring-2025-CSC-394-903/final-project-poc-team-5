@@ -55,8 +55,8 @@
           <input type="number" step="0.01" class="form-control" name="employer_match_percent" value="{{ employer_match_percent|default:'' }}" required>
         </div>
         <div class="col-md-4">
-          <label for="employer_match_limit">Employer Match Limit (%)</label>
-          <input type="number" step="0.01" class="form-control" name="employer_match_limit" value="{{ employer_match_limit|default:'2.0' }}" required>
+          <label for="employer_match_limit_percent">Employer Match Limit (% of Salary)</label>
+          <input type="number" step="0.01" class="form-control" name="employer_match_limit_percent" value="{{ employer_match_limit_percent|default:'2.0' }}" required>
         </div>
         <div class="col-md-4">
           <label for="annual_yield">Annual Return (%)</label>
@@ -74,7 +74,6 @@
     {% endif %}
   </div>
 </div>
-
 
 {% if result %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

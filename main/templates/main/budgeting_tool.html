@@ -4,23 +4,59 @@
 <div class="container my-5">
   <div class="card shadow p-4">
     <h2 class="text-center mb-4">Budgeting Tool</h2>
+
+    <!-- Budget Form -->
     <form method="post" id="budget-form">
       {% csrf_token %}
       <div class="mb-3">
         <label for="income">Monthly Income ($)</label>
-        <input type="number" name="income" id="income" step="0.01" class="form-control" placeholder="Enter income" value="{{ income }}">
+        <input type="number" name="income" id="income" step="0.01" class="form-control" placeholder="Enter income" value="{{ income }}" {% if locked_income %}readonly{% endif %}>
+        {% if locked_income %}
+          <small class="text-muted">This value is locked after first submission.</small>
+        {% endif %}
       </div>
+
+      <div class="mb-3">
+        <label for="selected_debt">Select Debt Calculation</label>
+        <select class="form-control" name="debt_selection" id="selected_debt">
+          <option value="">-- None --</option>
+          {% for d in debt_history %}
+            <option value="{{ d.id }}" {% if selected_debt_id == d.id|stringformat:"s" %}selected{% endif %}>
+              {{ d.created_at|date:"M d, Y" }} - {{ d.strategy|title }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label for="selected_401k">Select 401(k) Calculation</label>
+        <select class="form-control" name="retirement_selection" id="selected_401k">
+          <option value="">-- None --</option>
+          {% for r in retirement_history %}
+            <option value="{{ r.id }}" {% if selected_401k_id == r.id|stringformat:"s" %}selected{% endif %}>
+              Age {{ r.current_age }} → {{ r.retirement_age }} | ${{ r.projected_balance }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
       <button type="submit" class="btn btn-primary w-100">Calculate Budget</button>
     </form>
 
-    <div class="mt-5">
-      <canvas id="budgetChart" height="150"></canvas>
-    </div>
+    {% if locked_income %}
+    <form method="post" action="{% url 'reset_income' %}" class="mt-2">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-outline-danger w-100">Reset Income</button>
+    </form>
+    {% endif %}
 
     {% if allocations %}
-      <form id="allocation-form" class="mt-4">
-        <ul class="list-group">
-          {% for label, value, color in allocations %}
+    <!-- Side-by-side layout for allocations and chart -->
+    <div class="row mt-5 g-4">
+      <div class="col-md-6">
+        <form id="allocation-form">
+          <ul class="list-group">
+            {% for label, value, color in allocations %}
             <li class="list-group-item d-flex justify-content-between align-items-center">
               <span class="d-flex align-items-center">
                 <span style="display:inline-block; width:15px; height:15px; margin-right:10px; background-color: {{ color|default:'#cccccc' }};"></span>
@@ -28,13 +64,22 @@
               </span>
               <input type="number" step="0.01" class="form-control w-25 text-end category-input" name="{{ label }}" value="{{ value }}" data-label="{{ label }}" data-color="{{ color }}">
             </li>
-          {% endfor %}
-        </ul>
-      </form>
+            {% endfor %}
+          </ul>
+        </form>
+      </div>
+
+      <div class="col-md-6 d-flex justify-content-center align-items-center">
+        <div style="width:100%; max-width:400px;">
+          <canvas id="budgetChart" height="300"></canvas>
+        </div>
+      </div>
+    </div>
     {% endif %}
   </div>
 </div>
 
+<!-- Chart.js Script -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const ctx = document.getElementById('budgetChart').getContext('2d');
@@ -54,6 +99,8 @@
     },
     options: {
       cutout: '70%',
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { position: 'right' },
         tooltip: {
@@ -71,9 +118,6 @@
   document.querySelectorAll('.category-input').forEach(input => {
     input.addEventListener('input', () => {
       const values = Array.from(document.querySelectorAll('.category-input')).map(i => parseFloat(i.value) || 0);
-      const totalIncome = values.reduce((a, b) => a + b, 0);
-      document.getElementById('income').value = totalIncome.toFixed(2);
-
       chart.data.datasets[0].data = values;
       chart.update();
     });

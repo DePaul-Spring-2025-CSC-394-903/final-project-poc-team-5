@@ -8,9 +8,10 @@
       <strong>Projected Balance by {{ result.year_of_retirement }}: ${{ result.projected_balance }}</strong>
     </div>
 
-    <div class="mt-5" style="max-width: 1000px; margin: auto;">
-        <canvas id="chart" height="250"></canvas>
-      </div>
+    <div class="mt-5" style="max-width: 1000px; height: 500px; margin: auto;">
+      <canvas id="chart" style="width: 100%; height: 100%;"></canvas>
+    </div>
+    
       
     <div class="mt-4 text-center">
       <a href="{% url 'calculator_401k' %}" class="btn btn-secondary">Back to Calculator</a>
