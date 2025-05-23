@@ -1,12 +1,7 @@
 import datetime
 from decimal import Decimal, getcontext
-<<<<<<< HEAD
-
-getcontext().prec = 12  
-=======
 from .tax_data import federal_tax_brackets, state_tax_brackets_2025
 getcontext().prec = 12
->>>>>>> aaff0fb962e73d74f66985693ab775218daaf5fd
 
 # IRS contribution caps for 2025
 EMPLOYEE_LIMIT = 23000
@@ -65,7 +60,6 @@ def calcGains(init_deposit, current_age, retirement_age, salary,
         if m % 12 == 0:
             balance_by_year.append(round(float(balance), 2))
 
-<<<<<<< HEAD
     return (
         round(float(balance), 2),
         balance_by_year,
@@ -73,7 +67,6 @@ def calcGains(init_deposit, current_age, retirement_age, salary,
         float(total_employer_contrib),
     )
 
-=======
     return round(float(balance), 2), balance_by_year, float(total_emp), float(total_em)
 
 #federal_tax_brackets = {
@@ -207,4 +200,3 @@ def calculate_take_home(income, status, state, fed_allowances=1, state_allowance
         "post_tax_deductions": post_tax,
         "take_home_pay": round(take_home, 2),
     }
->>>>>>> aaff0fb962e73d74f66985693ab775218daaf5fd
