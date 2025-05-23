@@ -467,21 +467,21 @@ def budgeting_tool(request):
             else:
                 income = float(session_income)
 
-            # Load selected debt (snowball) entry
+            
             snowball_monthly = 0
             if selected_debt_id:
                 debt_entry = DebtCalculation.objects.filter(user=user, pk=selected_debt_id).first()
                 if debt_entry:
                     snowball_monthly = float(debt_entry.total_payment) / float(debt_entry.months_to_freedom)
 
-            # Load selected 401(k) retirement entry
+            
             retirement_monthly = 0
             if selected_401k_id:
                 retirement_entry = RetirementCalculation.objects.filter(user=user, pk=selected_401k_id).first()
                 if retirement_entry:
                     retirement_monthly = float(retirement_entry.salary) * (float(retirement_entry.contribution) / 100) / 12
 
-            # Fixed ratios for categories (should sum to 1.0)
+            
             ratios = {
                 "Housing": 0.25,
                 "Food": 0.10,
@@ -494,7 +494,6 @@ def budgeting_tool(request):
             base_total = sum(ratios.values())
             remaining_income = max(0, income - (snowball_monthly + retirement_monthly))
 
-            # Calculate base category allocations
             base_allocations = [round(remaining_income * ratios[cat], 2) for cat in ratios]
 
             savings = round(retirement_monthly, 2)
@@ -516,7 +515,6 @@ def budgeting_tool(request):
 
     return render(request, 'main/budgeting_tool.html', context)
 
-<<<<<<< HEAD
 
 
 @require_POST
@@ -524,7 +522,6 @@ def budgeting_tool(request):
 def reset_income(request):
     request.session.pop("fixed_income", None)
     return redirect('budgeting_tool')
-=======
 def take_home_calculator(request):
     pay_periods = {
         "annual": 1,
@@ -606,4 +603,3 @@ def take_home_calculator(request):
             context["error"] = f"Invalid input: {e}"
 
     return render(request, "main/take_home_calculator.html", context)
->>>>>>> aaff0fb962e73d74f66985693ab775218daaf5fd
