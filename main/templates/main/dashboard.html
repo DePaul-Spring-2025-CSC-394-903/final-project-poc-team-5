@@ -7,7 +7,7 @@
 
   <div class="row row-cols-1 row-cols-md-3 g-4">
 
-    <!-- Combined Snowball Calculator -->
+    <!-- Snowball Calculator -->
     <div class="col">
       <div class="card h-100 text-center border-primary">
         <div class="card-body">
@@ -27,30 +27,25 @@
       </div>
     </div>
 
-   <!-- 401(k) Calculator -->
-   <div class="col">
-    <div class="card h-100 text-center border-success">
-      <div class="card-body">
-        <h5 class="card-title">401(k) Retirement Calculator</h5>
-        <p class="card-text">Estimate your retirement savings and growth.</p>
-  
-        <!-- Try Calculator -->
-        <a href="{% url 'calculator_401k' %}" class="btn btn-success mb-2">Try Calculator</a>
-  
-        {% if has_401k_result %}
-        <!-- View Last Result -->
-        <hr>
-        <p class="card-text">You have a recent result saved.</p>
-        <a href="{% url 'retirement_result' %}" class="btn btn-outline-info mb-2">View Last Result</a>
-        {% endif %}
-  
-        <!-- View All History -->
-        <hr>
-        <a href="{% url 'retirement_history' %}" class="btn btn-outline-secondary">View All Past Calculations</a>
+    <!-- 401(k) Calculator -->
+    <div class="col">
+      <div class="card h-100 text-center border-success">
+        <div class="card-body">
+          <h5 class="card-title">401(k) Retirement Calculator</h5>
+          <p class="card-text">Estimate your retirement savings and growth.</p>
+          <a href="{% url 'calculator_401k' %}" class="btn btn-success mb-2">Try Calculator</a>
+
+          {% if has_401k_result %}
+          <hr>
+          <p class="card-text">You have a recent result saved.</p>
+          <a href="{% url 'retirement_result' %}" class="btn btn-outline-info mb-2">View Last Result</a>
+          {% endif %}
+
+          <hr>
+          <a href="{% url 'retirement_history' %}" class="btn btn-outline-secondary">View All Past Calculations</a>
+        </div>
       </div>
     </div>
-  </div>
-
 
     <!-- Budgeting Calculator -->
     <div class="col">
@@ -64,26 +59,33 @@
     </div>
 
     <!-- Savings Calculator (Coming Soon) -->
-  <div class="col">
-    <div class="card h-100 text-center border-secondary">
-      <div class="card-body">
-        <h5 class="card-title">Savings Calculator</h5>
-        <p class="card-text">Estimate future savings with monthly contributions.</p>
-        <button class="btn btn-secondary" disabled>Coming Soon</button>
+    <div class="col">
+      <div class="card h-100 text-center border-secondary">
+        <div class="card-body">
+          <h5 class="card-title">Savings Calculator</h5>
+          <p class="card-text">Estimate future savings with monthly contributions.</p>
+          <button class="btn btn-secondary" disabled>Coming Soon</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Take Home Calculator -->
+    <div class="col">
+      <div class="card h-100 text-center border-secondary">
+        <div class="card-body">
+          <h5 class="card-title">Take Home Calculator</h5>
+          <p class="card-text">Find out how much you earn per paycheck.</p>
+          <a href="{% url 'take_home_calculator' %}" class="btn btn-secondary">Try Calculator</a>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Take Home Calculator -->
-  <div class="col">
-    <div class="card h-100 text-center border-secondary">
-      <div class="card-body">
-        <h5 class="card-title">Take Home Calculator</h5>
-        <p class="card-text">Find out how much you earn per paycheck.</p>
-        <a href="{% url 'take_home_calculator' %}" class="btn btn-secondary">Try Calculator</a>
-      </div>
-    </div>
-  </div>
+  <!-- Learn More Button -->
+  <div class="text-center mt-5">
+    <a href="{% url 'calculator_info' %}" class="btn btn-outline-info btn-lg">
+      Learn About the Calculators
+    </a>
   </div>
 </div>
 {% endblock %}

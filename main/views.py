@@ -67,6 +67,11 @@ def about(request):
     ]
     return render(request, 'main/About.html', {'team_members': team_members, 'APPNAME': 'Elite 5'})
 
+@login_required
+def calculator_info_view(request):
+    return render(request, "main/calculator_info.html")
+
+
 
 class LoanForm(forms.Form):
     name = forms.CharField(label="Loan Name", required=True)

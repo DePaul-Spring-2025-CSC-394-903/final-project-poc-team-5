@@ -1,0 +1,35 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="text-center mb-4">About Our Financial Calculators</h2>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-3" id="calculatorTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="snowball-tab" data-bs-toggle="tab" data-bs-target="#snowball" type="button" role="tab">Snowball</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="401k-tab" data-bs-toggle="tab" data-bs-target="#k401" type="button" role="tab">401(k)</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="budget-tab" data-bs-toggle="tab" data-bs-target="#budget" type="button" role="tab">Budgeting</button>
+    </li>
+  </ul>
+
+  <!-- Tab content -->
+  <div class="tab-content" id="calculatorTabsContent">
+    <div class="tab-pane fade show active" id="snowball" role="tabpanel">
+      <h4>Snowball Debt Calculator</h4>
+      <p>This calculator helps you pay off debt by targeting the smallest balance first. It simulates interest, payments, and extra payments for optimized repayment strategies.</p>
+    </div>
+    <div class="tab-pane fade" id="k401" role="tabpanel">
+      <h4>401(k) Retirement Calculator</h4>
+      <p>This tool estimates your projected retirement savings based on your current salary, contributions, employer match, and compound growth over time.</p>
+    </div>
+    <div class="tab-pane fade" id="budget" role="tabpanel">
+      <h4>Budgeting Tool</h4>
+      <p>Plan your monthly spending by allocating your income across key categories like housing, food, savings, and more. Includes visual breakdowns via charts.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
