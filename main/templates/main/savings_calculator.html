@@ -1,0 +1,116 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% block content %}
+<div class="container my-5">
+  <div class="card shadow-lg p-4">
+    <h2 class="text-center mb-4">Savings Calculator</h2>
+
+    {% if result %}
+      <div class="alert alert-success text-center">
+        <strong>You have saved ${{ result.final_balance }}</strong>
+      </div>
+    {% endif %}
+
+    {% if error %}
+      <div class="alert alert-danger text-center">{{ error }}</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="starting_balance" class="form-label">Starting Balance ($)</label>
+            <input type="number" step="0.01" name="starting_balance" class="form-control" value="{{ starting_balance|default:'' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="years" class="form-label">Intended Years of Growth</label>
+            <input type="number" name="years" class="form-control" value="{{ years|default:'' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="interest_rate" class="form-label">Annual Interest Rate (%)</label>
+            <input type="number" step="0.01" name="interest_rate" class="form-control" value="{{ interest_rate|default:'' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="compound_frequency" class="form-label">Compound Frequency</label>
+            <select name="compound_frequency" class="form-select" required>
+              <option value="monthly" {% if compound_frequency == 'monthly' %}selected{% endif %}>Monthly</option>
+              <option value="annually" {% if compound_frequency == 'annually' %}selected{% endif %}>Annually</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="contribution_amount" class="form-label">Contribution Amount ($)</label>
+            <input type="number" step="0.01" name="contribution_amount" class="form-control" value="{{ contribution_amount|default:'' }}" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="contribution_frequency" class="form-label">Contribution Frequency</label>
+            <select name="contribution_frequency" class="form-select" required>
+              <option value="monthly" {% if contribution_frequency == 'monthly' %}selected{% endif %}>Monthly</option>
+              <option value="annually" {% if contribution_frequency == 'annually' %}selected{% endif %}>Annually</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Calculate</button>
+        </div>
+
+        <!-- Right Column: Chart -->
+        <div class="col-md-6">
+          {% if result %}
+          <div style="height: 400px;">
+            <canvas id="savingsChart"></canvas>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if result %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('savingsChart').getContext('2d');
+  const data = JSON.parse('{{ result.data_json|escapejs }}');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map((_, i) => `Month ${i + 1}`),
+      datasets: [{
+        label: 'Projected Balance Over Time',
+        data: data,
+        borderColor: 'green',
+        backgroundColor: 'rgba(0,200,83,0.1)',
+        borderWidth: 2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Balance ($)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Months'
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endif %}
+{% endblock %}
