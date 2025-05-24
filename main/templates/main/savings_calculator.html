@@ -7,7 +7,10 @@
 
     {% if result %}
       <div class="alert alert-success text-center">
-        <strong>You have saved ${{ result.final_balance }}</strong>
+        <strong>You have saved ${{ result.final_balance }}</strong><br>
+        {% if result.goal_months %}
+          <span>You reached your goal in {{ result.goal_months }} months.</span>
+        {% endif %}
       </div>
     {% endif %}
 
@@ -54,6 +57,11 @@
               <option value="monthly" {% if contribution_frequency == 'monthly' %}selected{% endif %}>Monthly</option>
               <option value="annually" {% if contribution_frequency == 'annually' %}selected{% endif %}>Annually</option>
             </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="goal" class="form-label">Goal ($) (Optional)</label>
+            <input type="number" step="0.01" name="goal" class="form-control" value="{{ goal|default:'' }}">
           </div>
 
           <button type="submit" class="btn btn-primary w-100">Calculate</button>
