@@ -608,3 +608,57 @@ def take_home_calculator(request):
             context["error"] = f"Invalid input: {e}"
 
     return render(request, "main/take_home_calculator.html", context)
+
+def calculate_savings_growth(starting_balance, years, interest_rate, compound_frequency, contribution, contribution_frequency):
+    months = years * 12
+    monthly_rate = (interest_rate / 100) / 12 if compound_frequency == 'monthly' else (interest_rate / 100)
+    balance = starting_balance
+    history = []
+
+    for month in range(1, months + 1):
+        if compound_frequency == 'monthly' or (compound_frequency == 'annually' and month % 12 == 0):
+            balance *= (1 + monthly_rate) if compound_frequency == 'monthly' else (1 + interest_rate / 100)
+
+        if contribution_frequency == 'monthly':
+            balance += contribution
+        elif contribution_frequency == 'annually' and month % 12 == 0:
+            balance += contribution
+
+        history.append(round(balance, 2))
+
+    return balance, history
+
+
+@login_required
+def savings_calculator(request):
+    context = {}
+    if request.method == 'POST':
+        try:
+            starting_balance = float(request.POST.get('starting_balance'))
+            years = int(request.POST.get('years'))
+            interest_rate = float(request.POST.get('interest_rate'))
+            compound_frequency = request.POST.get('compound_frequency')
+            contribution_amount = float(request.POST.get('contribution_amount'))
+            contribution_frequency = request.POST.get('contribution_frequency')
+
+            final_balance, chart_data = calculate_savings_growth(
+                starting_balance, years, interest_rate,
+                compound_frequency, contribution_amount, contribution_frequency
+            )
+
+            context = {
+                'starting_balance': starting_balance,
+                'years': years,
+                'interest_rate': interest_rate,
+                'compound_frequency': compound_frequency,
+                'contribution_amount': contribution_amount,
+                'contribution_frequency': contribution_frequency,
+                'result': {
+                    'final_balance': round(final_balance, 2),
+                    'data_json': json.dumps(chart_data)
+                }
+            }
+        except Exception as e:
+            context['error'] = f"An error occurred: {e}"
+
+    return render(request, 'main/savings_calculator.html', context)
