@@ -5,7 +5,7 @@ from main import views
 from django.contrib.auth import views as auth_views
 from .views import (
     landing, login_view, about, register, dashboard_view,
-    snowball_calculator, calculator_401k, budgeting_tool, SafeLogoutView
+    snowball_calculator, calculator_401k, budgeting_tool, savings_calculator, SafeLogoutView
 )
 
 urlpatterns = [
@@ -37,8 +37,7 @@ urlpatterns = [
     path("401k-history/edit/<int:pk>/", views.edit_retirement_entry, name="edit_401k"),
     path('budget/reset-income/', views.reset_income, name='reset_income'),
     path("calculator-info/", views.calculator_info_view, name="calculator_info"),
-
-
+    path('savings-calculator/', savings_calculator, name='savings_calculator'),
     path("take-home-calculator/", views.take_home_calculator, name="take_home_calculator"),
 
 ]
