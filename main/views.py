@@ -527,6 +527,8 @@ def budgeting_tool(request):
 def reset_income(request):
     request.session.pop("fixed_income", None)
     return redirect('budgeting_tool')
+    
+@login_required    
 def take_home_calculator(request):
     pay_periods = {
         "annual": 1,
