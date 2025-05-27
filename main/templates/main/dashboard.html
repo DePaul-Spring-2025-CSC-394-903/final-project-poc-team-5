@@ -2,80 +2,140 @@
 {% load static %}
 
 {% block content %}
+<style>
+  /* Use the same green as your navbar and buttons */
+  :root {
+    --custom-green: #198754; /* Bootstrap's 'success' green, or adjust if you want exact hex */
+  }
+
+  .card {
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+    transition: transform 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgb(0 0 0 / 0.15);
+  }
+
+  .card h5.card-title {
+    font-weight: 700;
+    color: var(--custom-green);
+  }
+
+  .card-text {
+    color: #555;
+    font-size: 0.95rem;
+  }
+
+  /* Buttons all share the same green background */
+  .btn-custom-green, .btn-custom-green-outline {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .btn-custom-green {
+    background-color: var(--custom-green);
+    border-color: var(--custom-green);
+    color: white;
+  }
+  .btn-custom-green:hover {
+    background-color: #145c32; /* Darker green on hover */
+    border-color: #145c32;
+    color: white;
+  }
+
+  .btn-custom-green-outline {
+    background-color: transparent;
+    border: 2px solid var(--custom-green);
+    color: var(--custom-green);
+  }
+  .btn-custom-green-outline:hover {
+    background-color: var(--custom-green);
+    color: white;
+  }
+
+  /* Consistent margin on buttons */
+  .card-body a.btn {
+    margin-bottom: 0.5rem;
+  }
+</style>
+
 <div class="container py-5">
-  <h1 class="mb-4 text-center">Your Financial Tools</h1>
+  <h1 class="mb-5 text-center" style="color: var(--custom-green); font-weight: 700;">Your Financial Tools</h1>
 
   <div class="row row-cols-1 row-cols-md-3 g-4">
 
     <!-- Snowball Calculator -->
     <div class="col">
-      <div class="card h-100 text-center border-primary">
+      <div class="card h-100 text-center border-0">
         <div class="card-body">
           <h5 class="card-title">Snowball Debt Calculator</h5>
           <p class="card-text">Create a debt payoff plan using the snowball method.</p>
-          <a href="{% url 'debt_calculator' %}" class="btn btn-success mb-2">Try Calculator</a>
+          <a href="{% url 'debt_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
 
           {% if has_result %}
           <hr>
           <p class="card-text">You have a recent result saved.</p>
-          <a href="{% url 'snowball_result' %}" class="btn btn-outline-info mb-2">View Last Result</a>
+          <a href="{% url 'snowball_result' %}" class="btn btn-custom-green-outline">View Last Result</a>
           {% endif %}
 
           <hr>
-          <a href="{% url 'snowball_history' %}" class="btn btn-outline-secondary">View All Past Calculations</a>
+          <a href="{% url 'snowball_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
         </div>
       </div>
     </div>
 
     <!-- 401(k) Calculator -->
     <div class="col">
-      <div class="card h-100 text-center border-success">
+      <div class="card h-100 text-center border-0">
         <div class="card-body">
           <h5 class="card-title">401(k) Retirement Calculator</h5>
           <p class="card-text">Estimate your retirement savings and growth.</p>
-          <a href="{% url 'calculator_401k' %}" class="btn btn-success mb-2">Try Calculator</a>
+          <a href="{% url 'calculator_401k' %}" class="btn btn-custom-green">Try Calculator</a>
 
           {% if has_401k_result %}
           <hr>
           <p class="card-text">You have a recent result saved.</p>
-          <a href="{% url 'retirement_result' %}" class="btn btn-outline-info mb-2">View Last Result</a>
+          <a href="{% url 'retirement_result' %}" class="btn btn-custom-green-outline">View Last Result</a>
           {% endif %}
 
           <hr>
-          <a href="{% url 'retirement_history' %}" class="btn btn-outline-secondary">View All Past Calculations</a>
+          <a href="{% url 'retirement_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
         </div>
       </div>
     </div>
 
     <!-- Budgeting Calculator -->
     <div class="col">
-      <div class="card h-100 text-center">
+      <div class="card h-100 text-center border-0">
         <div class="card-body">
           <h5 class="card-title">Budgeting Calculator</h5>
           <p class="card-text">Plan your monthly income and expenses.</p>
-          <a href="{% url 'budgeting_tool' %}" class="btn btn-success">Try It</a>
+          <a href="{% url 'budgeting_tool' %}" class="btn btn-custom-green">Try It</a>
         </div>
       </div>
     </div>
 
     <!-- Savings Calculator (Coming Soon) -->
     <div class="col">
-      <div class="card h-100 text-center border-secondary">
+      <div class="card h-100 text-center border-0">
         <div class="card-body">
           <h5 class="card-title">Savings Calculator</h5>
           <p class="card-text">Estimate future savings with monthly contributions.</p>
-          <a href="{% url 'savings_calculator' %}" class="btn btn-success">Try Calculator</a>
+          <a href="{% url 'savings_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
         </div>
       </div>
     </div>
 
     <!-- Take Home Calculator -->
     <div class="col">
-      <div class="card h-100 text-center border-secondary">
+      <div class="card h-100 text-center border-0">
         <div class="card-body">
           <h5 class="card-title">Take Home Calculator</h5>
           <p class="card-text">Find out how much you earn per paycheck.</p>
-          <a href="{% url 'take_home_calculator' %}" class="btn btn-success">Try Calculator</a>
+          <a href="{% url 'take_home_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
         </div>
       </div>
     </div>
@@ -83,7 +143,7 @@
 
   <!-- Learn More Button -->
   <div class="text-center mt-5">
-    <a href="{% url 'calculator_info' %}" class="btn btn-outline-info btn-lg">
+    <a href="{% url 'calculator_info' %}" class="btn btn-custom-green-outline btn-lg">
       Learn About the Calculators
     </a>
   </div>
