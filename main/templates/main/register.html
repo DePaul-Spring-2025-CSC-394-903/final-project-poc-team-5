@@ -1,11 +1,54 @@
 {% extends "main/base.html" %}
+
 {% block content %}
-<div style="max-width: 400px; margin: auto; padding: 2em;">
-    <h2>Register</h2>
-    <form method="post">
+<div style="max-width: 400px; margin: auto; padding: 2em; background-color: white; border-radius: 25px; box-shadow: 0 0 10px rgba(0,0,0,0.1); transition: 0.4s ease-in-out;">
+    <h2 style="text-align: center; margin: 1em; color: green; font-size: 1.5em; font-weight: bold;">Register</h2>
+
+    {% if form.errors %}
+        <div style="color: red; margin-bottom: 1em;">
+            {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" style="display: flex; flex-direction: column; gap: 15px;">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-success">Register</button>
+        {% for field in form %}
+            <div style="display: flex; flex-direction: column;">
+                <label for="{{ field.id_for_label }}" style="color: green; font-weight: bold; margin-bottom: 0.25em;">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <div style="color: red; font-size: 0.9em;">{{ field.errors|striptags }}</div>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <div style="display: flex; justify-content: center; gap: 0.5em; margin-top: 1.5em;">
+            <button type="submit" style="padding: 0.5em 1.5em; border-radius: 5px; border: none; background-color: green; color: white; transition: 0.4s ease-in-out;">Register</button>
+        </div>
     </form>
+
+    <p style="margin-top: 1em; text-align: center;">
+        Already have an account?
+        <a href="{% url 'login' %}" style="color: green; text-decoration: underline;">Log in here</a>
+    </p>
 </div>
+
+<style>
+  input {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 0.5em;
+    outline: none;
+    width: 100%;
+    color: #333;
+    transition: border-color 0.3s;
+  }
+
+  input:focus {
+    border-color: green;
+  }
+</style>
 {% endblock %}
+

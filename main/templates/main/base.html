@@ -22,34 +22,88 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'landing' %}">
-                {{ APPNAME|default:"Elite 5" }}
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item"><span class="nav-link disabled">{{ user.username }}</span></li>
-                        <li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
 
-    <!-- Main Content -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top mb-3" id="customNavbar">
+  <div class="container d-flex justify-content-center align-items-center" style="max-width: 80%;">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
+      <ul class="navbar-nav d-flex flex-row align-items-center">
+        <li class="nav-item d-flex align-items-center">
+          <a class="nav-link fs-5 mx-2 text-success no-hover" href="{% url 'landing' %}">
+            💰 {{ APPNAME|default:"Elite 5" }}
+          </a>
+        </li>
+        <li class="nav-item"><a class="nav-link fs-5 mx-2" href="{% url 'about' %}">About</a></li>
+        <li class="nav-item"><a class="nav-link fs-5 mx-2" href="{% url 'dashboard' %}">Dashboard</a></li>
+        {% if user.is_authenticated %}
+          <li class="nav-item"><span class="nav-link fs-5 mx-2 disabled">{{ user.username }}</span></li>
+          <li class="nav-item"><a class="nav-link fs-5 mx-2" href="{% url 'logout' %}">Logout</a></li>
+        {% else %}
+          <li class="nav-item"><a class="nav-link fs-5 mx-2" href="{% url 'login' %}">Login</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<style>
+  .navbar-nav .nav-link {
+    color: black;
+    font-weight: bold;
+    position: relative;
+  }
+
+  .navbar-nav .nav-link.text-success {
+    color: green;
+  }
+
+  /* Remove underline hover effect for APPNAME */
+  .navbar-nav .nav-link.no-hover::after {
+    display: none;
+  }
+
+  /* Underline hover effect for other nav links */
+  .navbar-nav .nav-link:not(.no-hover)::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    display: block;
+    background: green;
+    transition: width 0.3s;
+    bottom: 0;
+    left: 0;
+  }
+
+  .navbar-nav .nav-link:not(.no-hover):hover::after {
+    width: 100%;
+  }
+</style>
+
+<script>
+  window.addEventListener('scroll', function () {
+    const navbar = document.getElementById('customNavbar');
+    if (window.scrollY > 50) {
+      navbar.querySelector('.container').style.maxWidth = '100%';
+    } else {
+      navbar.querySelector('.container').style.maxWidth = '80%';
+    }
+  });
+</script>
+  
+  
+
+  <!-- Main Content -->
     <main>
         {% block content %}{% endblock %}
     </main>
+  <style>
+    main {
+    padding-top: 70px; /* Adjust as needed to your navbar height */
+  }
+  </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
