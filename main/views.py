@@ -527,6 +527,8 @@ def budgeting_tool(request):
 def reset_income(request):
     request.session.pop("fixed_income", None)
     return redirect('budgeting_tool')
+    
+@login_required    
 def take_home_calculator(request):
     pay_periods = {
         "annual": 1,
@@ -609,15 +611,17 @@ def take_home_calculator(request):
 
     return render(request, "main/take_home_calculator.html", context)
 
-def calculate_savings_growth(starting_balance, years, interest_rate, compound_frequency, contribution, contribution_frequency):
+def calculate_savings_growth(starting_balance, years, interest_rate, compound_frequency, contribution, contribution_frequency, goal=None):
     months = years * 12
-    monthly_rate = (interest_rate / 100) / 12 if compound_frequency == 'monthly' else (interest_rate / 100)
     balance = starting_balance
     history = []
+    goal_months = None
 
     for month in range(1, months + 1):
-        if compound_frequency == 'monthly' or (compound_frequency == 'annually' and month % 12 == 0):
-            balance *= (1 + monthly_rate) if compound_frequency == 'monthly' else (1 + interest_rate / 100)
+        if compound_frequency == 'monthly':
+            balance *= (1 + (interest_rate / 100) / 12)
+        elif compound_frequency == 'annually' and month % 12 == 0:
+            balance *= (1 + (interest_rate / 100))
 
         if contribution_frequency == 'monthly':
             balance += contribution
@@ -626,7 +630,10 @@ def calculate_savings_growth(starting_balance, years, interest_rate, compound_fr
 
         history.append(round(balance, 2))
 
-    return balance, history
+        if goal is not None and goal_months is None and balance >= goal:
+            goal_months = month
+
+    return round(balance, 2), history, goal_months
 
 
 @login_required
@@ -640,10 +647,13 @@ def savings_calculator(request):
             compound_frequency = request.POST.get('compound_frequency')
             contribution_amount = float(request.POST.get('contribution_amount'))
             contribution_frequency = request.POST.get('contribution_frequency')
+            goal_raw = request.POST.get('goal')
+            goal = float(goal_raw) if goal_raw else None
 
-            final_balance, chart_data = calculate_savings_growth(
+            final_balance, chart_data, goal_months = calculate_savings_growth(
                 starting_balance, years, interest_rate,
-                compound_frequency, contribution_amount, contribution_frequency
+                compound_frequency, contribution_amount, contribution_frequency,
+                goal
             )
 
             context = {
@@ -653,8 +663,10 @@ def savings_calculator(request):
                 'compound_frequency': compound_frequency,
                 'contribution_amount': contribution_amount,
                 'contribution_frequency': contribution_frequency,
+                'goal': goal,
                 'result': {
                     'final_balance': round(final_balance, 2),
+                    'goal_months': goal_months,
                     'data_json': json.dumps(chart_data)
                 }
             }
