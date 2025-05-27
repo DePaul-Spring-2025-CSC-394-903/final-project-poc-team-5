@@ -2,11 +2,93 @@
 {% load static %}
 {% block content %}
 
+<style>
+  :root {
+    --custom-green: #198754;
+    --custom-green-light: #48bb78;
+  }
+
+  /* Container Heading */
+  h2.text-center {
+    color: var(--custom-green);
+    font-weight: 700;
+  }
+
+  /* Tabs */
+  .nav-tabs .nav-link {
+    color: #555;
+    font-weight: 600;
+    transition: background-color 0.3s, color 0.3s;
+    border: none;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-tabs .nav-link:hover {
+    color: var(--custom-green);
+  }
+  .nav-tabs .nav-link.active {
+    color: #fff;
+    background-color: var(--custom-green);
+    border-radius: 8px 8px 0 0;
+  }
+
+  /* Tab content cards */
+  .tab-pane {
+    padding: 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+  }
+  .tab-pane h4 {
+    color: var(--custom-green);
+    font-weight: 600;
+  }
+  .tab-pane p,
+  .tab-pane ul {
+    color: #333;
+    line-height: 1.6;
+  }
+  .tab-pane ul li {
+    margin-bottom: 0.5rem;
+  }
+
+ /* Buttons all share the same green background */
+  .btn-custom-green, .btn-custom-green-outline {
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  .btn-custom-green {
+    background-color: var(--custom-green);
+    border-color: var(--custom-green);
+    color: white;
+  }
+  .btn-custom-green:hover {
+    background-color: #48bb78; /* Darker green on hover */
+    border-color: #48bb78;
+    color: white;
+  }
+
+  .btn-custom-green-outline {
+    background-color: transparent;
+    border: 2px solid var(--custom-green);
+    color: var(--custom-green);
+  }
+  .btn-custom-green-outline:hover {
+    background-color: var(--custom-green);
+    color: white;
+  }
+ 
+</style>
+
 <div class="container py-5">
   <h2 class="text-center mb-4">About Our Financial Calculators</h2>
 
   <!-- Tabs -->
-  <ul class="nav nav-tabs mb-4" id="calculatorTabs" role="tablist">
+  <ul class="nav nav-tabs mb-0" id="calculatorTabs" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#snowball" type="button">Snowball</button>
     </li>
@@ -28,65 +110,74 @@
   <div class="tab-content">
 
     <!-- Snowball -->
-  <div class="tab-pane fade show active" id="snowball" role="tabpanel">
-    <h4 class="mb-3">Snowball Debt Calculator</h4>
-    <p>The Snowball Calculator empowers you to take control of your debt by offering three evidence-based strategies for repayment:</p>
-    <ul>
-      <li><strong>Snowball Method:</strong> Focuses on paying off your smallest debts first to build momentum. Once a debt is cleared, you roll its payment into the next smallest one—like a snowball gaining size—helping you stay motivated as you witness quick wins.</li>
-      <li><strong>Avalanche Method:</strong> Prioritizes paying debts with the highest interest rates first. While this may not give you the psychological boost of quick wins, it is the most cost-effective strategy in the long run by minimizing total interest paid.</li>
-      <li><strong>Fewest Payments First:</strong> Targets debts with the fewest remaining payments, helping you quickly eliminate accounts and reduce mental load, while freeing up cash flow earlier.</li>
-    </ul>
-    <p>You can pair this calculator with our Budgeting Tool to see how much extra money you can allocate monthly toward debt without compromising essentials.</p>
+    <div class="tab-pane fade show active" id="snowball" role="tabpanel">
+      <h4 class="mb-3">Snowball Debt Calculator</h4>
+      <p>The Snowball Calculator empowers you to take control of your debt by offering three evidence-based strategies for repayment:</p>
+      <ul>
+        <li><strong>Snowball Method:</strong> Focuses on paying off your smallest debts first to build momentum. Once a debt is cleared, you roll its payment into the next smallest one—like a snowball gaining size—helping you stay motivated as you witness quick wins.</li>
+        <li><strong>Avalanche Method:</strong> Prioritizes paying debts with the highest interest rates first. While this may not give you the psychological boost of quick wins, it is the most cost-effective strategy in the long run by minimizing total interest paid.</li>
+        <li><strong>Fewest Payments First:</strong> Targets debts with the fewest remaining payments, helping you quickly eliminate accounts and reduce mental load, while freeing up cash flow earlier.</li>
+      </ul>
+      <p>You can pair this calculator with our Budgeting Tool to see how much extra money you can allocate monthly toward debt without compromising essentials.</p>
+    </div>
+
+    <!-- 401k -->
+    <div class="tab-pane fade" id="k401" role="tabpanel">
+      <h4 class="mb-3">401(k) Retirement Calculator</h4>
+      <p>This calculator estimates the size of your retirement nest egg based on real-world financial inputs. It accounts for:</p>
+      <ul>
+        <li>Initial 401(k) balance or first-time deposit</li>
+        <li>Your annual salary and expected salary growth over time</li>
+        <li>Employee contributions as a percentage of income and employer matching policies</li>
+        <li>Compound annual return rate based on typical investment performance</li>
+      </ul>
+      <p>It also visually charts your progress over the years, showing how your savings can grow exponentially thanks to compounding. Use this to assess whether you're on track to retire comfortably and when you may reach your financial independence goals.</p>
+    </div>
+
+    <!-- Budgeting -->
+    <div class="tab-pane fade" id="budget" role="tabpanel">
+      <h4 class="mb-3">Budgeting Tool</h4>
+      <p>Our Budgeting Calculator offers a flexible way to allocate your monthly income across essential and discretionary spending categories. Built-in features include:</p>
+      <ul>
+        <li>Predefined categories: Housing, Food, Utilities, Transportation, Healthcare, Savings, Debt, and Entertainment</li>
+        <li>Customizable allocation sliders and inputs to match your lifestyle or goals</li>
+        <li>Integration with Snowball or 401(k) calculations so your debt payments and savings plans are part of the same financial picture</li>
+      </ul>
+      <p>This tool is ideal for planning expenses, staying under budget, and adjusting your priorities based on real data. Whether you’re living paycheck to paycheck or trying to build wealth, this tool helps you make smarter financial choices.</p>
+    </div>
+
+    <!-- Savings -->
+    <div class="tab-pane fade" id="savings" role="tabpanel">
+      <h4 class="mb-3">Savings Calculator</h4>
+      <p>This tool helps you project how your savings will grow over time, based on inputs such as:</p>
+      <ul>
+        <li>Initial savings balance</li>
+        <li>Recurring monthly or annual contributions</li>
+        <li>Interest rate assumptions and compounding frequency</li>
+        <li>Optional savings goal, so you can see how long it will take to reach your target</li>
+      </ul>
+      <p>The calculator returns both a projected balance and an interactive line graph showing growth month by month, helping you understand the impact of saving early and often. It’s a perfect visualizer for emergency funds, vacations, home down payments, and more.</p>
+    </div>
+
+    <!-- Take-Home -->
+    <div class="tab-pane fade" id="takehome" role="tabpanel">
+      <h4 class="mb-3">Take-Home Pay Calculator</h4>
+      <p>Ever wonder how much of your paycheck actually ends up in your bank account? This tool breaks down your income after deductions, including:</p>
+      <ul>
+        <li>Federal and state income taxes (based on your filing status and location)</li>
+        <li>FICA taxes (Social Security and Medicare)</li>
+        <li>Pay frequency (weekly, bi-weekly, monthly, etc.)</li>
+      </ul>
+      <p>The result includes a pie chart and breakdown showing your real net income per paycheck and annually. This is especially useful for understanding how much you can afford in monthly expenses, savings, or debt repayment.</p>
+    </div>
+
   </div>
 
-  <!-- 401k -->
-  <div class="tab-pane fade" id="k401" role="tabpanel">
-    <h4 class="mb-3">401(k) Retirement Calculator</h4>
-    <p>This calculator estimates the size of your retirement nest egg based on real-world financial inputs. It accounts for:</p>
-    <ul>
-      <li>Initial 401(k) balance or first-time deposit</li>
-      <li>Your annual salary and expected salary growth over time</li>
-      <li>Employee contributions as a percentage of income and employer matching policies</li>
-      <li>Compound annual return rate based on typical investment performance</li>
-    </ul>
-    <p>It also visually charts your progress over the years, showing how your savings can grow exponentially thanks to compounding. Use this to assess whether you're on track to retire comfortably and when you may reach your financial independence goals.</p>
-  </div>
-
-  <!-- Budgeting -->
-  <div class="tab-pane fade" id="budget" role="tabpanel">
-    <h4 class="mb-3">Budgeting Tool</h4>
-    <p>Our Budgeting Calculator offers a flexible way to allocate your monthly income across essential and discretionary spending categories. Built-in features include:</p>
-    <ul>
-      <li>Predefined categories: Housing, Food, Utilities, Transportation, Healthcare, Savings, Debt, and Entertainment</li>
-      <li>Customizable allocation sliders and inputs to match your lifestyle or goals</li>
-      <li>Integration with Snowball or 401(k) calculations so your debt payments and savings plans are part of the same financial picture</li>
-    </ul>
-    <p>This tool is ideal for planning expenses, staying under budget, and adjusting your priorities based on real data. Whether you’re living paycheck to paycheck or trying to build wealth, this tool helps you make smarter financial choices.</p>
-  </div>
-
-  <!-- Savings -->
-  <div class="tab-pane fade" id="savings" role="tabpanel">
-    <h4 class="mb-3">Savings Calculator</h4>
-    <p>This tool helps you project how your savings will grow over time, based on inputs such as:</p>
-    <ul>
-      <li>Initial savings balance</li>
-      <li>Recurring monthly or annual contributions</li>
-      <li>Interest rate assumptions and compounding frequency</li>
-      <li>Optional savings goal, so you can see how long it will take to reach your target</li>
-    </ul>
-    <p>The calculator returns both a projected balance and an interactive line graph showing growth month by month, helping you understand the impact of saving early and often. It’s a perfect visualizer for emergency funds, vacations, home down payments, and more.</p>
-  </div>
-
-  <!-- Take-Home -->
-  <div class="tab-pane fade" id="takehome" role="tabpanel">
-    <h4 class="mb-3">Take-Home Pay Calculator</h4>
-    <p>Ever wonder how much of your paycheck actually ends up in your bank account? This tool breaks down your income after deductions, including:</p>
-    <ul>
-      <li>Federal and state income taxes (based on your filing status and location)</li>
-      <li>FICA taxes (Social Security and Medicare)</li>
-      <li>Pay frequency (weekly, bi-weekly, monthly, etc.)</li>
-    </ul>
-    <p>The result includes a pie chart and breakdown showing your real net income per paycheck and annually. This is especially useful for understanding how much you can afford in monthly expenses, savings, or debt repayment.</p>
+  <div class="text-center">
+    <a href="{% url 'dashboard' %}" class="btn btn-custom-green-outline btn-lg">Back to The Dashboard</a>
+    
   </div>
 </div>
+
 {% endblock %}
+
