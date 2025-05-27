@@ -1,84 +1,82 @@
 {% extends "main/base.html" %}
+{% load humanize %}
 {% block content %}
-<div class="container py-5">
-  <div class="card shadow">
-    <div class="card-body">
-      <h2 class="text-center mb-4">Edit 401(k) Calculation</h2>
+<div class="container my-5">
+  <div class="card shadow p-4">
+    <h2 class="text-center mb-4">Edit 401(k) Calculation</h2>
 
-      {% if error %}
-        <div class="alert alert-danger text-center">{{ error }}</div>
-      {% endif %}
+    {% if error %}
+      <div class="alert alert-danger text-center">{{ error }}</div>
+    {% endif %}
 
-      <form method="post">
-        {% csrf_token %}
-        <div class="row g-3">
+    <form method="post">
+      {% csrf_token %}
+      <div class="row g-3 mb-3">
 
-          <div class="col-md-6">
-            <label for="current_age" class="form-label">Current Age</label>
-            <input type="number" name="current_age" id="current_age" class="form-control" value="{{ entry.current_age }}" required>
-          </div>
-
-          <div class="col-md-6">
-            <label for="retirement_age" class="form-label">Retirement Age</label>
-            <input type="number" name="retirement_age" id="retirement_age" class="form-control" value="{{ entry.retirement_age }}" required>
-          </div>
-
-          <div class="col-md-6">
-            <label for="init_deposit" class="form-label">Initial Deposit ($)</label>
-            <input type="number" name="init_deposit" id="init_deposit" class="form-control" value="{{ entry.init_deposit }}" required>
-          </div>
-
-          <div class="col-md-6">
-            <label for="salary" class="form-label">Annual Salary ($)</label>
-            <input type="number" name="salary" id="salary" class="form-control" value="{{ entry.salary }}" required>
-          </div>
-
-          <div class="col-md-6">
-            <label for="salary_growth_percent" class="form-label">Expected Salary Growth (%)</label>
-            <input type="number" step="0.01" name="salary_growth_percent" id="salary_growth_percent" class="form-control" value="{{ entry.salary_growth }}" required>
-          </div>
-
-          <div class="col-md-6">
-            <label for="contribution_percent" class="form-label">Contribution (%)</label>
-            <input type="number" step="0.01" name="contribution_percent" id="contribution_percent" class="form-control" value="{{ entry.contribution }}" required>
-          </div>
-
-          <div class="col-md-6">
-            <label for="employer_match_percent" class="form-label">Employer Match (%)</label>
-            <input type="number" step="0.01" name="employer_match_percent" id="employer_match_percent" class="form-control" value="{{ entry.employer_match_percent|default_if_none:0 }}" required>
-          </div>
-
-          <div class="col-md-6">
-            <label for="employer_match_limit" class="form-label">Employer Match Limit (%)</label>
-            <input type="number" step="0.01" name="employer_match_limit" id="employer_match_limit" class="form-control" value="{{ entry.employer_match_limit|default_if_none:0 }}" required>
-          </div>
-
-          <div class="col-md-6">
-            <label for="annual_yield" class="form-label">Annual Yield (%)</label>
-            <input type="number" step="0.01" name="annual_yield" id="annual_yield" class="form-control" value="{{ entry.yield_rate }}" required>
-          </div>
+        <div class="col-md-6">
+          <label for="current_age" class="form-label">Current Age</label>
+          <input type="number" name="current_age" id="current_age" class="form-control" value="{{ entry.current_age }}" required>
         </div>
 
-        <button type="submit" class="btn btn-primary mt-4 w-100">Update Calculation</button>
-      </form>
-
-      {% if result %}
-        <hr class="my-5">
-        <h4 class="text-center">Updated Projection Preview</h4>
-        <div style="max-width: 1000px; margin: auto;">
-          <canvas id="projectionChart" height="250"></canvas>
+        <div class="col-md-6">
+          <label for="retirement_age" class="form-label">Retirement Age</label>
+          <input type="number" name="retirement_age" id="retirement_age" class="form-control" value="{{ entry.retirement_age }}" required>
         </div>
-      {% endif %}
 
-    </div>
+        <div class="col-md-6">
+          <label for="init_deposit" class="form-label">Initial Deposit ($)</label>
+          <input type="number" name="init_deposit" id="init_deposit" class="form-control" value="{{ entry.init_deposit }}" required>
+        </div>
+
+        <div class="col-md-6">
+          <label for="salary" class="form-label">Annual Salary ($)</label>
+          <input type="number" name="salary" id="salary" class="form-control" value="{{ entry.salary }}" required>
+        </div>
+
+        <div class="col-md-6">
+          <label for="salary_growth_percent" class="form-label">Expected Salary Growth (%)</label>
+          <input type="number" step="0.01" name="salary_growth_percent" id="salary_growth_percent" class="form-control" value="{{ entry.salary_growth }}" required>
+        </div>
+
+        <div class="col-md-6">
+          <label for="contribution_percent" class="form-label">Contribution (%)</label>
+          <input type="number" step="0.01" name="contribution_percent" id="contribution_percent" class="form-control" value="{{ entry.contribution }}" required>
+        </div>
+
+        <div class="col-md-6">
+          <label for="employer_match_percent" class="form-label">Employer Match (%)</label>
+          <input type="number" step="0.01" name="employer_match_percent" id="employer_match_percent" class="form-control" value="{{ entry.employer_match_percent|default_if_none:0 }}" required>
+        </div>
+
+        <div class="col-md-6">
+          <label for="employer_match_limit" class="form-label">Employer Match Limit (%)</label>
+          <input type="number" step="0.01" name="employer_match_limit" id="employer_match_limit" class="form-control" value="{{ entry.employer_match_limit|default_if_none:0 }}" required>
+        </div>
+
+        <div class="col-md-6">
+          <label for="annual_yield" class="form-label">Annual Yield (%)</label>
+          <input type="number" step="0.01" name="annual_yield" id="annual_yield" class="form-control" value="{{ entry.yield_rate }}" required>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-green mt-4 w-100">Update Calculation</button>
+    </form>
+
+    {% if result %}
+      <hr class="my-5">
+      <h4 class="text-center mb-4">Updated Projection Preview</h4>
+      <div class="mt-4 d-flex justify-content-center" style="max-width: 90%; height: 500px;">
+        <canvas id="projectionChart" style="width: 100%; height: 100%; border: 1px solid #e0e0e0; border-radius: 0.5rem; background: #f9f9f9; box-shadow: inset 0 0 10px rgba(0,0,0,0.05);"></canvas>
+      </div>
+    {% endif %}
   </div>
 </div>
 
 {% if result %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  const chartData = JSON.parse('{{ result.data_json|escapejs }}');
   const ctx = document.getElementById('projectionChart').getContext('2d');
+  const chartData = JSON.parse('{{ result.data_json|escapejs }}');
 
   new Chart(ctx, {
     type: 'line',
@@ -87,25 +85,79 @@
       datasets: [{
         label: 'Projected Balance',
         data: chartData,
-        borderColor: 'green',
+        borderColor: '#137333',
         backgroundColor: 'rgba(0,200,83,0.1)',
+        pointBackgroundColor: '#137333',
+        tension: 0.3,
         borderWidth: 2,
         fill: true
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            color: '#137333',
+            font: { size: 14, weight: 'bold' }
+          }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+          backgroundColor: 'rgba(0, 200, 83, 0.9)',
+          titleColor: '#fff',
+          bodyColor: '#fff'
+        }
+      },
       scales: {
         y: {
           beginAtZero: true,
-          title: { display: true, text: 'Balance ($)' }
+          title: {
+            display: true,
+            text: 'Balance ($)',
+            color: '#137333',
+            font: { size: 14, weight: 'bold' }
+          },
+          ticks: { color: '#137333' },
+          grid: { color: 'rgba(0, 0, 0, 0.05)' }
         },
         x: {
-          title: { display: true, text: 'Years' }
+          title: {
+            display: true,
+            text: 'Years',
+            color: '#137333',
+            font: { size: 14, weight: 'bold' }
+          },
+          ticks: { color: '#137333' },
+          grid: { color: 'rgba(0, 0, 0, 0.05)' }
         }
       }
     }
   });
 </script>
 {% endif %}
+
+<style>
+  .btn-green {
+    background-color: #137333;
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.375rem;
+    transition: background-color 0.3s ease;
+    display: inline-block;
+    min-width: 150px;
+  }
+  .btn-green:hover,
+  .btn-green:focus {
+    background-color: #2ea94f;
+    color: #fff;
+    outline: none;
+  }
+</style>
 {% endblock %}
+

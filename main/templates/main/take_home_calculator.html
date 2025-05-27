@@ -1,10 +1,10 @@
 {% extends 'main/base.html' %}
 {% block content %}
-<div class="container mt-5">
-  <h2 class="mb-4">Take-Home Pay Calculator (2025)</h2>
-
-  <form method="POST" class="mb-4">
+<div class="container my-5">
+ 
+  <form method="POST" class="card p-4 shadow-sm mb-4" style="border-radius: 12px;">
     {% csrf_token %}
+     <h2 class="mb-4 text-center">Take-Home Pay Calculator (2025)</h2>
 
     <!-- Income -->
     <div class="mb-3">
@@ -40,7 +40,7 @@
     </div>
 
     <!-- Pay Frequency -->
-    <div class="mb-3">
+    <div class="mb-4">
       <label for="pay_frequency" class="form-label">Pay Frequency</label>
       <select name="pay_frequency" id="pay_frequency" class="form-select">
         <option value="annual" {% if request.POST.pay_frequency == 'annual' %}selected{% endif %}>Annually</option>
@@ -51,77 +51,86 @@
       </select>
     </div>
 
-    <button type="submit" class="btn btn-primary">Calculate</button>
+    <button type="submit" class="btn btn-success w-100 fw-bold">Calculate</button>
   </form>
 
   {% if result %}
-    <h4>Per {{ result.pay_frequency|title }} Paycheck</h4>
+  <div class="card p-4 shadow-sm mb-4" style="border-radius: 12px;">
+    <h4 class="text-center mb-3">Per {{ result.pay_frequency|title }} Paycheck</h4>
     <ul class="list-group mb-3">
       <li class="list-group-item">Gross Income: ${{ result.gross_income|floatformat:2 }}</li>
       <li class="list-group-item">Federal Tax: ${{ result.federal_tax|floatformat:2 }}</li>
       <li class="list-group-item">State Tax: ${{ result.state_tax|floatformat:2 }}</li>
       <li class="list-group-item">FICA Tax: ${{ result.fica_tax|floatformat:2 }}</li>
       <li class="list-group-item">Total Tax: ${{ result.total_tax|floatformat:2 }}</li>
-      <li class="list-group-item fw-bold">Take Home Pay: ${{ result.take_home_pay|floatformat:2 }}</li>
+      <li class="list-group-item fw-bold text-success">Take Home Pay: ${{ result.take_home_pay|floatformat:2 }}</li>
     </ul>
 
-    <h4>Annual Summary</h4>
+    <h4 class="text-center mb-3">Annual Summary</h4>
     <ul class="list-group mb-4">
       <li class="list-group-item">Annual Gross: ${{ result.annual_gross|floatformat:2 }}</li>
-      <li class="list-group-item fw-bold">Annual Take Home: ${{ result.annual_take_home|floatformat:2 }}</li>
+      <li class="list-group-item fw-bold text-success">Annual Take Home: ${{ result.annual_take_home|floatformat:2 }}</li>
     </ul>
 
-<h4>Tax Breakdown</h4>
-<div class="mb-5" style="max-width: 600px; margin: 0 auto;">
-  <canvas id="taxChart"></canvas>
-</div>
+    <h4 class="text-center mb-3">Tax Breakdown</h4>
+    <div style="max-width: 600px; margin: 0 auto;">
+      <canvas id="taxChart"></canvas>
+    </div>
+  </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  const ctx = document.getElementById('taxChart');
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx = document.getElementById('taxChart').getContext('2d');
 
-  new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: ['Federal Tax', 'State Tax', 'FICA Tax', 'Take Home'],
-      datasets: [{
-        label: 'Tax Breakdown',
-        data: [
-          {{ result.federal_tax|floatformat:2 }},
-          {{ result.state_tax|floatformat:2 }},
-          {{ result.fica_tax|floatformat:2 }},
-          {{ result.take_home_pay|floatformat:2 }}
-        ],
-        backgroundColor: ['#FFC107', '#17A2B8', '#6C757D', '#28A745'],
-        borderColor: '#fff',
-        borderWidth: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            font: {
-              size: 14
+    new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Federal Tax', 'State Tax', 'FICA Tax', 'Take Home'],
+        datasets: [{
+          label: 'Tax Breakdown',
+          data: [
+            {{ result.federal_tax|floatformat:2 }},
+            {{ result.state_tax|floatformat:2 }},
+            {{ result.fica_tax|floatformat:2 }},
+            {{ result.take_home_pay|floatformat:2 }}
+          ],
+          backgroundColor: ['#FFC107', '#17A2B8', '#6C757D', '#28A745'],
+          borderColor: '#ffffff',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              font: {
+                size: 14
+              }
             }
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.parsed;
-              return `${label}: $${value.toLocaleString()}`;
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const label = context.label || '';
+                const value = context.parsed;
+                return `${label}: $${value.toLocaleString()}`;
+              }
             }
           }
         }
       }
-    }
-  });
-</script>
+    });
+  </script>
   {% endif %}
+<style>
+  .btn-success:hover {
+    background-color: #48bb78 !important; /* Light green hover */
+  }
+</style>
+  
 </div>
 {% endblock %}
+
