@@ -1,34 +1,88 @@
 {% extends "main/base.html" %}
+{% load static %}
 {% block content %}
+
 <div class="container py-5">
   <h2 class="text-center mb-4">About Our Financial Calculators</h2>
 
   <!-- Tabs -->
-  <ul class="nav nav-tabs mb-3" id="calculatorTabs" role="tablist">
+  <ul class="nav nav-tabs mb-4" id="calculatorTabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="snowball-tab" data-bs-toggle="tab" data-bs-target="#snowball" type="button" role="tab">Snowball</button>
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#snowball" type="button">Snowball</button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="401k-tab" data-bs-toggle="tab" data-bs-target="#k401" type="button" role="tab">401(k)</button>
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#k401" type="button">401(k)</button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="budget-tab" data-bs-toggle="tab" data-bs-target="#budget" type="button" role="tab">Budgeting</button>
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#budget" type="button">Budgeting</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#savings" type="button">Savings</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#takehome" type="button">Take-Home</button>
     </li>
   </ul>
 
-  <!-- Tab content -->
-  <div class="tab-content" id="calculatorTabsContent">
+  <!-- Tab Content -->
+  <div class="tab-content">
+
+    <!-- Snowball -->
     <div class="tab-pane fade show active" id="snowball" role="tabpanel">
-      <h4>Snowball Debt Calculator</h4>
-      <p>This calculator helps you pay off debt by targeting the smallest balance first. It simulates interest, payments, and extra payments for optimized repayment strategies.</p>
+      <h4 class="mb-3">Snowball Debt Calculator</h4>
+      <p>The Snowball Calculator helps you repay debts strategically using 3 repayment methods:</p>
+      <ul>
+        <li><strong>Snowball Method</strong>: Pay off the smallest debt first while making minimum payments on the rest.</li>
+        <li><strong>Avalanche Method</strong>: Focus on the debt with the highest interest rate first to reduce long-term costs.</li>
+        <li><strong>Fewest Payments</strong>: Target the debt with the fewest remaining payments first to free up your budget quickly.</li>
+      </ul>
+      <p>Combine this with our budgeting calculator to make the most efficient plan for debt freedom.</p>
     </div>
+
+    <!-- 401k -->
     <div class="tab-pane fade" id="k401" role="tabpanel">
-      <h4>401(k) Retirement Calculator</h4>
-      <p>This tool estimates your projected retirement savings based on your current salary, contributions, employer match, and compound growth over time.</p>
+      <h4 class="mb-3">401(k) Retirement Calculator</h4>
+      <p>Our 401(k) Calculator estimates your future retirement savings using:</p>
+      <ul>
+        <li>Initial deposit and expected salary growth</li>
+        <li>Contribution rate and employer match</li>
+        <li>Annual investment return (compound interest)</li>
+      </ul>
+      <p>It’s a great way to visualize how consistent saving today can grow into long-term wealth.</p>
     </div>
+
+    <!-- Budgeting -->
     <div class="tab-pane fade" id="budget" role="tabpanel">
-      <h4>Budgeting Tool</h4>
-      <p>Plan your monthly spending by allocating your income across key categories like housing, food, savings, and more. Includes visual breakdowns via charts.</p>
+      <h4 class="mb-3">Budgeting Tool</h4>
+      <p>This tool helps you allocate your monthly income across essential spending categories like:</p>
+      <ul>
+        <li>Housing, Food, Utilities, Transportation</li>
+        <li>Healthcare, Savings, Debt, Entertainment</li>
+      </ul>
+      <p>You can start with default percentages, link in your debt or 401(k) data, and adjust your allocations to fit your lifestyle.</p>
+    </div>
+
+    <!-- Savings -->
+    <div class="tab-pane fade" id="savings" role="tabpanel">
+      <h4 class="mb-3">Savings Calculator</h4>
+      <p>Use this calculator to project how your savings grow based on:</p>
+      <ul>
+        <li>Monthly contributions</li>
+        <li>Expected interest rate</li>
+        <li>Time horizon</li>
+      </ul>
+      <p>It shows the power of compound interest and consistency in saving.</p>
+    </div>
+
+    <!-- Take-Home -->
+    <div class="tab-pane fade" id="takehome" role="tabpanel">
+      <h4 class="mb-3">Take-Home Pay Calculator</h4>
+      <p>This calculator estimates how much of your paycheck you actually keep after:</p>
+      <ul>
+        <li>Federal and state taxes</li>
+        <li>Pre-tax and post-tax deductions</li>
+      </ul>
+      <p>It helps you better understand your real monthly income for smarter planning.</p>
     </div>
   </div>
 </div>
