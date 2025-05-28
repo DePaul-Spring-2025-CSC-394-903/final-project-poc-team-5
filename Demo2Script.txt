@@ -1,0 +1,8 @@
+Start Presentation by showcasing new UI 
+We will then go ahead ands show the about calculators page
+We then showcase the savings calculator and compare it to: https://www.nerdwallet.com/calculator/savings-calculator?utm_source=goog&utm_medium=cpc&utm_campaign=bk_mktg_paid_352025_dsa&utm_content=ta&mktg_place=aud-470764504540:dsa-2490690643152&gad_source=1&gad_campaignid=21211847505&gbraid=0AAAAADNEjT3xYYAMFUSHmqyzPksFDz7sH&gclid=Cj0KCQjwxdXBBhDEARIsAAUkP6j2ARyUL3OMLlkSUhZTIWd-eh_uSK1jkyNbgF58RiQFSm7x1ktapu8aAhYtEALw_wcB
+We will be using these numbers for the presentation: 
+Then we will showcase our Paycheck Calculator, and Comparing it to: https://www.adp.com/resources/tools/calculators/salary-paycheck-calculator.aspx
+We will be using these numbers for the presentation:
+Explain the margin of error and how we got there.
+Lastly, we will showcase the budget calculator again 
