@@ -12,7 +12,7 @@ import json
 from .models import DebtCalculation
 from decimal import Decimal, InvalidOperation
 from django.forms import formset_factory, BaseFormSet
-from .utils import calcGains, calculate_take_home
+from .utils import calcGains, calculate_take_home, generate_amortization_schedule
 from django.contrib.auth.views import LogoutView
 from django.http import HttpResponseNotAllowed
 from .models import RetirementCalculation
@@ -679,6 +679,7 @@ def savings_calculator(request):
 @login_required
 def mortgage_calculator(request):
     result = None
+    amortization_schedule = None
 
     if request.method == 'POST':
         form = MortgageForm(request.POST)
@@ -721,7 +722,15 @@ def mortgage_calculator(request):
                 'principal': round(principal, 2),
                 'payoff_date': payoff_date.strftime("%m / %Y")
             }
+
+            amortization_schedule = generate_amortization_schedule(
+                principal=Decimal(principal),
+                annual_rate=Decimal(form.cleaned_data['interest_rate']),
+                years=years,
+                start_date=start_date
+)
     else:
         form = MortgageForm()
 
-    return render(request, "main/mortgage_calculator.html", {"form": form, "result": result})
+    return render(request, "main/mortgage_calculator.html", {"form": form, "result": result,  "schedule": amortization_schedule})
+

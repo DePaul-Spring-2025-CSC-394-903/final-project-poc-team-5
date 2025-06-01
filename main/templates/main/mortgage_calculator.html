@@ -66,12 +66,41 @@
           <li><strong>Total loan payments:</strong> ${{ result.total_payment }}</li>
           <li><strong>Payoff date:</strong> {{ result.payoff_date }}</li>
         </ul>
+
+        <!-- Amortization Schedule -->
+        {% if schedule %}
+          <h5 class="mt-4">Amortization Schedule</h5>
+          <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-bordered table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>Payment Date</th>
+                  <th>Principal</th>
+                  <th>Interest</th>
+                  <th>Monthly Total</th>
+                  <th>Principal Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in schedule %}
+                  <tr>
+                    <td>{{ row.date }}</td>
+                    <td>${{ row.principal }}</td>
+                    <td>${{ row.interest }}</td>
+                    <td>${{ row.monthly_total }}</td>
+                    <td>${{ row.balance }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
       {% endif %}
     </div>
   </div>
 </div>
 
-<!-- JavaScript for auto-calculating down payment -->
+<!-- Auto-calculate Down Payment from Percent -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const priceInput = document.getElementById("id_home_price");
@@ -89,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 
-<!-- Donut chart -->
+<!-- Donut Chart Script -->
 {% if result %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
