@@ -84,8 +84,8 @@ class MainPaymentForm(forms.Form):
 
 class MortgageForm(forms.Form):
     home_price = forms.DecimalField(label="Home price", min_value=0)
-    down_payment = forms.DecimalField(label="Down payment", min_value=0)
+    down_payment = forms.DecimalField(label="Down payment ($)", min_value=0, required=False)
+    down_payment_percent = forms.DecimalField(label="Down payment (%)", min_value=0, max_value=100, required=False)
     interest_rate = forms.DecimalField(label="Interest rate (%)", min_value=0)
     loan_term = forms.IntegerField(label="Loan term (years)", min_value=1)
-    #start_date = forms.DateField(label="Start date", widget=forms.DateInput(attrs={'type': 'month'})
     start_date = forms.CharField(label="Start date (MM/YYYY)", widget=forms.TextInput(attrs={'type': 'month'}))

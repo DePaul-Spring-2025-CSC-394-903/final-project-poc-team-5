@@ -684,11 +684,16 @@ def mortgage_calculator(request):
         form = MortgageForm(request.POST)
         if form.is_valid():
             price = form.cleaned_data['home_price']
-            down = form.cleaned_data['down_payment']
+            down = form.cleaned_data.get('down_payment') or 0
+            down_percent = form.cleaned_data.get('down_payment_percent') or 0
             rate = form.cleaned_data['interest_rate'] / 100 / 12
             years = form.cleaned_data['loan_term']
 
-            # Parse custom MM/YYYY month picker (if using type="month")
+            # Fallback: if user left down_payment blank but entered a percentage
+            if down == 0 and down_percent:
+                down = price * (down_percent / 100)
+
+            # Handle MM/YYYY input (type="month")
             raw_date = form.cleaned_data['start_date']
             try:
                 start_date = datetime.strptime(raw_date, "%Y-%m")
@@ -700,7 +705,7 @@ def mortgage_calculator(request):
             n = years * 12
 
             try:
-                monthly_payment = principal * (rate * (1 + rate)**n) / ((1 + rate)**n - 1)
+                monthly_payment = principal * (rate * (1 + rate) ** n) / ((1 + rate) ** n - 1)
             except ZeroDivisionError:
                 monthly_payment = principal / n
 

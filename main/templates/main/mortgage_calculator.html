@@ -1,5 +1,6 @@
 {% extends "main/base.html" %}
 {% load static %}
+{% load widget_tweaks %}
 
 {% block content %}
 <div class="container py-5">
@@ -9,7 +10,46 @@
       <h4 class="mb-3">Loan details</h4>
       <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <!-- Home Price -->
+        <div class="mb-3">
+          <label for="id_home_price" class="form-label">Home Price</label>
+          {{ form.home_price|add_class:"form-control" }}
+        </div>
+
+        <!-- Down Payment + Percent -->
+        <div class="mb-3">
+          <label class="form-label">Down Payment</label>
+          <div class="row g-2">
+            <div class="col">
+              <label for="id_down_payment" class="form-label small">Amount ($)</label>
+              {{ form.down_payment|add_class:"form-control" }}
+            </div>
+            <div class="col">
+              <label for="id_down_payment_percent" class="form-label small">Percent (%)</label>
+              {{ form.down_payment_percent|add_class:"form-control" }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Interest Rate -->
+        <div class="mb-3">
+          <label for="id_interest_rate" class="form-label">Interest Rate (%)</label>
+          {{ form.interest_rate|add_class:"form-control" }}
+        </div>
+
+        <!-- Loan Term -->
+        <div class="mb-3">
+          <label for="id_loan_term" class="form-label">Loan Term (Years)</label>
+          {{ form.loan_term|add_class:"form-control" }}
+        </div>
+
+        <!-- Start Date -->
+        <div class="mb-3">
+          <label for="id_start_date" class="form-label">Start Date</label>
+          {{ form.start_date|add_class:"form-control" }}
+        </div>
+
         <button type="submit" class="btn btn-success w-100 mt-3">Calculate</button>
       </form>
     </div>
@@ -31,6 +71,25 @@
   </div>
 </div>
 
+<!-- JavaScript for auto-calculating down payment -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const priceInput = document.getElementById("id_home_price");
+  const percentInput = document.getElementById("id_down_payment_percent");
+  const downInput = document.getElementById("id_down_payment");
+
+  function updateDownPayment() {
+    const price = parseFloat(priceInput.value.replace(/,/g, '')) || 0;
+    const percent = parseFloat(percentInput.value) || 0;
+    const down = (price * percent / 100).toFixed(2);
+    downInput.value = down;
+  }
+
+  percentInput.addEventListener("input", updateDownPayment);
+});
+</script>
+
+<!-- Donut chart -->
 {% if result %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
@@ -57,4 +116,3 @@ new Chart(ctx, {
 </script>
 {% endif %}
 {% endblock %}
-
