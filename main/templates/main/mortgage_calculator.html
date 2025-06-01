@@ -1,0 +1,60 @@
+{% extends "main/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row">
+    <!-- Left Column: Form -->
+    <div class="col-md-6 bg-light p-4 rounded">
+      <h4 class="mb-3">Loan details</h4>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success w-100 mt-3">Calculate</button>
+      </form>
+    </div>
+
+    <!-- Right Column: Results -->
+    <div class="col-md-6 p-4">
+      {% if result %}
+        <h5 class="mb-3">Loan Estimate</h5>
+        <h2 class="text-success">${{ result.monthly_payment }}</h2>
+        <canvas id="donutChart" width="200" height="200" class="my-3"></canvas>
+        <ul class="list-unstyled">
+          <li><strong>Total principal:</strong> ${{ result.principal }}</li>
+          <li><strong>Total interest payments:</strong> ${{ result.total_interest }}</li>
+          <li><strong>Total loan payments:</strong> ${{ result.total_payment }}</li>
+          <li><strong>Payoff date:</strong> {{ result.payoff_date }}</li>
+        </ul>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% if result %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('donutChart').getContext('2d');
+new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Principal', 'Interest'],
+    datasets: [{
+      data: [{{ result.principal }}, {{ result.total_interest }}],
+      backgroundColor: ['#4CAF50', '#FFC107']
+    }]
+  },
+  options: {
+    cutout: '70%',
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom'
+      }
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}
+

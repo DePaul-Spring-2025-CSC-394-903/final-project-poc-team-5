@@ -6,7 +6,7 @@ from django.views.decorators.http import require_POST
 from datetime import timedelta
 from django.utils import timezone
 from django.http import JsonResponse
-from .forms import EmailLoginForm, CustomRegisterForm, MainPaymentForm
+from .forms import EmailLoginForm, CustomRegisterForm, MainPaymentForm, MortgageForm
 from django import forms
 import json
 from .models import DebtCalculation
@@ -20,6 +20,7 @@ from datetime import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .tax_data import federal_tax_brackets, state_tax_brackets_2025
+import math
 
 class SafeLogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
@@ -674,3 +675,48 @@ def savings_calculator(request):
             context['error'] = f"An error occurred: {e}"
 
     return render(request, 'main/savings_calculator.html', context)
+
+@login_required
+def mortgage_calculator(request):
+    result = None
+
+    if request.method == 'POST':
+        form = MortgageForm(request.POST)
+        if form.is_valid():
+            price = form.cleaned_data['home_price']
+            down = form.cleaned_data['down_payment']
+            rate = form.cleaned_data['interest_rate'] / 100 / 12
+            years = form.cleaned_data['loan_term']
+
+            # Parse custom MM/YYYY month picker (if using type="month")
+            raw_date = form.cleaned_data['start_date']
+            try:
+                start_date = datetime.strptime(raw_date, "%Y-%m")
+            except ValueError:
+                form.add_error('start_date', "Enter date in MM/YYYY format.")
+                return render(request, "main/mortgage_calculator.html", {"form": form})
+
+            principal = price - down
+            n = years * 12
+
+            try:
+                monthly_payment = principal * (rate * (1 + rate)**n) / ((1 + rate)**n - 1)
+            except ZeroDivisionError:
+                monthly_payment = principal / n
+
+            total_payment = monthly_payment * n
+            total_interest = total_payment - principal
+
+            payoff_date = start_date.replace(year=start_date.year + years)
+
+            result = {
+                'monthly_payment': round(monthly_payment, 2),
+                'total_interest': round(total_interest, 2),
+                'total_payment': round(total_payment, 2),
+                'principal': round(principal, 2),
+                'payoff_date': payoff_date.strftime("%m / %Y")
+            }
+    else:
+        form = MortgageForm()
+
+    return render(request, "main/mortgage_calculator.html", {"form": form, "result": result})
