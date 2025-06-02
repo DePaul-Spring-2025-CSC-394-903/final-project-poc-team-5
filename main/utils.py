@@ -200,3 +200,36 @@ def calculate_take_home(income, status, state, fed_allowances=1, state_allowance
         "post_tax_deductions": post_tax,
         "take_home_pay": round(take_home, 2),
     }
+
+def generate_amortization_schedule(principal, annual_rate, years, start_date):
+    monthly_rate = Decimal(annual_rate) / 100 / 12
+    n = years * 12
+    schedule = []
+    balance = principal
+
+    try:
+        monthly_payment = principal * (monthly_rate * (1 + monthly_rate) ** n) / ((1 + monthly_rate) ** n - 1)
+    except ZeroDivisionError:
+        monthly_payment = principal / n
+
+    current_date = start_date
+
+    for _ in range(n):
+        interest = balance * monthly_rate
+        principal_payment = monthly_payment - interest
+        balance -= principal_payment
+
+        schedule.append({
+            "date": current_date.strftime("%b %Y"),
+            "principal": round(principal_payment, 2),
+            "interest": round(interest, 2),
+            "monthly_total": round(monthly_payment, 2),
+            "balance": round(balance, 2)
+        })
+
+        if current_date.month == 12:
+            current_date = current_date.replace(year=current_date.year + 1, month=1)
+        else:
+            current_date = current_date.replace(month=current_date.month + 1)
+
+    return schedule    

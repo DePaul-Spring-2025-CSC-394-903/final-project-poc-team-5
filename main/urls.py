@@ -39,5 +39,5 @@ urlpatterns = [
     path("calculator-info/", views.calculator_info_view, name="calculator_info"),
     path('savings-calculator/', savings_calculator, name='savings_calculator'),
     path("take-home-calculator/", views.take_home_calculator, name="take_home_calculator"),
-
+    path('mortgage/', views.mortgage_calculator, name='mortgage_calculator'),
 ]

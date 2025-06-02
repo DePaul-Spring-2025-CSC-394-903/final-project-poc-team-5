@@ -6,13 +6,13 @@ from django.views.decorators.http import require_POST
 from datetime import timedelta
 from django.utils import timezone
 from django.http import JsonResponse
-from .forms import EmailLoginForm, CustomRegisterForm, MainPaymentForm
+from .forms import EmailLoginForm, CustomRegisterForm, MainPaymentForm, MortgageForm
 from django import forms
 import json
 from .models import DebtCalculation
 from decimal import Decimal, InvalidOperation
 from django.forms import formset_factory, BaseFormSet
-from .utils import calcGains, calculate_take_home
+from .utils import calcGains, calculate_take_home, generate_amortization_schedule
 from django.contrib.auth.views import LogoutView
 from django.http import HttpResponseNotAllowed
 from .models import RetirementCalculation
@@ -20,6 +20,7 @@ from datetime import datetime
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .tax_data import federal_tax_brackets, state_tax_brackets_2025
+import math
 
 class SafeLogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
@@ -674,3 +675,62 @@ def savings_calculator(request):
             context['error'] = f"An error occurred: {e}"
 
     return render(request, 'main/savings_calculator.html', context)
+
+@login_required
+def mortgage_calculator(request):
+    result = None
+    amortization_schedule = None
+
+    if request.method == 'POST':
+        form = MortgageForm(request.POST)
+        if form.is_valid():
+            price = form.cleaned_data['home_price']
+            down = form.cleaned_data.get('down_payment') or 0
+            down_percent = form.cleaned_data.get('down_payment_percent') or 0
+            rate = form.cleaned_data['interest_rate'] / 100 / 12
+            years = form.cleaned_data['loan_term']
+
+            # Fallback: if user left down_payment blank but entered a percentage
+            if down == 0 and down_percent:
+                down = price * (down_percent / 100)
+
+            # Handle MM/YYYY input (type="month")
+            raw_date = form.cleaned_data['start_date']
+            try:
+                start_date = datetime.strptime(raw_date, "%Y-%m")
+            except ValueError:
+                form.add_error('start_date', "Enter date in MM/YYYY format.")
+                return render(request, "main/mortgage_calculator.html", {"form": form})
+
+            principal = price - down
+            n = years * 12
+
+            try:
+                monthly_payment = principal * (rate * (1 + rate) ** n) / ((1 + rate) ** n - 1)
+            except ZeroDivisionError:
+                monthly_payment = principal / n
+
+            total_payment = monthly_payment * n
+            total_interest = total_payment - principal
+
+            payoff_date = start_date.replace(year=start_date.year + years)
+
+            result = {
+                'monthly_payment': round(monthly_payment, 2),
+                'total_interest': round(total_interest, 2),
+                'total_payment': round(total_payment, 2),
+                'principal': round(principal, 2),
+                'payoff_date': payoff_date.strftime("%m / %Y")
+            }
+
+            amortization_schedule = generate_amortization_schedule(
+                principal=Decimal(principal),
+                annual_rate=Decimal(form.cleaned_data['interest_rate']),
+                years=years,
+                start_date=start_date
+)
+    else:
+        form = MortgageForm()
+
+    return render(request, "main/mortgage_calculator.html", {"form": form, "result": result,  "schedule": amortization_schedule})
+

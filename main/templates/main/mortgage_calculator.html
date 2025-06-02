@@ -1,0 +1,147 @@
+{% extends "main/base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row">
+    <!-- Left Column: Form -->
+    <div class="col-md-6 bg-light p-4 rounded">
+      <h4 class="mb-3">Loan details</h4>
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Home Price -->
+        <div class="mb-3">
+          <label for="id_home_price" class="form-label">Home Price</label>
+          {{ form.home_price|add_class:"form-control" }}
+        </div>
+
+        <!-- Down Payment + Percent -->
+        <div class="mb-3">
+          <label class="form-label">Down Payment</label>
+          <div class="row g-2">
+            <div class="col">
+              <label for="id_down_payment" class="form-label small">Amount ($)</label>
+              {{ form.down_payment|add_class:"form-control" }}
+            </div>
+            <div class="col">
+              <label for="id_down_payment_percent" class="form-label small">Percent (%)</label>
+              {{ form.down_payment_percent|add_class:"form-control" }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Interest Rate -->
+        <div class="mb-3">
+          <label for="id_interest_rate" class="form-label">Interest Rate (%)</label>
+          {{ form.interest_rate|add_class:"form-control" }}
+        </div>
+
+        <!-- Loan Term -->
+        <div class="mb-3">
+          <label for="id_loan_term" class="form-label">Loan Term (Years)</label>
+          {{ form.loan_term|add_class:"form-control" }}
+        </div>
+
+        <!-- Start Date -->
+        <div class="mb-3">
+          <label for="id_start_date" class="form-label">Start Date</label>
+          {{ form.start_date|add_class:"form-control" }}
+        </div>
+
+        <button type="submit" class="btn btn-success w-100 mt-3">Calculate</button>
+      </form>
+    </div>
+
+    <!-- Right Column: Results -->
+    <div class="col-md-6 p-4">
+      {% if result %}
+        <h5 class="mb-3">Loan Estimate</h5>
+        <h2 class="text-success">${{ result.monthly_payment }}</h2>
+        <canvas id="donutChart" width="200" height="200" class="my-3"></canvas>
+        <ul class="list-unstyled">
+          <li><strong>Total principal:</strong> ${{ result.principal }}</li>
+          <li><strong>Total interest payments:</strong> ${{ result.total_interest }}</li>
+          <li><strong>Total loan payments:</strong> ${{ result.total_payment }}</li>
+          <li><strong>Payoff date:</strong> {{ result.payoff_date }}</li>
+        </ul>
+
+        <!-- Amortization Schedule -->
+        {% if schedule %}
+          <h5 class="mt-4">Amortization Schedule</h5>
+          <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-bordered table-sm">
+              <thead class="table-light">
+                <tr>
+                  <th>Payment Date</th>
+                  <th>Principal</th>
+                  <th>Interest</th>
+                  <th>Monthly Total</th>
+                  <th>Principal Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in schedule %}
+                  <tr>
+                    <td>{{ row.date }}</td>
+                    <td>${{ row.principal }}</td>
+                    <td>${{ row.interest }}</td>
+                    <td>${{ row.monthly_total }}</td>
+                    <td>${{ row.balance }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Auto-calculate Down Payment from Percent -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const priceInput = document.getElementById("id_home_price");
+  const percentInput = document.getElementById("id_down_payment_percent");
+  const downInput = document.getElementById("id_down_payment");
+
+  function updateDownPayment() {
+    const price = parseFloat(priceInput.value.replace(/,/g, '')) || 0;
+    const percent = parseFloat(percentInput.value) || 0;
+    const down = (price * percent / 100).toFixed(2);
+    downInput.value = down;
+  }
+
+  percentInput.addEventListener("input", updateDownPayment);
+});
+</script>
+
+<!-- Donut Chart Script -->
+{% if result %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('donutChart').getContext('2d');
+new Chart(ctx, {
+  type: 'doughnut',
+  data: {
+    labels: ['Principal', 'Interest'],
+    datasets: [{
+      data: [{{ result.principal }}, {{ result.total_interest }}],
+      backgroundColor: ['#4CAF50', '#FFC107']
+    }]
+  },
+  options: {
+    cutout: '70%',
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom'
+      }
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}
