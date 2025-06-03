@@ -1112,10 +1112,66 @@ def latest_mortgage_result(request):
 
 @login_required
 def latest_take_home_result(request):
-    latest_entry = TakeHomeCalculation.objects.filter(user=request.user).order_by('-created_at').first()
-    if not latest_entry:
-        return redirect('take_home_calculator')  # fallback if none
-    return render(request, 'main/take_home_result.html', {'result': latest_entry})
+    entry = (
+        TakeHomeCalculation.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
+        .first()
+    )
+    if not entry:
+        return redirect("take_home_calculator")
+
+    # ---- NEW LINE ▾ ▾ ▾ ------------------------------------
+    income = float(entry.income)          # cast Decimal → float
+    # --------------------------------------------------------
+
+    periods = {
+        "annual": 1, "monthly": 12, "semi_monthly": 24,
+        "bi_weekly": 26, "weekly": 52
+    }[entry.frequency]
+
+    tax_data = calculate_take_home(
+        income,                           # use the float
+        entry.filing_status,
+        entry.state,
+        fed_allowances=1,
+        state_allowances=1,
+        local_rate=0,
+        pre_tax=0,
+        post_tax=0,
+    )
+
+    per_period = {
+        "gross"     : round(income / periods, 2),
+        "federal"   : round(tax_data["federal_tax"] / periods, 2),
+        "state"     : round(tax_data["state_tax"]   / periods, 2),
+        "fica"      : round(tax_data["fica_tax"]    / periods, 2),
+        "total_tax" : round(tax_data["total_tax"]   / periods, 2),
+        "take_home" : round(tax_data["take_home_pay"] / periods, 2),
+    }
+
+    annual = {
+        "gross"    : income,
+        "take_home": tax_data["take_home_pay"],
+    }
+
+    labels  = ["Take-Home Pay", "Total Tax"]
+    colors  = ["#36A2EB", "#FF6384"]
+    values  = [annual["take_home"], annual["gross"] - annual["take_home"]]
+
+    return render(
+        request,
+        "main/take_home_result.html",
+        {
+            "period_name" : entry.frequency.replace("_", " ").title(),
+            "per_period"  : per_period,
+            "annual"      : annual,
+            "labels"      : json.dumps(labels),
+            "values"      : json.dumps(values),
+            "colors"      : json.dumps(colors),
+        },
+    )
+
 
 
 

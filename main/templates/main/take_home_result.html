@@ -1,9 +1,65 @@
+{# main/templates/main/take_home_result.html #}
 {% extends "main/base.html" %}
 {% block content %}
+
 <div class="container py-4">
-  <h2>Latest Take-Home Result</h2>
-  <p><strong>Gross Income:</strong> ${{ result.gross_income }}</p>
-  <p><strong>Tax Rate:</strong> {{ result.tax_rate }}%</p>
-  <p><strong>Net Income:</strong> ${{ result.net_income }}</p>
+
+  <h2 class="mb-3">Latest Take-Home Result</h2>
+
+  <!-- ─── Per-pay-period section ─────────────────────────── -->
+  <h4 class="mt-4">Per {{ period_name }} Paycheck</h4>
+  <ul class="list-unstyled mb-3">
+    <li><strong>Gross Income:</strong> ${{ per_period.gross|floatformat:2 }}</li>
+    <li><strong>Federal Tax  :</strong> ${{ per_period.federal|floatformat:2 }}</li>
+    <li><strong>State Tax    :</strong> ${{ per_period.state|floatformat:2 }}</li>
+    <li><strong>FICA Tax     :</strong> ${{ per_period.fica|floatformat:2 }}</li>
+    <li><strong>Total Tax    :</strong> ${{ per_period.total_tax|floatformat:2 }}</li>
+    <li><strong>Take-Home Pay:</strong> ${{ per_period.take_home|floatformat:2 }}</li>
+  </ul>
+
+  <!-- ─── Annual summary ─────────────────────────────────── -->
+  <h4 class="mt-4">Annual Summary</h4>
+  <ul class="list-unstyled">
+    <li><strong>Annual Gross:</strong> ${{ annual.gross|floatformat:2 }}</li>
+    <li><strong>Annual Take Home:</strong> ${{ annual.take_home|floatformat:2 }}</li>
+  </ul>
+
+  <hr class="my-4">
+
+  <!-- Pie-chart -->
+  <div class="row justify-content-center">
+    <div class="col-md-6" style="min-width:280px;">
+      <canvas id="takeHomePie"></canvas>
+    </div>
+  </div>
+
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = JSON.parse('{{ labels|escapejs }}');
+  const data   = JSON.parse('{{ values|escapejs }}');
+  const colors = JSON.parse('{{ colors|escapejs }}');
+
+  new Chart(document.getElementById("takeHomePie"), {
+    type: "pie",
+    data: { labels,
+            datasets: [{ data, backgroundColor: colors }] },
+    options: {
+      responsive           : true,
+      maintainAspectRatio  : false,  // keeps the pie from shrinking too small
+      aspectRatio          : 1,
+      plugins: {
+        legend : { position:"bottom",
+                   labels:{ boxWidth:12, padding:10 } },
+        tooltip: { callbacks:{
+          label: ctx => `${ctx.label}: $${ctx.parsed.toLocaleString()}`
+        }}
+      },
+      layout : { padding:16 }
+    }
+  });
+</script>
+
 {% endblock %}
