@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.forms import formset_factory
 from decimal import Decimal
 from datetime import date
+from django.contrib.auth import authenticate
 
 User = get_user_model()
 
