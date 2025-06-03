@@ -1,0 +1,35 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container py-5">
+  <div class="card shadow p-4">
+    <h2 class="text-center mb-4">Monthly Breakdown</h2>
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Total Balance</th>
+          <th>Loan Balances</th>
+          <th>Available Payment</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in breakdown %}
+        <tr>
+          <td>{{ row.month }}</td>
+          <td>${{ row.total_balance|floatformat:2 }}</td>
+          <td>
+            {% for b in row.balances %}
+              ${{ b|floatformat:2 }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+          </td>
+          <td>${{ row.available|floatformat:2 }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="text-center mt-4">
+      <a href="{% url 'snowball_result' %}" class="btn btn-secondary">← Back to Results</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

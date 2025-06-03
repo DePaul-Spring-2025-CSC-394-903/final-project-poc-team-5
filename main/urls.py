@@ -89,6 +89,9 @@ urlpatterns = [
     path('mortgage/edit/<int:pk>/', views.edit_mortgage_entry, name='edit_mortgage_entry'),
     path('mortgage/delete/<int:pk>/', views.delete_mortgage_entry, name='delete_mortgage_entry'),
     path('mortgage/latest/', views.latest_mortgage_result, name='latest_mortgage_result'),
+    path('savings/latest/', views.latest_savings_result, name='latest_savings_result'),
+    path('takehome/latest/', views.latest_take_home_result, name='latest_take_home_result'),
+    path('debt-breakdown/', views.snowball_monthly_breakdown, name='snowball_monthly_breakdown'),
 
     # Calculator Info
     path("calculator-info/", views.calculator_info_view, name="calculator_info"),
