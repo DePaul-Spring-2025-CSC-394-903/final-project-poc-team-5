@@ -1,10 +1,71 @@
+{#  main/templates/main/mortgage_result.html  #}
 {% extends "main/base.html" %}
 {% block content %}
+
 <div class="container py-4">
-  <h2>Latest Mortgage Result</h2>
-  <p><strong>Loan Amount:</strong> ${{ result.loan_amount }}</p>
-  <p><strong>Interest Rate:</strong> {{ result.interest_rate }}%</p>
-  <p><strong>Loan Term:</strong> {{ result.loan_term }} years</p>
-  <p><strong>Monthly Payment:</strong> ${{ result.monthly_payment }}</p>
+
+  <h2 class="mb-3">Latest Mortgage Result</h2>
+
+  <p><strong>Home Price:</strong> ${{ entry.home_price }}</p>
+  <p><strong>Down Payment:</strong> ${{ entry.down_payment }}</p>
+  <p><strong>Loan Amount:</strong> $
+     {{ entry.home_price|floatformat:2|add:"-"|add:entry.down_payment }}</p>
+
+  <hr>
+
+  <p><strong>Monthly Payment:</strong> ${{ entry.monthly_payment }}</p>
+  <p><strong>Total Interest:</strong> ${{ entry.total_interest }}</p>
+  <p><strong>Pay-off Date:</strong> {{ entry.payoff_date }}</p>
+
+  <hr class="my-4">
+
+  <!-- Line-chart of remaining balance -->
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <canvas id="mortgageChart"
+              style="max-width:100%;height:340px;"></canvas>
+    </div>
+  </div>
+
 </div>
+
+<!-- Chart.js & script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = JSON.parse('{{ labels|escapejs }}');
+  const data   = JSON.parse('{{ values|escapejs }}');
+
+  const ctx = document.getElementById("mortgageChart").getContext("2d");
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label           : "Remaining Balance",
+        data,
+        borderWidth     : 2,
+        borderColor     : "#0d6efd",
+        backgroundColor : "rgba(13,110,253,.10)",
+        tension         : .3,
+        fill            : true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,   // ← prevents shrinking
+      scales: {
+        y: { beginAtZero: true }
+      },
+      plugins: {
+        legend : { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `$${ctx.parsed.y.toLocaleString()}`
+          }
+        }
+      }
+    }
+  });
+</script>
+
 {% endblock %}

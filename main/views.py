@@ -1101,13 +1101,41 @@ def delete_mortgage_entry(request, pk):
 
 @login_required
 def latest_mortgage_result(request):
-    latest_entry = (
-        MortgageCalculation.objects.filter(user=request.user)
-        .order_by('-created_at')
+    entry = (
+        MortgageCalculation.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
         .first()
     )
-    return render(request, 'main/latest_mortgage_result.html', {'entry': latest_entry})
+    if not entry:
+        return redirect("mortgage_calculator")
 
+    # ─── rebuild amortization series ───────────────────────────────
+    principal     = float(entry.home_price - entry.down_payment)
+    months_total  = int(entry.term_years * 12)
+    rate_monthly  = float(entry.interest_rate) / 100 / 12
+    payment       = float(entry.monthly_payment)
+
+    balance       = principal
+    series        = []
+
+    for _ in range(months_total):
+        interest          = balance * rate_monthly
+        principal_payment = payment - interest
+        balance           = max(0, balance - principal_payment)
+        series.append(round(balance, 2))
+
+    labels = [f"Month {i}" for i in range(1, months_total + 1)]
+
+    return render(
+        request,
+        "main/mortgage_result.html",
+        {
+            "entry" : entry,
+            "labels": json.dumps(labels),
+            "values": json.dumps(series),
+        },
+    )
 
 
 @login_required
