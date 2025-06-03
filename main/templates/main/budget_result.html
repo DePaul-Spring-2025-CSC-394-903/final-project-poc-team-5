@@ -1,0 +1,9 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2>Latest Budget Result</h2>
+  <p><strong>Monthly Income:</strong> ${{ result.monthly_income }}</p>
+  <p><strong>Total Expenses:</strong> ${{ result.total_expenses }}</p>
+  <p><strong>Savings Goal:</strong> ${{ result.savings_goal }}</p>
+</div>
+{% endblock %}

@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from datetime import timedelta
 from django.utils import timezone
 from django.http import JsonResponse
 from .forms import EmailLoginForm, CustomRegisterForm, MainPaymentForm, MortgageForm
@@ -25,6 +24,17 @@ from .models import SavingsCalculation
 from .models import MortgageCalculation
 from .models import TakeHomeCalculation
 from .models import BudgetCalculation
+from .forms import MergeForm, LoanFormSet
+from .forms import (
+    EmailLoginForm,
+    CustomRegisterForm,
+    LoanFormSet,
+    MainPaymentForm,
+    MortgageForm,
+    MergeForm,
+)
+from datetime import datetime, date, timedelta      
+
 
 
 
@@ -80,14 +90,7 @@ def calculator_info_view(request):
 
 
 
-class LoanForm(forms.Form):
-    name = forms.CharField(label="Loan Name", required=True)
-    balance = forms.DecimalField(label="Balance ($)", min_value=0)
-    monthly_payment = forms.DecimalField(label="Monthly Payment ($)", min_value=0)
-    interest_rate = forms.DecimalField(label="Annual Interest Rate (%)", min_value=0)
 
-
-LoanFormSet = formset_factory(LoanForm, extra=1, can_delete=True)
 
 
 from decimal import Decimal
@@ -283,11 +286,18 @@ def dashboard_view(request):
     has_result = 'snowball_result' in request.session
     has_401k_result = 'last_401k_result' in request.session
 
-    return render(request, 'main/dashboard.html', {
-        'history': history,
-        'has_result': has_result,
-        'has_401k_result': has_401k_result,
-    })
+    context = {
+    'has_result': 'snowball_result' in request.session,
+    'has_401k_result': 'last_401k_result' in request.session,
+    'has_budget_result': BudgetCalculation.objects.filter(user=request.user).exists(),
+    'has_savings_result': SavingsCalculation.objects.filter(user=request.user).exists(),
+    'has_take_home_result': TakeHomeCalculation.objects.filter(user=request.user).exists(),
+    'has_mortgage_result': MortgageCalculation.objects.filter(user=request.user).exists(),
+    'history': DebtCalculation.objects.filter(user=request.user).order_by('-created_at')[:3]
+}
+
+    return render(request, 'main/dashboard.html', context)
+
 
 
 
@@ -747,50 +757,69 @@ def calculate_savings_growth(starting_balance, years, interest_rate, compound_fr
 
 @login_required
 def savings_calculator(request):
-    context = {}
-    if request.method == 'POST':
+    result = None
+    error = None
+
+    if request.method == "POST":
         try:
-            starting_balance = float(request.POST.get('starting_balance'))
-            years = int(request.POST.get('years'))
-            interest_rate = float(request.POST.get('interest_rate'))
-            compound_frequency = request.POST.get('compound_frequency')
-            contribution_amount = float(request.POST.get('contribution_amount'))
-            contribution_frequency = request.POST.get('contribution_frequency')
-            goal_raw = request.POST.get('goal')
-            goal = float(goal_raw) if goal_raw else None
+            starting_balance = float(request.POST.get("starting_balance", "") or 0)
+            years = int(request.POST.get("years", "") or 0)
+            interest_rate = float(request.POST.get("interest_rate", "") or 0)
+            compound_frequency = request.POST.get("compound_frequency", "monthly")
+            contribution_amount = float(request.POST.get("contribution_amount", "") or 0)
+            contribution_frequency = request.POST.get("contribution_frequency", "monthly")
+            goal_input = request.POST.get("goal", "").strip()
+            goal = float(goal_input) if goal_input else None
 
-            final_balance, chart_data, goal_months = calculate_savings_growth(
-                starting_balance, years, interest_rate,
-                compound_frequency, contribution_amount, contribution_frequency,
-                goal
-            )
-            SavingsCalculation.objects.create(
-                user=request.user,
-                initial_amount=starting_balance,
-                monthly_contribution=contribution_amount,
-                interest_rate=interest_rate,
-                duration_years=years,
-                total_saved=final_balance
-            )
+            if years <= 0 or interest_rate < 0 or starting_balance < 0:
+                raise ValueError("Please enter non‐negative numbers for balance, years, and interest.")
 
-            context = {
-                'starting_balance': starting_balance,
-                'years': years,
-                'interest_rate': interest_rate,
-                'compound_frequency': compound_frequency,
-                'contribution_amount': contribution_amount,
-                'contribution_frequency': contribution_frequency,
-                'goal': goal,
-                'result': {
-                    'final_balance': round(final_balance, 2),
-                    'goal_months': goal_months,
-                    'data_json': json.dumps(chart_data)
-                }
+            monthly_rate = (interest_rate / 100) / 12
+            if contribution_frequency == "monthly":
+                contrib_interval = 1
+            else:
+                contrib_interval = 12
+
+            total_months = years * 12
+            balance = starting_balance
+            monthly_balances = []
+            goal_months = None
+
+            for month in range(1, total_months + 1):
+                balance *= (1 + monthly_rate)
+                if month % contrib_interval == 0:
+                    balance += contribution_amount
+                monthly_balances.append(round(balance, 2))
+                if goal is not None and goal_months is None and balance >= goal:
+                    goal_months = month
+
+            final_balance = round(balance, 2)
+            data_json = json.dumps(monthly_balances)
+
+            result = {
+                "final_balance": final_balance,
+                "goal_months": goal_months,
+                "data_json": data_json
             }
-        except Exception as e:
-            context['error'] = f"An error occurred: {e}"
 
-    return render(request, 'main/savings_calculator.html', context)
+        except (ValueError, TypeError) as e:
+            error = str(e)
+
+    context = {
+        "starting_balance": request.POST.get("starting_balance", "") if request.method == "POST" else "",
+        "years": request.POST.get("years", "") if request.method == "POST" else "",
+        "interest_rate": request.POST.get("interest_rate", "") if request.method == "POST" else "",
+        "compound_frequency": request.POST.get("compound_frequency", "monthly") if request.method == "POST" else "monthly",
+        "contribution_amount": request.POST.get("contribution_amount", "") if request.method == "POST" else "",
+        "contribution_frequency": request.POST.get("contribution_frequency", "monthly") if request.method == "POST" else "monthly",
+        "goal": request.POST.get("goal", "") if request.method == "POST" else "",
+        "result": result,
+        "error": error
+    }
+
+    return render(request, "main/savings_calculator.html", context)
+
+
 
 @login_required
 def savings_history(request):
@@ -831,6 +860,79 @@ def delete_savings_entry(request, pk):
     entry = get_object_or_404(SavingsCalculation, pk=pk, user=request.user)
     entry.delete()
     return redirect('savings_history')
+
+@login_required
+def latest_savings_result(request):
+    result_id = request.session.get('last_savings_result_id')
+    if not result_id:
+        return redirect('savings_calculator')
+
+    result = get_object_or_404(SavingsCalculation, id=result_id, user=request.user)
+
+    # Recalculate values for the graph
+    final_balance, values, labels = calculate_savings_growth(
+        result.initial_amount,
+        result.duration_years,
+        result.interest_rate,
+        'monthly',
+        result.monthly_contribution,
+        'monthly'
+    )
+
+    return render(request, 'main/savings_result.html', {
+        'result': result,
+        'labels': labels,
+        'values': values,
+    })
+
+@login_required
+def savings_result_view(request):
+    # Retrieve the latest saved result ID from the session
+    result_id = request.session.get('last_savings_result_id')
+    if not result_id:
+        return redirect('savings_calculator')  # Fallback if no saved result
+
+    try:
+        result = SavingsCalculation.objects.get(id=result_id, user=request.user)
+    except SavingsCalculation.DoesNotExist:
+        return redirect('savings_calculator')
+
+    # Generate graph data like you do after form submission
+    months = list(range(1, result.total_months + 1))
+    balance = []
+    current = result.initial_deposit
+    monthly_contribution = result.monthly_contribution
+    rate = result.annual_interest_rate / 100 / 12
+
+    for _ in months:
+        current = current * (1 + rate) + monthly_contribution
+        balance.append(round(current, 2))
+
+    context = {
+        'result': result,
+        'months': months,
+        'balance': balance,
+    }
+
+    return render(request, 'main/savings_result.html', context)
+
+
+
+
+
+def calculate_savings_graph_data(principal, years, rate, monthly_contrib):
+    monthly_rate = rate / 100 / 12
+    months = years * 12
+    balance = principal
+    values = []
+
+    for m in range(0, months + 1, 12):
+        balance = principal * ((1 + monthly_rate) ** m)
+        for month in range(m):
+            balance += monthly_contrib * ((1 + monthly_rate) ** (months - month))
+        values.append(round(balance, 2))
+    
+    return values
 
 
 @login_required
@@ -964,12 +1066,7 @@ def latest_mortgage_result(request):
     )
     return render(request, 'main/latest_mortgage_result.html', {'entry': latest_entry})
 
-@login_required
-def latest_savings_result(request):
-    latest_entry = SavingsCalculation.objects.filter(user=request.user).order_by('-created_at').first()
-    if not latest_entry:
-        return redirect('savings_calculator')  # fallback if nothing exists
-    return render(request, 'main/savings_result.html', {'result': latest_entry})
+
 
 @login_required
 def latest_take_home_result(request):
@@ -977,3 +1074,269 @@ def latest_take_home_result(request):
     if not latest_entry:
         return redirect('take_home_calculator')  # fallback if none
     return render(request, 'main/take_home_result.html', {'result': latest_entry})
+
+@login_required
+def latest_budget_result(request):
+    latest = BudgetCalculation.objects.filter(user=request.user).order_by('-created_at').first()
+    return render(request, 'main/budget_result.html', {'result': latest})
+
+
+
+
+# main/views.py
+
+@login_required
+def merge_calculator(request):
+    """
+    GET  – render blank MergeForm + LoanFormSet
+    POST – validate, run all calcs, show consolidated result
+    """
+    result, error = {}, None
+
+    if request.method == "POST":
+        form          = MergeForm(request.POST)
+        loan_formset  = LoanFormSet(request.POST, prefix="loans")
+
+        if form.is_valid() and loan_formset.is_valid():
+            cd = form.cleaned_data
+
+            # ───────────────────── 1) TAKE-HOME PAY ──────────────────────
+            annual_income = float(cd["annual_salary"])
+            status        = cd["filing_status"]
+            state         = cd["state"]
+            frequency     = cd["pay_frequency"]
+
+            tax_data = calculate_take_home(     # your helper’s signature
+                annual_income,
+                status,
+                state,
+                fed_allowances = 1,
+                state_allowances = 1,
+                local_rate = 0,
+                pre_tax = 0,
+                post_tax = 0,
+            )
+
+            # convert to monthly net-estimate
+            freq_to_month = {"annual": 1/12, "monthly": 1, "bi_weekly": 26/12}
+            monthly_net   = round(tax_data["take_home_pay"] * freq_to_month[frequency], 2)
+
+            result["take_home"] = {
+                "net_per_period"   : round(tax_data["take_home_pay"], 2),
+                "annual_take_home" : round(tax_data["take_home_pay"], 2 if frequency=="annual" else 0),
+                "pay_frequency"    : frequency,
+            }
+
+            TakeHomeCalculation.objects.create(
+                user=request.user,
+                income              = annual_income,
+                filing_status       = status,
+                state               = state,
+                frequency           = frequency,
+                take_home_annual    = tax_data["take_home_pay"],
+                take_home_per_period= tax_data["take_home_pay"],
+            )
+
+            # ───────────────────── 2) 401(k)  ────────────────────────────
+            current_age    = cd["current_age"]
+            retirement_age = cd["retirement_age"]
+            init_401k      = float(cd["init_401k_deposit"])
+            contrib_pct    = float(cd["contribution_pct"]) / 100      # 0 → 1
+
+            #              init,      age,     retire,  salary,  salary_growth,
+            #              contr, match, match_limit, yield_rate
+            total_401k, growth_401k, _, _ = calcGains(
+            init_401k,
+            current_age,
+            retirement_age,
+            annual_income,
+            0,             # salary growth assumption
+            contrib_pct,   # employee contribution
+            0,             # employer match %
+            0,             # match limit %
+            0.06           # annual yield (6 %)
+            )
+
+            result["retirement"] = {
+                "projected_balance" : round(total_401k, 2),
+                "data_json"         : json.dumps(growth_401k),
+                "years_to_retire"   : retirement_age - current_age,
+                "annual_contribution": round(annual_income * contrib_pct, 2),
+            }
+
+            RetirementCalculation.objects.create(
+                user              = request.user,
+                current_age       = current_age,
+                retirement_age    = retirement_age,
+                init_deposit      = init_401k,
+                salary            = annual_income,
+                contribution      = contrib_pct * 100,
+                projected_balance = round(total_401k, 2),
+            )
+
+            # ───────────────────── 3) SAVINGS  ───────────────────────────
+            sb, sy  = float(cd["savings_initial"]), int(cd["savings_years"])
+            si, sc  = float(cd["savings_interest"]), float(cd["savings_contribution"])
+            sg      = float(cd["savings_goal"] or 0)
+
+            bal, m_balances, goal_mo = sb, [], None
+            for m in range(1, sy*12 + 1):
+                bal *= 1 + (si/100)/12
+                bal += sc
+                m_balances.append(round(bal, 2))
+                if sg and goal_mo is None and bal >= sg:
+                    goal_mo = m
+
+            result["savings"] = {
+                "final_balance": round(bal, 2),
+                "goal_months"  : goal_mo,
+                "data_json"    : json.dumps(m_balances),
+            }
+
+            SavingsCalculation.objects.create(
+                user                = request.user,
+                initial_amount      = sb,
+                monthly_contribution= sc,
+                interest_rate       = si,
+                duration_years      = sy,
+                total_saved         = round(bal, 2),
+            )
+
+            # ───────────────────── 4) MORTGAGE  ──────────────────────────
+            price  = float(cd["home_price"])
+            dp_pct = float(cd["down_payment_pct"]) / 100
+            apr    = float(cd["mortgage_apr"])
+            term_y = int(cd["loan_term_years"])
+
+            principal   = price * (1 - dp_pct)
+            m_rate      = (apr/100)/12
+            n           = term_y * 12
+            m_payment   = principal * (m_rate*(1+m_rate)**n)/((1+m_rate)**n - 1) if m_rate else principal/n
+            payoff      = date.today() + timedelta(days=term_y*365)
+
+            result["mortgage"] = {
+                "monthly_payment": round(m_payment, 2),
+                "total_interest" : round(m_payment*n - principal, 2),
+                "total_payment"  : round(m_payment*n, 2),
+                "payoff_date"    : payoff.strftime("%Y-%m"),
+            }
+
+            MortgageCalculation.objects.create(
+                user            = request.user,
+                home_price      = price,
+                down_payment    = price*dp_pct,
+                interest_rate   = apr,
+                term_years      = term_y,
+                monthly_payment = round(m_payment, 2),
+                total_payment   = round(m_payment*n, 2),
+                total_interest  = round(m_payment*n - principal, 2),
+                payoff_date     = payoff.strftime("%Y-%m"),
+            )
+
+            # ───────────────────── 5) DEBT / SNOWBALL ────────────────────
+            loans = []
+            for lf in loan_formset:
+                if lf.cleaned_data and not lf.cleaned_data.get("DELETE", False):
+                    d = lf.cleaned_data
+                    loans.append({
+                        "name"            : d["name"],
+                        "initial_balance" : float(d["balance"]),
+                        "balance"         : float(d["balance"]),
+                        "monthly_payment" : float(d["monthly_payment"]),
+                        "monthly_rate"    : (float(d["interest_rate"])/100)/12,
+                        "interest_rate"   : float(d["interest_rate"]),
+                    })
+
+            if not loans:
+                form.add_error(None, "Please add at least one loan.")
+                error = "Please add at least one loan."
+            else:
+                total_balance  = sum(l["balance"] for l in loans)
+                total_payment  = 0
+                total_interest = 0
+                months         = 0
+                hist           = []
+
+                while any(l["balance"] > 0 for l in loans) and months < 240:
+                    # accrue interest
+                    for l in loans:
+                        if l["balance"] > 0:
+                            intr = l["balance"] * l["monthly_rate"]
+                            l["balance"] += intr
+                            total_interest += intr
+                    # pay mins
+                    for l in loans:
+                        if l["balance"] > 0:
+                            pay = min(l["monthly_payment"], l["balance"])
+                            l["balance"] -= pay
+                            total_payment += pay
+                    # snowball extra toward smallest balance
+                    unpaid = [l for l in loans if l["balance"] > 0]
+                    unpaid.sort(key=lambda x: x["balance"])
+                    if len(unpaid) > 1:
+                        extra = min(unpaid[0]["monthly_payment"], unpaid[1]["balance"])
+                        unpaid[1]["balance"] -= extra
+                        total_payment += extra
+
+                    hist.append(round(sum(l["balance"] for l in loans), 2))
+                    months += 1
+
+                result["snowball"] = {
+                    "months_to_payoff": months,
+                    "data_json"       : json.dumps(hist),
+                    "total_paid"      : round(total_payment, 2),
+                    "total_interest"  : round(total_interest, 2),
+                }
+
+                DebtCalculation.objects.create(
+                    user              = request.user,
+                    months_to_freedom = months,
+                    total_balance     = total_balance,
+                    total_payment     = total_payment,
+                    total_interest    = total_interest,
+                    strategy          = "snowball",
+                    extra_payment     = 0,
+                    loan_summary      = ", ".join(f"{l['name']} (${l['initial_balance']:.0f})" for l in loans),
+                    loan_data         = loans,
+                )
+
+            # ───────────────────── 6) 50/30/20 BUDGET  ────────────────────
+            mortgage_pmt  = result["mortgage"]["monthly_payment"]
+            debt_pmt      = sum(l["monthly_payment"] for l in loans) if loans else 0
+            retirement_pmt= round(annual_income*contrib_pct/12, 2)
+            savings_pmt   = sc
+            leftover      = max(0, monthly_net - (mortgage_pmt+debt_pmt+retirement_pmt+savings_pmt))
+
+            result["budget"] = {
+                "monthly_income": monthly_net,
+                "expenses": {
+                    "Mortgage"  : mortgage_pmt,
+                    "Debt"      : debt_pmt,
+                    "Retirement": retirement_pmt,
+                    "Savings"   : savings_pmt,
+                },
+                "leftover"           : leftover,
+                "needs"              : round(leftover*0.50, 2),
+                "wants"              : round(leftover*0.30, 2),
+                "additional_savings" : round(leftover*0.20, 2),
+            }
+
+            BudgetCalculation.objects.create(
+                user            = request.user,
+                monthly_income  = monthly_net,
+                total_expenses  = mortgage_pmt+debt_pmt+retirement_pmt+savings_pmt,
+                savings_goal    = savings_pmt + round(leftover*0.20, 2),
+            )
+
+        else:
+            error = "Please fix the highlighted errors below."
+
+    else:  # GET
+        form          = MergeForm()
+        loan_formset  = LoanFormSet(prefix="loans")
+
+    return render(
+        request,
+        "main/merge_calculator.html",
+        {"form": form, "loan_formset": loan_formset, "result": result, "error": error},
+    )

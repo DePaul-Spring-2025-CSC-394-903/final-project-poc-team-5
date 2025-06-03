@@ -107,20 +107,25 @@
       </div>
     </div>
 
- <!-- Budget Calculator -->
+<!-- Budget Calculator -->
 <div class="col">
   <div class="card h-100 text-center border-0">
     <div class="card-body">
       <h5 class="card-title">Budget Calculator</h5>
       <p class="card-text">Allocate your monthly income smartly across spending categories.</p>
       <a href="{% url 'budgeting_tool' %}" class="btn btn-custom-green">Try Calculator</a>
+
+      {% if has_budget_result %}
       <hr>
-      <a href="{% url 'budgeting_tool' %}" class="btn btn-custom-green-outline">View Last Result</a>
+      <p class="card-text">You have a recent result saved.</p>
+      <a href="{% url 'latest_budget_result' %}" class="btn btn-custom-green-outline">View Last Result</a>
+      {% endif %}
+
+      <hr>
       <a href="{% url 'budget_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
     </div>
   </div>
 </div>
-
 
 <!-- Savings Calculator -->
 <div class="col">
@@ -129,8 +134,14 @@
       <h5 class="card-title">Savings Calculator</h5>
       <p class="card-text">Visualize how your savings grow over time with interest.</p>
       <a href="{% url 'savings_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
+
+      {% if has_savings_result %}
       <hr>
+      <p class="card-text">You have a recent result saved.</p>
       <a href="{% url 'latest_savings_result' %}" class="btn btn-custom-green-outline">View Last Result</a>
+      {% endif %}
+
+      <hr>
       <a href="{% url 'savings_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
     </div>
   </div>
@@ -144,13 +155,18 @@
       <h5 class="card-title">Take-Home Calculator</h5>
       <p class="card-text">Estimate your net income after taxes and deductions.</p>
       <a href="{% url 'take_home_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
+
+      {% if has_take_home_result %}
       <hr>
+      <p class="card-text">You have a recent result saved.</p>
       <a href="{% url 'latest_take_home_result' %}" class="btn btn-custom-green-outline">View Last Result</a>
+      {% endif %}
+
+      <hr>
       <a href="{% url 'take_home_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
     </div>
   </div>
 </div>
-
 
 <!-- Mortgage Calculator -->
 <div class="col">
@@ -159,10 +175,17 @@
       <h5 class="card-title">Mortgage Calculator</h5>
       <p class="card-text">Find out monthly payments for a mortgage loan.</p>
       <a href="{% url 'mortgage_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
+
+      {% if has_mortgage_result %}
       <hr>
+      <p class="card-text">You have a recent result saved.</p>
       <a href="{% url 'latest_mortgage_result' %}" class="btn btn-custom-green-outline">View Last Result</a>
+      {% endif %}
+
+      <hr>
       <a href="{% url 'mortgage_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
     </div>
   </div>
 </div>
+
 {% endblock %}

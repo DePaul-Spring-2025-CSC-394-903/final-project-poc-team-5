@@ -1,0 +1,10 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2>Latest Mortgage Result</h2>
+  <p><strong>Loan Amount:</strong> ${{ result.loan_amount }}</p>
+  <p><strong>Interest Rate:</strong> {{ result.interest_rate }}%</p>
+  <p><strong>Loan Term:</strong> {{ result.loan_term }} years</p>
+  <p><strong>Monthly Payment:</strong> ${{ result.monthly_payment }}</p>
+</div>
+{% endblock %}

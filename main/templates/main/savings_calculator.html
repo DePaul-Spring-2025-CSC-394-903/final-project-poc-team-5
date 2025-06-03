@@ -136,27 +136,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   const ctx = document.getElementById('savingsChart').getContext('2d');
+  // Parse the monthly‐balance array passed from the view
   const data = JSON.parse('{{ result.data_json|escapejs }}');
 
+  // Create one label per month: "Month 1", "Month 2", … up to totalMonths
   const totalMonths = data.length;
-  const totalYears = Math.ceil(totalMonths / 12);
-
-  const labels = Array.from({ length: totalYears }, (_, i) => `Year ${i + 1}`);
-
-  const yearlyData = [];
-  for (let i = 0; i < totalYears; i++) {
-    const monthIndex = (i + 1) * 12 - 1;
-    const balance = data[Math.min(monthIndex, data.length - 1)];
-    yearlyData.push(balance);
-  }
+  const labels = Array.from({ length: totalMonths }, (_, i) => `Month ${i + 1}`);
 
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: labels,
+      labels: labels,      // e.g. ["Month 1", "Month 2", …]
       datasets: [{
         label: 'Projected Balance',
-        data: yearlyData,
+        data: data,         // raw monthly balances
         borderColor: '#38a169',
         backgroundColor: 'rgba(56, 161, 105, 0.1)',
         pointBackgroundColor: '#38a169',
@@ -176,10 +169,7 @@
           display: true,
           labels: {
             color: '#1d1d1f',
-            font: {
-              size: 14,
-              weight: 'bold'
-            }
+            font: { size: 14, weight: 'bold' }
           }
         },
         tooltip: {
@@ -204,39 +194,30 @@
             display: true,
             text: 'Balance ($)',
             color: '#1d1d1f',
-            font: {
-              size: 14,
-              weight: 'bold'
-            }
+            font: { size: 14, weight: 'bold' }
           },
-          ticks: {
-            color: '#1d1d1f'
-          },
-          grid: {
-            color: 'rgba(0, 0, 0, 0.05)'
-          }
+          ticks: { color: '#1d1d1f' },
+          grid: { color: 'rgba(0, 0, 0, 0.05)' }
         },
         x: {
           title: {
             display: true,
-            text: 'Years',
+            text: 'Months',
             color: '#1d1d1f',
-            font: {
-              size: 14,
-              weight: 'bold'
-            }
+            font: { size: 14, weight: 'bold' }
           },
           ticks: {
-            color: '#1d1d1f'
+            color: '#1d1d1f',
+            maxRotation: 90,
+            minRotation: 45
           },
-          grid: {
-            color: 'rgba(0, 0, 0, 0.05)'
-          }
+          grid: { color: 'rgba(0, 0, 0, 0.05)' }
         }
       }
     }
   });
 </script>
 {% endif %}
+
 {% endblock %}
 

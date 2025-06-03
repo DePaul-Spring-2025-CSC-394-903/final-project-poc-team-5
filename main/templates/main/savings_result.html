@@ -1,44 +1,57 @@
-{% extends "main/base.html" %}
+{% extends 'main/base.html' %}
 {% block content %}
+<div class="container my-5">
+  <h2 class="text-center mb-4">Your Savings Result</h2>
 
-<div class="container py-5">
-  <div class="card shadow p-4">
-    <h2 class="text-center mb-4">Your Latest Savings Calculation</h2>
-
-    <table class="table table-bordered table-hover">
-      <tbody>
-        <tr>
-          <th>Date</th>
-          <td>{{ result.created_at|date:"Y-m-d H:i" }}</td>
-        </tr>
-        <tr>
-          <th>Initial Amount</th>
-          <td>${{ result.initial_amount }}</td>
-        </tr>
-        <tr>
-          <th>Monthly Contribution</th>
-          <td>${{ result.monthly_contribution }}</td>
-        </tr>
-        <tr>
-          <th>Annual Interest Rate</th>
-          <td>{{ result.interest_rate }}%</td>
-        </tr>
-        <tr>
-          <th>Duration (Years)</th>
-          <td>{{ result.duration_years }}</td>
-        </tr>
-        <tr>
-          <th>Total Saved</th>
-          <td><strong>${{ result.total_saved }}</strong></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="text-center mt-4">
-      <a href="{% url 'dashboard' %}" class="btn btn-custom-green-outline">← Back to Dashboard</a>
-      <a href="{% url 'savings_calculator' %}" class="btn btn-custom-green">Try Again</a>
-    </div>
+  <div class="card p-4 shadow">
+    <p><strong>Initial Amount:</strong> ${{ result.initial_amount }}</p>
+    <p><strong>Monthly Contribution:</strong> ${{ result.monthly_contribution }}</p>
+    <p><strong>Interest Rate:</strong> {{ result.interest_rate }}%</p>
+    <p><strong>Duration (Years):</strong> {{ result.duration_years }}</p>
+    <p><strong>Total Saved:</strong> ${{ result.total_saved }}</p>
   </div>
+
+  <canvas id="savingsChart" class="mt-5"></canvas>
 </div>
 
+<!-- Load Chart.js library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Chart rendering script -->
+<script>
+  const ctx = document.getElementById('savingsChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: {{ labels|safe }},
+      datasets: [{
+        label: 'Savings Over Time',
+        data: {{ values|safe }},
+        borderColor: '#198754',
+        backgroundColor: 'rgba(25,135,84,0.1)',
+        borderWidth: 2,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Month'
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Balance ($)'
+          },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+</script>
 {% endblock %}
+

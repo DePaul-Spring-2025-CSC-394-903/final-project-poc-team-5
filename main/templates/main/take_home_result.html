@@ -1,48 +1,9 @@
 {% extends "main/base.html" %}
 {% block content %}
-
-<div class="container py-5">
-  <div class="card shadow p-4">
-    <h2 class="text-center mb-4">Your Take-Home Pay Result</h2>
-
-    <table class="table table-bordered table-hover">
-      <tbody>
-        <tr>
-          <th>Date</th>
-          <td>{{ result.created_at|date:"Y-m-d H:i" }}</td>
-        </tr>
-        <tr>
-          <th>Gross Income</th>
-          <td>${{ result.income }}</td>
-        </tr>
-        <tr>
-          <th>Filing Status</th>
-          <td>{{ result.filing_status }}</td>
-        </tr>
-        <tr>
-          <th>State</th>
-          <td>{{ result.state }}</td>
-        </tr>
-        <tr>
-          <th>Pay Frequency</th>
-          <td>{{ result.frequency }}</td>
-        </tr>
-        <tr>
-          <th>Annual Take-Home Pay</th>
-          <td>${{ result.take_home_annual }}</td>
-        </tr>
-        <tr>
-          <th>Take-Home Per Pay Period</th>
-          <td>${{ result.take_home_per_period }}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="text-center mt-4">
-      <a href="{% url 'dashboard' %}" class="btn btn-custom-green-outline">← Back to Dashboard</a>
-      <a href="{% url 'take_home_calculator' %}" class="btn btn-custom-green">Try Again</a>
-    </div>
-  </div>
+<div class="container py-4">
+  <h2>Latest Take-Home Result</h2>
+  <p><strong>Gross Income:</strong> ${{ result.gross_income }}</p>
+  <p><strong>Tax Rate:</strong> {{ result.tax_rate }}%</p>
+  <p><strong>Net Income:</strong> ${{ result.net_income }}</p>
 </div>
-
 {% endblock %}
