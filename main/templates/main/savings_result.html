@@ -1,57 +1,63 @@
-{% extends 'main/base.html' %}
+{% extends "main/base.html" %}
 {% block content %}
-<div class="container my-5">
-  <h2 class="text-center mb-4">Your Savings Result</h2>
 
-  <div class="card p-4 shadow">
-    <p><strong>Initial Amount:</strong> ${{ result.initial_amount }}</p>
-    <p><strong>Monthly Contribution:</strong> ${{ result.monthly_contribution }}</p>
-    <p><strong>Interest Rate:</strong> {{ result.interest_rate }}%</p>
-    <p><strong>Duration (Years):</strong> {{ result.duration_years }}</p>
-    <p><strong>Total Saved:</strong> ${{ result.total_saved }}</p>
+<div class="container py-4">
+
+  <h2 class="mb-3">Latest Savings Result</h2>
+
+  <p><strong>Initial Balance:</strong> ${{ entry.initial_amount }}</p>
+  <p><strong>Monthly Contribution:</strong> ${{ entry.monthly_contribution }}</p>
+  <p><strong>Annual Interest:</strong> {{ entry.interest_rate }}%</p>
+  <p><strong>Years to Grow:</strong> {{ entry.duration_years }}</p>
+
+  <hr>
+  <p class="fs-5">
+      <strong>Final Balance:</strong> <span class="text-success">${{ final_balance }}</span><br>
+      <small class="text-muted">({{ total_contrib|floatformat:2 }} total contributed)</small>
+  </p>
+
+  <!-- chart -->
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <canvas id="savingsLineChart" style="max-width:100%; height:360px;"></canvas>
+    </div>
   </div>
 
-  <canvas id="savingsChart" class="mt-5"></canvas>
 </div>
 
-<!-- Load Chart.js library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- Chart rendering script -->
 <script>
-  const ctx = document.getElementById('savingsChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: {{ labels|safe }},
-      datasets: [{
-        label: 'Savings Over Time',
-        data: {{ values|safe }},
-        borderColor: '#198754',
-        backgroundColor: 'rgba(25,135,84,0.1)',
-        borderWidth: 2,
-        tension: 0.4
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        x: {
-          title: {
-            display: true,
-            text: 'Month'
+  const labels = JSON.parse('{{ labels|escapejs }}');
+  const data   = JSON.parse('{{ values|escapejs }}');
+
+  new Chart(
+    document.getElementById('savingsLineChart'),
+    {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Balance',
+          data,
+          tension: .3,
+          fill: true,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales:  { y: { beginAtZero: true } },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => `$${ctx.parsed.y.toLocaleString()}`
+            }
           }
-        },
-        y: {
-          title: {
-            display: true,
-            text: 'Balance ($)'
-          },
-          beginAtZero: true
         }
       }
     }
-  });
+  );
 </script>
-{% endblock %}
 
+{% endblock %}

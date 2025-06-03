@@ -1,9 +1,55 @@
+{#  main/templates/main/budget_result.html  #}
 {% extends "main/base.html" %}
 {% block content %}
+
 <div class="container py-4">
-  <h2>Latest Budget Result</h2>
-  <p><strong>Monthly Income:</strong> ${{ result.monthly_income }}</p>
-  <p><strong>Total Expenses:</strong> ${{ result.total_expenses }}</p>
-  <p><strong>Savings Goal:</strong> ${{ result.savings_goal }}</p>
+
+  <h2 class="mb-3">Latest Budget Result</h2>
+
+  <p><strong>Monthly Income:</strong>  ${{ result.monthly_income }}</p>
+  <p><strong>Total Expenses:</strong>  ${{ result.total_expenses }}</p>
+  <p><strong>Savings Goal&nbsp;:</strong>  ${{ result.savings_goal }}</p>
+
+  <hr class="my-4">
+
+  <!-- Pie chart -->
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <!-- fixed-height canvas so the chart never collapses -->
+      <canvas id="budgetPieChart" style="max-width:100%; height:320px;"></canvas>
+    </div>
+  </div>
+
 </div>
+
+<!-- ───────── Chart.js setup ───────── -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = JSON.parse('{{ labels|escapejs }}');
+  const data   = JSON.parse('{{ values|escapejs }}');
+  const colors = JSON.parse('{{ colors|escapejs }}');
+
+  const ctx = document.getElementById("budgetPieChart").getContext("2d");
+  new Chart(ctx, {
+    type: "pie",
+    data: {
+      labels,
+      datasets: [{ data, backgroundColor: colors }]
+    },
+    options: {
+      responsive: true,
+      /** ↓↓↓  NEW LINE  ↓↓↓ */
+      maintainAspectRatio: false,   // let the 320 px height rule the layout
+      plugins: {
+        legend: { position: "bottom", labels: { boxWidth: 12, padding: 10 } },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.label}: $${ctx.parsed.toLocaleString()}`
+          }
+        }
+      }
+    }
+  });
+</script>
+
 {% endblock %}

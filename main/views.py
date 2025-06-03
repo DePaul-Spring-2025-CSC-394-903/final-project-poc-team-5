@@ -34,6 +34,7 @@ from .forms import (
     MergeForm,
 )
 from datetime import datetime, date, timedelta      
+from math import ceil
 
 
 
@@ -820,6 +821,14 @@ def savings_calculator(request):
                 "goal_months": goal_months,
                 "data_json": data_json
             }
+            SavingsCalculation.objects.create(
+                user                 = request.user,
+                initial_amount       = starting_balance,
+                monthly_contribution = contribution_amount,
+                interest_rate        = interest_rate,
+                duration_years       = years,
+                total_saved          = final_balance,
+    )
 
         except (ValueError, TypeError) as e:
             error = str(e)
@@ -882,27 +891,41 @@ def delete_savings_entry(request, pk):
 
 @login_required
 def latest_savings_result(request):
-    result_id = request.session.get('last_savings_result_id')
-    if not result_id:
-        return redirect('savings_calculator')
-
-    result = get_object_or_404(SavingsCalculation, id=result_id, user=request.user)
-
-    # Recalculate values for the graph
-    final_balance, values, labels = calculate_savings_growth(
-        result.initial_amount,
-        result.duration_years,
-        result.interest_rate,
-        'monthly',
-        result.monthly_contribution,
-        'monthly'
+    entry = (
+        SavingsCalculation.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
+        .first()
     )
+    if not entry:
+        return redirect("savings_calculator")
 
-    return render(request, 'main/savings_result.html', {
-        'result': result,
-        'labels': labels,
-        'values': values,
-    })
+    # --- rebuild series -------------------------------------------------
+    months_total   = entry.duration_years * 12
+    monthly_rate   = float(entry.interest_rate) / 100 / 12
+    balance        = float(entry.initial_amount)
+    series         = []
+
+    for _ in range(1, months_total + 1):
+        balance *= (1 + monthly_rate)
+        balance += float(entry.monthly_contribution)
+        series.append(round(balance, 2))
+
+    labels         = [f"Month {i}" for i in range(1, months_total + 1)]
+    final_balance  = series[-1]                           # up-to-date!
+    total_contrib  = round(entry.monthly_contribution * months_total, 2)
+
+    return render(
+        request,
+        "main/savings_result.html",                 # path below
+        {
+            "entry":          entry,          # raw DB row (if you still need it)
+            "final_balance":  final_balance,  # fresh number for template
+            "total_contrib":  total_contrib,
+            "labels":  json.dumps(labels),
+            "values":  json.dumps(series),
+        },
+    )
 
 @login_required
 def savings_result_view(request):
@@ -1094,11 +1117,49 @@ def latest_take_home_result(request):
         return redirect('take_home_calculator')  # fallback if none
     return render(request, 'main/take_home_result.html', {'result': latest_entry})
 
+
+
 @login_required
 def latest_budget_result(request):
-    latest = BudgetCalculation.objects.filter(user=request.user).order_by('-created_at').first()
-    return render(request, 'main/budget_result.html', {'result': latest})
+    entry = (
+        BudgetCalculation.objects
+        .filter(user=request.user)
+        .order_by("-created_at")
+        .first()
+    )
+    if not entry:
+        return redirect("budgeting_tool")
 
+    labels = [
+        "Housing","Food","Utilities","Transportation",
+        "Healthcare","Savings","Debt","Entertainment"
+    ]
+    colors = [
+        "#FF6384","#36A2EB","#FFCE56","#4BC0C0",
+        "#9966FF","#FF9F40","#C9CBCF","#6FCF97"
+    ]
+
+    # ---------- math (all cast to float) ----------
+    base_ratios          = [0.25, 0.10, 0.05, 0.15, 0.10]
+    variable_pool        = float(entry.monthly_income - entry.savings_goal)
+    fixed_slices_5       = [round(variable_pool * r, 2) for r in base_ratios]
+
+    savings_slice        = float(entry.savings_goal)
+    debt_slice           = float(entry.total_expenses) - savings_slice
+    entertainment_slice  = round(variable_pool * 0.05, 2)
+
+    values = fixed_slices_5 + [savings_slice, debt_slice, entertainment_slice]
+
+    return render(
+        request,
+        "main/budget_result.html",
+        {
+            "result": entry,
+            "labels": json.dumps(labels),
+            "colors": json.dumps(colors),
+            "values": json.dumps(values),
+        },
+    )
 
 
 
