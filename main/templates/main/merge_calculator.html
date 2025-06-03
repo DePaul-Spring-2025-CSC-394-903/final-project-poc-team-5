@@ -15,7 +15,7 @@
     {% csrf_token %}
 
     {# ───────────────────── 1 · PERSONAL & INCOME ─────────────────────── #}
-    <div class="card mb-4 shadow-sm">
+    <div class="card mb-4 shadow-sm fixed-form-card-small">
       <div class="card-header bg-success text-white"><h5 class="mb-0">Personal & Income Info</h5></div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
@@ -40,7 +40,7 @@
     </div>
 
     {# ───────────────────── 2 · LOANS (SNOWBALL) ──────────────────────── #}
-    <div class="card mb-4 shadow-sm">
+    <div class="card mb-4 shadow-sm fixed-form-card-small">
       <div class="card-header bg-danger text-white"><h5 class="mb-0">Your Loans (Snowball)</h5></div>
       <div class="card-body" id="loan-formset">
         {{ loan_formset.management_form }}
@@ -73,7 +73,7 @@
     </div>
 
     {# ───────────────────── 3 · 401(k) ────────────────────────────────── #}
-    <div class="card mb-4 shadow-sm">
+    <div class="card mb-4 shadow-sm fixed-form-card-small">
       <div class="card-header bg-primary text-white"><h5 class="mb-0">401(k) Parameters</h5></div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
@@ -98,7 +98,7 @@
     </div>
 
     {# ───────────────────── 4 · SAVINGS ───────────────────────────────── #}
-    <div class="card mb-4 shadow-sm">
+    <div class="card mb-4 shadow-sm fixed-form-card-small">
       <div class="card-header bg-warning text-dark"><h5 class="mb-0">Savings Parameters</h5></div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
@@ -127,7 +127,7 @@
     </div>
 
     {# ───────────────────── 5 · MORTGAGE ──────────────────────────────── #}
-    <div class="card mb-4 shadow-sm">
+    <div class="card mb-4 shadow-sm fixed-form-card-small">
       <div class="card-header bg-info text-white"><h5 class="mb-0">Mortgage Details</h5></div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
@@ -161,7 +161,7 @@
   <div class="row gy-5">
     <!-- 401k -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm fixed-form-card">
         <div class="card-header bg-primary text-white"><h5 class="mb-0">401(k) Projection</h5></div>
         <div class="card-body">
           <p><strong>Projected Balance:</strong> ${{ result.retirement.projected_balance }}</p>
@@ -174,7 +174,7 @@
 
     <!-- Take-Home -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm fixed-form-card">
         <div class="card-header bg-secondary text-white"><h5 class="mb-0">Take-Home Pay</h5></div>
         <div class="card-body">
           <p><strong>Net per Period:</strong> ${{ result.take_home.net_per_period }} ({{ result.take_home.pay_frequency|capfirst }})</p>
@@ -185,7 +185,7 @@
 
     <!-- Savings -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm fixed-form-card">
         <div class="card-header bg-warning text-dark"><h5 class="mb-0">Savings Growth</h5></div>
         <div class="card-body">
           <p><strong>Final Balance:</strong> ${{ result.savings.final_balance }}</p>
@@ -199,7 +199,7 @@
 
     <!-- Mortgage -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm fixed-form-card">
         <div class="card-header bg-info text-white"><h5 class="mb-0">Mortgage Summary</h5></div>
         <div class="card-body">
           <p><strong>Monthly Payment:</strong> ${{ result.mortgage.monthly_payment }}</p>
@@ -211,7 +211,7 @@
 
     <!-- Debt -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm fixed-form-card">
         <div class="card-header bg-danger text-white"><h5 class="mb-0">Debt Payoff (Snowball)</h5></div>
         <div class="card-body">
           <p><strong>Months to Payoff:</strong> {{ result.snowball.months_to_payoff }}</p>
@@ -223,7 +223,7 @@
 
     <!-- Budget pie -->
     <div class="col-md-6">
-      <div class="card shadow-sm">
+      <div class="card shadow-sm fixed-form-card">
         <div class="card-header bg-secondary text-white"><h5 class="mb-0">Budget Breakdown (50/30/20)</h5></div>
         <div class="card-body">
           <p><strong>Monthly Income (Net):</strong> ${{ result.budget.monthly_income }}</p>
@@ -233,6 +233,21 @@
     </div>
   </div> <!-- /.row -->
 
+<style>
+  .fixed-form-card {
+    width: auto;
+    height: auto;
+    overflow-y: auto;
+  }
+
+  .fixed-form-card-small{
+    width: auto;
+    height:auto;
+    font-weight:600;
+    overflow-y: auto;
+  }
+</style>
+  
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
@@ -304,3 +319,4 @@ function addLoan(){
 }
 </script>
 {% endblock %}
+

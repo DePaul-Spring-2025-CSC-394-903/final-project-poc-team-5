@@ -1,5 +1,6 @@
 {% extends 'main/base.html' %}
 {% block content %}
+{% load humanize %}
 <div class="container my-5">
  
   <form method="POST" class="card p-4 shadow-sm mb-4" style="border-radius: 12px;">
@@ -58,18 +59,18 @@
   <div class="card p-4 shadow-sm mb-4" style="border-radius: 12px;">
     <h4 class="text-center mb-3">Per {{ result.pay_frequency|title }} Paycheck</h4>
     <ul class="list-group mb-3">
-      <li class="list-group-item">Gross Income: ${{ result.gross_income|floatformat:2 }}</li>
-      <li class="list-group-item">Federal Tax: ${{ result.federal_tax|floatformat:2 }}</li>
-      <li class="list-group-item">State Tax: ${{ result.state_tax|floatformat:2 }}</li>
-      <li class="list-group-item">FICA Tax: ${{ result.fica_tax|floatformat:2 }}</li>
-      <li class="list-group-item">Total Tax: ${{ result.total_tax|floatformat:2 }}</li>
-      <li class="list-group-item fw-bold text-success">Take Home Pay: ${{ result.take_home_pay|floatformat:2 }}</li>
+      <li class="list-group-item">Gross Income: ${{ result.gross_income|floatformat:2|intcomma }}</li>
+      <li class="list-group-item">Federal Tax: ${{ result.federal_tax|floatformat:2|intcomma }}</li>
+      <li class="list-group-item">State Tax: ${{ result.state_tax|floatformat:2|intcomma }}</li>
+      <li class="list-group-item">FICA Tax: ${{ result.fica_tax|floatformat:2|intcomma }}</li>
+      <li class="list-group-item">Total Tax: ${{ result.total_tax|floatformat:2|intcomma }}</li>
+      <li class="list-group-item fw-bold text-success">Take Home Pay: ${{ result.take_home_pay|floatformat:2|intcomma }}</li>
     </ul>
 
     <h4 class="text-center mb-3">Annual Summary</h4>
     <ul class="list-group mb-4">
-      <li class="list-group-item">Annual Gross: ${{ result.annual_gross|floatformat:2 }}</li>
-      <li class="list-group-item fw-bold text-success">Annual Take Home: ${{ result.annual_take_home|floatformat:2 }}</li>
+      <li class="list-group-item">Annual Gross: ${{ result.annual_gross|floatformat:2|intcomma }}</li>
+      <li class="list-group-item fw-bold text-success">Annual Take Home: ${{ result.annual_take_home|floatformat:2|intcomma }}</li>
     </ul>
 
     <h4 class="text-center mb-3">Tax Breakdown</h4>
@@ -89,10 +90,10 @@
         datasets: [{
           label: 'Tax Breakdown',
           data: [
-            {{ result.federal_tax|floatformat:2 }},
-            {{ result.state_tax|floatformat:2 }},
-            {{ result.fica_tax|floatformat:2 }},
-            {{ result.take_home_pay|floatformat:2 }}
+            {{ result.federal_tax|floatformat:2|intcomma }},
+            {{ result.state_tax|floatformat:2|intcomma }},
+            {{ result.fica_tax|floatformat:2 |intcomma}},
+            {{ result.take_home_pay|floatformat:2 |intcomma }}
           ],
           backgroundColor: ['#FFC107', '#17A2B8', '#6C757D', '#28A745'],
           borderColor: '#ffffff',
