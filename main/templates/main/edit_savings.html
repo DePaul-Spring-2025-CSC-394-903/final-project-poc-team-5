@@ -1,0 +1,25 @@
+{% extends "main/base.html" %}
+{% block content %}
+<h2>Edit Savings Entry</h2>
+<form method="post">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label>Initial Amount</label>
+    <input type="number" step="0.01" name="initial_amount" value="{{ entry.initial_amount }}" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label>Monthly Contribution</label>
+    <input type="number" step="0.01" name="monthly_contribution" value="{{ entry.monthly_contribution }}" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label>Interest Rate (%)</label>
+    <input type="number" step="0.01" name="interest_rate" value="{{ entry.interest_rate }}" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label>Duration (Years)</label>
+    <input type="number" name="duration_years" value="{{ entry.duration_years }}" class="form-control">
+  </div>
+  <button type="submit" class="btn btn-primary">Save</button>
+  <a href="{% url 'savings_history' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

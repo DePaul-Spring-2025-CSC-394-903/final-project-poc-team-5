@@ -107,57 +107,62 @@
       </div>
     </div>
 
-    <!-- Budgeting Calculator -->
-    <div class="col">
-      <div class="card h-100 text-center border-0">
-        <div class="card-body">
-          <h5 class="card-title">Budgeting Calculator</h5>
-          <p class="card-text">Plan your monthly income and expenses.</p>
-          <a href="{% url 'budgeting_tool' %}" class="btn btn-custom-green">Try It</a>
-        </div>
-      </div>
+ <!-- Budget Calculator -->
+<div class="col">
+  <div class="card h-100 text-center border-0">
+    <div class="card-body">
+      <h5 class="card-title">Budget Calculator</h5>
+      <p class="card-text">Allocate your monthly income smartly across spending categories.</p>
+      <a href="{% url 'budgeting_tool' %}" class="btn btn-custom-green">Try Calculator</a>
+      <hr>
+      <a href="{% url 'budgeting_tool' %}" class="btn btn-custom-green-outline">View Last Result</a>
+      <a href="{% url 'budget_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
     </div>
-
-    <!-- Savings Calculator (Coming Soon) -->
-    <div class="col">
-      <div class="card h-100 text-center border-0">
-        <div class="card-body">
-          <h5 class="card-title">Savings Calculator</h5>
-          <p class="card-text">Estimate future savings with monthly contributions.</p>
-          <a href="{% url 'savings_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
-        </div>
-      </div>
-    </div>
-
-    <!-- Take Home Calculator -->
-    <div class="col">
-      <div class="card h-100 text-center border-0">
-        <div class="card-body">
-          <h5 class="card-title">Take Home Calculator</h5>
-          <p class="card-text">Find out how much you earn per paycheck.</p>
-          <a href="{% url 'take_home_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Mortgage Calculator -->
-    <div class="col">
-      <div class="card h-100 text-center border-0">
-        <div class="card-body">
-          <h5 class="card-title">Mortgage Calculator</h5>
-          <p class="card-text">Find out monthly payments for a mortgage loan.</p>
-          <a href="{% url 'mortgage_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
-        </div>
-      </div>
-    </div>
-
+  </div>
 </div>
 
-  <!-- Learn More Button -->
-  <div class="text-center mt-5">
-    <a href="{% url 'calculator_info' %}" class="btn btn-custom-green-outline btn-lg">
-      Learn About the Calculators
-    </a>
+
+<!-- Savings Calculator -->
+<div class="col">
+  <div class="card h-100 text-center border-0">
+    <div class="card-body">
+      <h5 class="card-title">Savings Calculator</h5>
+      <p class="card-text">Visualize how your savings grow over time with interest.</p>
+      <a href="{% url 'savings_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
+      <hr>
+      <a href="{% url 'latest_savings_result' %}" class="btn btn-custom-green-outline">View Last Result</a>
+      <a href="{% url 'savings_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- Take-Home Calculator -->
+<div class="col">
+  <div class="card h-100 text-center border-0">
+    <div class="card-body">
+      <h5 class="card-title">Take-Home Calculator</h5>
+      <p class="card-text">Estimate your net income after taxes and deductions.</p>
+      <a href="{% url 'take_home_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
+      <hr>
+      <a href="{% url 'latest_take_home_result' %}" class="btn btn-custom-green-outline">View Last Result</a>
+      <a href="{% url 'take_home_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- Mortgage Calculator -->
+<div class="col">
+  <div class="card h-100 text-center border-0">
+    <div class="card-body">
+      <h5 class="card-title">Mortgage Calculator</h5>
+      <p class="card-text">Find out monthly payments for a mortgage loan.</p>
+      <a href="{% url 'mortgage_calculator' %}" class="btn btn-custom-green">Try Calculator</a>
+      <hr>
+      <a href="{% url 'latest_mortgage_result' %}" class="btn btn-custom-green-outline">View Last Result</a>
+      <a href="{% url 'mortgage_history' %}" class="btn btn-custom-green-outline">View All Past Calculations</a>
+    </div>
   </div>
 </div>
 {% endblock %}

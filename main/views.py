@@ -21,6 +21,12 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from .tax_data import federal_tax_brackets, state_tax_brackets_2025
 import math
+from .models import SavingsCalculation
+from .models import MortgageCalculation
+from .models import TakeHomeCalculation
+from .models import BudgetCalculation
+
+
 
 class SafeLogoutView(LogoutView):
     def dispatch(self, request, *args, **kwargs):
@@ -497,6 +503,8 @@ def budgeting_tool(request):
                 "Entertainment": 0.05
             }
 
+            
+
             base_total = sum(ratios.values())
             remaining_income = max(0, income - (snowball_monthly + retirement_monthly))
 
@@ -506,6 +514,14 @@ def budgeting_tool(request):
             debt = round(snowball_monthly, 2)
 
             final_allocations = base_allocations[:5] + [savings, debt, base_allocations[5]]
+
+            BudgetCalculation.objects.create(
+                user=request.user,
+                monthly_income=income,
+                total_expenses=sum(final_allocations),
+                savings_goal=savings
+            )
+
 
             context['income'] = income
             context['result'] = json.dumps(final_allocations)
@@ -521,6 +537,43 @@ def budgeting_tool(request):
 
     return render(request, 'main/budgeting_tool.html', context)
 
+@login_required
+def budget_history(request):
+    if request.user.is_authenticated:
+        history = BudgetCalculation.objects.filter(user=request.user).order_by('-created_at')
+        return render(request, 'main/budget_history.html', {'history': history})
+    return redirect('login')
+
+@login_required
+def edit_budget_entry(request, pk):
+    entry = get_object_or_404(BudgetCalculation, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        try:
+            income = float(request.POST.get('monthly_income'))
+            expenses = float(request.POST.get('total_expenses'))
+            savings = float(request.POST.get('savings_goal'))
+
+            entry.monthly_income = income
+            entry.total_expenses = expenses
+            entry.savings_goal = savings
+            entry.save()
+
+            return redirect('budget_history')
+        except Exception as e:
+            return render(request, 'main/edit_budget.html', {
+                'entry': entry,
+                'error': f"Error: {e}"
+            })
+
+    return render(request, 'main/edit_budget.html', {'entry': entry})
+
+@login_required
+@require_POST
+def delete_budget_entry(request, pk):
+    entry = get_object_or_404(BudgetCalculation, pk=pk, user=request.user)
+    entry.delete()
+    return redirect('budget_history')
 
 
 @require_POST
@@ -581,6 +634,15 @@ def take_home_calculator(request):
                 pre_tax,
                 post_tax
             )
+            TakeHomeCalculation.objects.create(
+                user=request.user,
+                income=annual_income,
+                filing_status=status,
+                state=state,
+                frequency=frequency,
+                take_home_annual=tax_data["take_home_pay"],
+                take_home_per_period=tax_data["take_home_pay"] / periods
+            )
 
             context["result"] = {
                 "gross_income": round(per_period_income, 2),
@@ -611,6 +673,52 @@ def take_home_calculator(request):
             context["error"] = f"Invalid input: {e}"
 
     return render(request, "main/take_home_calculator.html", context)
+
+@login_required
+def take_home_history(request):
+    if request.user.is_authenticated:
+        history = TakeHomeCalculation.objects.filter(user=request.user).order_by('-created_at')
+        return render(request, 'main/take_home_history.html', {'history': history})
+    return redirect('login')
+
+@login_required
+def edit_take_home_entry(request, pk):
+    entry = get_object_or_404(TakeHomeCalculation, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        try:
+            entry.income = float(request.POST.get("income"))
+            entry.filing_status = request.POST.get("filing_status")
+            entry.state = request.POST.get("state")
+            entry.frequency = request.POST.get("frequency")
+
+            # Recalculate take-home
+            periods = {
+                "annual": 1, "monthly": 12, "semi_monthly": 24,
+                "bi_weekly": 26, "weekly": 52
+            }[entry.frequency]
+            tax_result = calculate_take_home(
+                entry.income, entry.filing_status, entry.state, 1, 1, 0, 0, 0
+            )
+
+            entry.take_home_annual = tax_result["take_home_pay"]
+            entry.take_home_per_period = tax_result["take_home_pay"] / periods
+            entry.save()
+            return redirect('take_home_history')
+
+        except Exception as e:
+            return render(request, 'main/edit_take_home.html', {'entry': entry, 'error': f"Error: {e}"})
+
+    return render(request, 'main/edit_take_home.html', {'entry': entry})
+
+
+@login_required
+@require_POST
+def delete_take_home_entry(request, pk):
+    entry = get_object_or_404(TakeHomeCalculation, pk=pk, user=request.user)
+    entry.delete()
+    return redirect('take_home_history')
+
 
 def calculate_savings_growth(starting_balance, years, interest_rate, compound_frequency, contribution, contribution_frequency, goal=None):
     months = years * 12
@@ -656,6 +764,14 @@ def savings_calculator(request):
                 compound_frequency, contribution_amount, contribution_frequency,
                 goal
             )
+            SavingsCalculation.objects.create(
+                user=request.user,
+                initial_amount=starting_balance,
+                monthly_contribution=contribution_amount,
+                interest_rate=interest_rate,
+                duration_years=years,
+                total_saved=final_balance
+            )
 
             context = {
                 'starting_balance': starting_balance,
@@ -675,6 +791,47 @@ def savings_calculator(request):
             context['error'] = f"An error occurred: {e}"
 
     return render(request, 'main/savings_calculator.html', context)
+
+@login_required
+def savings_history(request):
+    history = SavingsCalculation.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'main/savings_history.html', {'history': history})
+
+@login_required
+def edit_savings_entry(request, pk):
+    entry = get_object_or_404(SavingsCalculation, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        try:
+            entry.initial_amount = float(request.POST.get('initial_amount'))
+            entry.monthly_contribution = float(request.POST.get('monthly_contribution'))
+            entry.interest_rate = float(request.POST.get('interest_rate'))
+            entry.duration_years = int(request.POST.get('duration_years'))
+
+            # Recalculate
+            final_balance, _, _ = calculate_savings_growth(
+                entry.initial_amount,
+                entry.duration_years,
+                entry.interest_rate,
+                'monthly',  # assume monthly compound
+                entry.monthly_contribution,
+                'monthly'   # assume monthly contribution
+            )
+            entry.total_saved = final_balance
+            entry.save()
+            return redirect('savings_history')
+        except Exception as e:
+            return render(request, 'main/edit_savings.html', {'entry': entry, 'error': f"Error: {e}"})
+
+    return render(request, 'main/edit_savings.html', {'entry': entry})
+
+@login_required
+@require_POST
+def delete_savings_entry(request, pk):
+    entry = get_object_or_404(SavingsCalculation, pk=pk, user=request.user)
+    entry.delete()
+    return redirect('savings_history')
+
 
 @login_required
 def mortgage_calculator(request):
@@ -722,6 +879,17 @@ def mortgage_calculator(request):
                 'principal': round(principal, 2),
                 'payoff_date': payoff_date.strftime("%m / %Y")
             }
+            MortgageCalculation.objects.create(
+                user=request.user,
+                home_price=price,
+                down_payment=down,
+                interest_rate=form.cleaned_data['interest_rate'],
+                term_years=years,
+                monthly_payment=round(monthly_payment, 2),
+                total_payment=round(total_payment, 2),
+                total_interest=round(total_interest, 2),
+                payoff_date=payoff_date.strftime("%m / %Y")
+            )
 
             amortization_schedule = generate_amortization_schedule(
                 principal=Decimal(principal),
@@ -734,3 +902,78 @@ def mortgage_calculator(request):
 
     return render(request, "main/mortgage_calculator.html", {"form": form, "result": result,  "schedule": amortization_schedule})
 
+@login_required
+def mortgage_history(request):
+    if request.user.is_authenticated:
+        history = MortgageCalculation.objects.filter(user=request.user).order_by('-created_at')
+        return render(request, 'main/mortgage_history.html', {'history': history})
+    return redirect('login')
+
+@login_required
+def edit_mortgage_entry(request, pk):
+    entry = get_object_or_404(MortgageCalculation, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        try:
+            home_price = float(request.POST.get("home_price"))
+            down_payment = float(request.POST.get("down_payment"))
+            interest_rate = float(request.POST.get("interest_rate"))
+            term_years = int(request.POST.get("term_years"))
+
+            principal = home_price - down_payment
+            monthly_rate = interest_rate / 100 / 12
+            months = term_years * 12
+
+            monthly_payment = (
+                principal * monthly_rate / (1 - (1 + monthly_rate) ** -months)
+            )
+            total_payment = monthly_payment * months
+            total_interest = total_payment - principal
+
+            entry.home_price = home_price
+            entry.down_payment = down_payment
+            entry.interest_rate = interest_rate
+            entry.term_years = term_years
+            entry.monthly_payment = round(monthly_payment, 2)
+            entry.total_payment = round(total_payment, 2)
+            entry.total_interest = round(total_interest, 2)
+            entry.payoff_date = (timezone.now() + timedelta(days=30 * months)).strftime("%B %Y")
+
+            entry.save()
+            return redirect('mortgage_history')
+
+        except Exception as e:
+            return render(request, 'main/edit_mortgage.html', {'entry': entry, 'error': str(e)})
+
+    return render(request, 'main/edit_mortgage.html', {'entry': entry})
+
+
+@login_required
+@require_POST
+def delete_mortgage_entry(request, pk):
+    entry = get_object_or_404(MortgageCalculation, pk=pk, user=request.user)
+    entry.delete()
+    return redirect('mortgage_history')
+
+@login_required
+def latest_mortgage_result(request):
+    latest_entry = (
+        MortgageCalculation.objects.filter(user=request.user)
+        .order_by('-created_at')
+        .first()
+    )
+    return render(request, 'main/latest_mortgage_result.html', {'entry': latest_entry})
+
+@login_required
+def latest_savings_result(request):
+    latest_entry = SavingsCalculation.objects.filter(user=request.user).order_by('-created_at').first()
+    if not latest_entry:
+        return redirect('savings_calculator')  # fallback if nothing exists
+    return render(request, 'main/savings_result.html', {'result': latest_entry})
+
+@login_required
+def latest_take_home_result(request):
+    latest_entry = TakeHomeCalculation.objects.filter(user=request.user).order_by('-created_at').first()
+    if not latest_entry:
+        return redirect('take_home_calculator')  # fallback if none
+    return render(request, 'main/take_home_result.html', {'result': latest_entry})

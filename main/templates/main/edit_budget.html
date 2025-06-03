@@ -1,0 +1,22 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container">
+  <h2>Edit Budget Entry</h2>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label>Monthly Income:</label>
+      <input type="number" name="monthly_income" class="form-control" step="0.01" value="{{ entry.monthly_income }}">
+    </div>
+    <div class="mb-3">
+      <label>Total Expenses:</label>
+      <input type="number" name="total_expenses" class="form-control" step="0.01" value="{{ entry.total_expenses }}">
+    </div>
+    <div class="mb-3">
+      <label>Savings Goal:</label>
+      <input type="number" name="savings_goal" class="form-control" step="0.01" value="{{ entry.savings_goal }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+  </form>
+</div>
+{% endblock %}

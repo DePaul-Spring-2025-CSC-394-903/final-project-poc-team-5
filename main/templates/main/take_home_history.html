@@ -1,0 +1,36 @@
+{% extends "main/base.html" %}
+{% block content %}
+<h2>Your Take-Home History</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Gross Income</th>
+      <th>Filing Status</th>
+      <th>State</th>
+      <th>Frequency</th>
+      <th>Annual Take-Home</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for run in history %}
+    <tr>
+      <td>{{ run.created_at|date:"Y-m-d" }}</td>
+      <td>${{ run.income }}</td>
+      <td>{{ run.filing_status|title }}</td>
+      <td>{{ run.state }}</td>
+      <td>{{ run.frequency|title }}</td>
+      <td>${{ run.take_home_annual }}</td>
+      <td>
+        <a href="{% url 'edit_take_home_entry' run.pk %}" class="btn btn-sm btn-warning">Edit</a>
+        <form action="{% url 'delete_take_home_entry' run.pk %}" method="POST" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

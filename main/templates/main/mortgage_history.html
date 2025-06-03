@@ -1,0 +1,36 @@
+{% extends "main/base.html" %}
+{% block content %}
+<h2>Mortgage Calculation History</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Home Price</th>
+      <th>Down Payment</th>
+      <th>Interest Rate</th>
+      <th>Term (Years)</th>
+      <th>Monthly Payment</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for entry in history %}
+    <tr>
+      <td>{{ entry.created_at|date:"Y-m-d" }}</td>
+      <td>${{ entry.home_price }}</td>
+      <td>${{ entry.down_payment }}</td>
+      <td>{{ entry.interest_rate }}%</td>
+      <td>{{ entry.term_years }}</td>
+      <td>${{ entry.monthly_payment }}</td>
+      <td>
+        <a href="{% url 'edit_mortgage_entry' entry.pk %}" class="btn btn-warning btn-sm">Edit</a>
+        <form action="{% url 'delete_mortgage_entry' entry.pk %}" method="POST" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

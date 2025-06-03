@@ -1,0 +1,36 @@
+{% extends "main/base.html" %}
+{% block content %}
+<h2>Your Savings History</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Initial Amount</th>
+      <th>Monthly Contribution</th>
+      <th>Interest Rate</th>
+      <th>Duration (Years)</th>
+      <th>Total Saved</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for run in history %}
+    <tr>
+      <td>{{ run.created_at|date:"Y-m-d" }}</td>
+      <td>${{ run.initial_amount }}</td>
+      <td>${{ run.monthly_contribution }}</td>
+      <td>{{ run.interest_rate }}%</td>
+      <td>{{ run.duration_years }}</td>
+      <td>${{ run.total_saved }}</td>
+      <td>
+        <a href="{% url 'edit_savings_entry' run.pk %}" class="btn btn-sm btn-warning">Edit</a>
+        <form action="{% url 'delete_savings_entry' run.pk %}" method="POST" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "main/base.html" %}
+{% block content %}
+<h2>Edit Take-Home Entry</h2>
+<form method="post">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label>Income</label>
+    <input type="number" step="0.01" name="income" value="{{ entry.income }}" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label>Filing Status</label>
+    <select name="filing_status" class="form-control">
+      <option value="single" {% if entry.filing_status == "single" %}selected{% endif %}>Single</option>
+      <option value="married" {% if entry.filing_status == "married" %}selected{% endif %}>Married</option>
+    </select>
+  </div>
+  <div class="mb-3">
+    <label>State</label>
+    <input type="text" name="state" value="{{ entry.state }}" class="form-control">
+  </div>
+  <div class="mb-3">
+    <label>Pay Frequency</label>
+    <select name="frequency" class="form-control">
+      <option value="annual" {% if entry.frequency == "annual" %}selected{% endif %}>Annual</option>
+      <option value="monthly" {% if entry.frequency == "monthly" %}selected{% endif %}>Monthly</option>
+      <option value="semi_monthly" {% if entry.frequency == "semi_monthly" %}selected{% endif %}>Semi-Monthly</option>
+      <option value="bi_weekly" {% if entry.frequency == "bi_weekly" %}selected{% endif %}>Bi-Weekly</option>
+      <option value="weekly" {% if entry.frequency == "weekly" %}selected{% endif %}>Weekly</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Save</button>
+  <a href="{% url 'take_home_history' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

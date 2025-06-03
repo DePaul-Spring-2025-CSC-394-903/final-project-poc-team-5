@@ -1,0 +1,22 @@
+{% extends "main/base.html" %}
+{% block content %}
+<h2>Latest Mortgage Result</h2>
+
+{% if entry %}
+  <ul class="list-group">
+    <li class="list-group-item"><strong>Date:</strong> {{ entry.created_at|date:"Y-m-d" }}</li>
+    <li class="list-group-item"><strong>Home Price:</strong> ${{ entry.home_price }}</li>
+    <li class="list-group-item"><strong>Down Payment:</strong> ${{ entry.down_payment }}</li>
+    <li class="list-group-item"><strong>Interest Rate:</strong> {{ entry.interest_rate }}%</li>
+    <li class="list-group-item"><strong>Term:</strong> {{ entry.term_years }} years</li>
+    <li class="list-group-item"><strong>Monthly Payment:</strong> ${{ entry.monthly_payment }}</li>
+    <li class="list-group-item"><strong>Total Payment:</strong> ${{ entry.total_payment }}</li>
+    <li class="list-group-item"><strong>Total Interest:</strong> ${{ entry.total_interest }}</li>
+    <li class="list-group-item"><strong>Payoff Date:</strong> {{ entry.payoff_date }}</li>
+  </ul>
+{% else %}
+  <p>No previous mortgage calculation found.</p>
+{% endif %}
+
+<a href="{% url 'mortgage_calculator' %}" class="btn btn-primary mt-3">Back to Calculator</a>
+{% endblock %}

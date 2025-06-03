@@ -1,0 +1,32 @@
+{% extends "main/base.html" %}
+{% block content %}
+<h2>Your Budgeting History</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Date</th>
+      <th>Income</th>
+      <th>Total Expenses</th>
+      <th>Savings Goal</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for run in history %}
+    <tr>
+      <td>{{ run.created_at|date:"Y-m-d" }}</td>
+      <td>${{ run.monthly_income }}</td>
+      <td>${{ run.total_expenses }}</td>
+      <td>${{ run.savings_goal }}</td>
+      <td>
+        <a href="{% url 'edit_budget_entry' run.pk %}" class="btn btn-sm btn-warning">Edit</a>
+        <form method="POST" action="{% url 'delete_budget_entry' run.pk %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

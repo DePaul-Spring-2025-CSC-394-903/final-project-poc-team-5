@@ -1,0 +1,25 @@
+{% extends "main/base.html" %}
+{% block content %}
+<h2>Edit Mortgage Entry</h2>
+<form method="post">
+  {% csrf_token %}
+  <div class="mb-3">
+    <label>Home Price</label>
+    <input type="number" step="0.01" name="home_price" class="form-control" value="{{ entry.home_price }}">
+  </div>
+  <div class="mb-3">
+    <label>Down Payment</label>
+    <input type="number" step="0.01" name="down_payment" class="form-control" value="{{ entry.down_payment }}">
+  </div>
+  <div class="mb-3">
+    <label>Interest Rate (%)</label>
+    <input type="number" step="0.01" name="interest_rate" class="form-control" value="{{ entry.interest_rate }}">
+  </div>
+  <div class="mb-3">
+    <label>Loan Term (Years)</label>
+    <input type="number" name="term_years" class="form-control" value="{{ entry.term_years }}">
+  </div>
+  <button type="submit" class="btn btn-primary">Update</button>
+  <a href="{% url 'mortgage_history' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}
