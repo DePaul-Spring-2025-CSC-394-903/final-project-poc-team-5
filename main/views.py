@@ -166,6 +166,7 @@ def snowball_calculator(request):
         total_interest = Decimal('0')
         months = 0
         chart_data = []
+        monthly_breakdown = []
 
         base_total_payment = sum(l['monthly_payment'] for l in loans)
 
@@ -198,8 +199,17 @@ def snowball_calculator(request):
                 unpaid[0]['balance'] -= extra
                 total_payment += extra
 
+            monthly_breakdown.append({
+                "month": months + 1,                                        # ➜ human-friendly
+                "balances": [float(round(l["balance"], 2)) for l in loans],
+                "total_balance": float(round(sum(l["balance"] for l in loans), 2)),
+                "available": float(round(available, 2))
+                })
+
             chart_data.append(float(sum(l['balance'] for l in loans)))
             months += 1
+
+          
 
         result = {
             'months': months,
@@ -224,6 +234,7 @@ def snowball_calculator(request):
 
 
         request.session['snowball_result'] = result
+        request.session['snowball_monthly_breakdown'] = monthly_breakdown
 
         loan_summary = f"Strategy: {strategy.title()} | " + "; ".join(
             f"{l['name']} (Initial: ${l['initial_balance']:.2f}, Rate: {l['interest_rate']}%)"
@@ -251,7 +262,15 @@ def snowball_calculator(request):
         'main_form': main_form,
         'result': result,
         'total_monthly_payment': base_total_payment,
+        #"schedule": amortization_schedule
     })
+
+@login_required
+def snowball_monthly_breakdown(request):
+    breakdown = request.session.get('snowball_monthly_breakdown')
+    if not breakdown:
+        return redirect('snowball_calculator')
+    return render(request, 'main/snowball_monthly_breakdown.html', {'breakdown': breakdown})
 
 
 @login_required

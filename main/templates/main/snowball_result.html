@@ -10,15 +10,21 @@
       <strong>Total Interest:</strong> ${{ result.total_interest }}
     </div>
 
-    <!-- Responsive chart container -->
+    <!-- Chart -->
     <div class="mt-5">
-      <div class="chart-container" style="position: relative; height: 400px; width: 100%;">
+      <div class="chart-container" style="position:relative;height:400px;width:100%;">
         <canvas id="chart"></canvas>
       </div>
     </div>
 
+    <!-- Action buttons -->
     <div class="text-center mt-4">
-      <a href="{% url 'debt_calculator' %}" class="btn btn-secondary">Back to Calculator</a>
+      <a href="{% url 'debt_calculator' %}" class="btn btn-secondary me-2">
+        ← Back to Calculator
+      </a>
+      <a href="{% url 'snowball_monthly_breakdown' %}" class="btn btn-primary">
+        View Monthly Breakdown Table
+      </a>
     </div>
   </div>
 </div>
@@ -46,13 +52,8 @@
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        y: {
-          beginAtZero: true,
-          title: { display: true, text: 'Balance ($)' }
-        },
-        x: {
-          title: { display: true, text: 'Months' }
-        }
+        y: { beginAtZero: true, title: { display: true, text: 'Balance ($)' } },
+        x: { title: { display: true, text: 'Months' } }
       }
     }
   });

@@ -55,5 +55,6 @@ urlpatterns = [
     path('mortgage/latest/', views.latest_mortgage_result, name='latest_mortgage_result'),
     path('savings/latest/', views.latest_savings_result, name='latest_savings_result'),
     path('takehome/latest/', views.latest_take_home_result, name='latest_take_home_result'),
+    path('debt-breakdown/', views.snowball_monthly_breakdown, name='snowball_monthly_breakdown'),
 
 ]

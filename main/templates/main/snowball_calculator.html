@@ -15,6 +15,15 @@
       </div>
     {% endif %}
 
+    {% if result %}
+      <div class="text-center mb-4">
+        <a href="{% url 'snowball_monthly_breakdown' %}" class="btn btn-outline-success">
+          View Monthly Breakdown Table
+      </a>
+    </div>
+    {% endif %}
+
+
     <form method="post" id="loan-form">
       {% csrf_token %}
       {{ formset.management_form }}
