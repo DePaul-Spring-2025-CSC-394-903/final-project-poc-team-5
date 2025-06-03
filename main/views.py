@@ -204,7 +204,7 @@ def snowball_calculator(request):
                 total_payment += extra
 
             monthly_breakdown.append({
-                "month": months + 1,                                        # ➜ human-friendly
+                "month": months + 1,                                        
                 "balances": [float(round(l["balance"], 2)) for l in loans],
                 "total_balance": float(round(sum(l["balance"] for l in loans), 2)),
                 "available": float(round(available, 2))
@@ -1495,7 +1495,7 @@ def merge_calculator(request):
         else:
             error = "Please fix the highlighted errors below."
 
-    else:  # GET
+    else:  
         form          = MergeForm()
         loan_formset  = LoanFormSet(prefix="loans")
 
