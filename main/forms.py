@@ -1,5 +1,3 @@
-# main/forms.py
-
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -11,9 +9,8 @@ from django.contrib.auth import authenticate
 User = get_user_model()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 1) EMAIL‐BASED LOGIN FORM
-# ──────────────────────────────────────────────────────────────────────────────
+#  EMAIL‐BASED LOGIN FORM
+
 class EmailLoginForm(forms.Form):
     email = forms.EmailField(label="Email")
     password = forms.CharField(widget=forms.PasswordInput, label="Password")
@@ -41,9 +38,9 @@ class EmailLoginForm(forms.Form):
         return self.user
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 2) CUSTOM REGISTRATION FORM (USERCREATION)
-# ──────────────────────────────────────────────────────────────────────────────
+
+# CUSTOM REGISTRATION FORM (USERCREATION)
+
 class CustomRegisterForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Email")
 
@@ -67,9 +64,9 @@ class CustomRegisterForm(UserCreationForm):
         return email
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 3) LOAN FORM (used for Snowball/Debt Payoff)
-# ──────────────────────────────────────────────────────────────────────────────
+
+# LOAN FORM (used for Snowball/Debt Payoff)
+
 class LoanForm(forms.Form):
     name            = forms.CharField(label="Loan Name", max_length=100)
     balance         = forms.DecimalField(label="Balance ($)", min_value=0, decimal_places=2)
@@ -85,9 +82,9 @@ LoanFormSet = formset_factory(LoanForm, extra=1, can_delete=True)
 
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 4) MAIN PAYMENT FORM (used in standalone Snowball view if needed)
-# ──────────────────────────────────────────────────────────────────────────────
+
+# MAIN PAYMENT FORM (used in standalone Snowball view if needed)
+
 STRATEGY_CHOICES = [
     ("snowball", "Debt with smallest balance"),
     ("avalanche", "Debt with highest interest rate"),
@@ -109,9 +106,9 @@ class MainPaymentForm(forms.Form):
     )
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 5) MORTGAGE FORM
-# ──────────────────────────────────────────────────────────────────────────────
+
+#  MORTGAGE FORM
+
 class MortgageForm(forms.Form):
     home_price = forms.DecimalField(
         label="Home Price ($)",
@@ -155,12 +152,10 @@ class MortgageForm(forms.Form):
     )
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 6) MERGE‐ALL CALCULATORS FORM
-#    (collects only the essential inputs so the view can “auto‐fill” everything else)
-# ──────────────────────────────────────────────────────────────────────────────
+
+# MERGE‐ALL CALCULATORS FORM
 class MergeForm(forms.Form):
-    # — TAKE‐HOME PAY FIELDS (we’ll assume 1 allowance, no local tax, etc.) —
+
     annual_salary = forms.DecimalField(
         label="Annual Salary ($)",
         min_value=0,
@@ -184,7 +179,54 @@ class MergeForm(forms.Form):
             ("IL", "Illinois"),
             ("CA", "California"),
             ("NY", "New York"),
-            # …add more states as needed…
+            ("TX", "Texas"),
+            ("FL", "Florida"),
+            ("WA", "Washington"),
+            ("PA", "Pennsylvania"),
+            ("OH", "Ohio"),
+            ("MI", "Michigan"),
+            ("GA", "Georgia"),
+            ("NC", "North Carolina"),
+            ("NJ", "New Jersey"),
+            ("VA", "Virginia"),
+            ("AZ", "Arizona"),
+            ("MA", "Massachusetts"),
+            ("TN", "Tennessee"),
+            ("IN", "Indiana"),
+            ("MO", "Missouri"),
+            ("MD", "Maryland"),
+            ("WI", "Wisconsin"),
+            ("CO", "Colorado"),
+            ("MN", "Minnesota"),
+            ("SC", "South Carolina"),
+            ("AL", "Alabama"),
+            ("KY", "Kentucky"),
+            ("OR", "Oregon"),
+            ("OK", "Oklahoma"),
+            ("CT", "Connecticut"),
+            ("IA", "Iowa"),
+            ("KS", "Kansas"),
+            ("AR", "Arkansas"),
+            ("LA", "Louisiana"),
+            ("UT", "Utah"),
+            ("NV", "Nevada"),
+            ("MS", "Mississippi"),
+            ("NM", "New Mexico"),
+            ("WV", "West Virginia"),
+            ("NE", "Nebraska"),
+            ("ID", "Idaho"),
+            ("HI", "Hawaii"),
+            ("ME", "Maine"),
+            ("NH", "New Hampshire"),
+            ("RI", "Rhode Island"),
+            ("DE", "Delaware"),
+            ("VT", "Vermont"),
+            ("MT", "Montana"),
+            ("WY", "Wyoming"),
+            ("SD", "South Dakota"),
+            ("ND", "North Dakota"),
+            ("AK", "Alaska"),
+            ("DC", "District of Columbia"),
         ],
         initial="IL",
         required=True,

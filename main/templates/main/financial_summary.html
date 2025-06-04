@@ -1,0 +1,48 @@
+{% extends "main/base.html" %}
+{% block content %}
+<div class="container py-4">
+  <h2 class="mb-4">Ultimate Financial Summary</h2>
+
+  <canvas id="summaryChart" style="height: 400px;"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById("summaryChart").getContext("2d");
+  const labels = {{ data_labels|safe }};
+  const values = {{ data_values|safe }};
+
+  new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Amount ($)",
+        data: values,
+        backgroundColor: [
+          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#6FCF97'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => `$${ctx.parsed.y.toLocaleString()}`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: val => `$${val}`
+          }
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

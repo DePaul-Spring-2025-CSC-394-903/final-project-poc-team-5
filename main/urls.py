@@ -98,4 +98,8 @@ urlpatterns = [
 
     # Merge all calculators
     path("merge/", views.merge_calculator, name="merge_calculator"),
+
+
+    path("summary/", views.financial_summary, name="financial_summary"),
+
 ]

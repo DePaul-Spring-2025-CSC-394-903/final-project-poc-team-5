@@ -16,23 +16,29 @@
 
     {# ───────────────────── 1 · PERSONAL & INCOME ─────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-success text-white"><h5 class="mb-0">Personal & Income Info</h5></div>
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">Personal &amp; Income Info</h5>
+      </div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
           <div class="col-md-4">
-            {{ form.annual_salary.label_tag }} {{ form.annual_salary|add_class:"form-control" }}
+            {{ form.annual_salary.label_tag }}
+            {{ form.annual_salary|add_class:"form-control" }}
             {% for err in form.annual_salary.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-4">
-            {{ form.pay_frequency.label_tag }} {{ form.pay_frequency|add_class:"form-select" }}
+            {{ form.pay_frequency.label_tag }}
+            {{ form.pay_frequency|add_class:"form-select" }}
             {% for err in form.pay_frequency.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-4">
-            {{ form.filing_status.label_tag }} {{ form.filing_status|add_class:"form-select" }}
+            {{ form.filing_status.label_tag }}
+            {{ form.filing_status|add_class:"form-select" }}
             {% for err in form.filing_status.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-4">
-            {{ form.state.label_tag }} {{ form.state|add_class:"form-select" }}
+            {{ form.state.label_tag }}
+            {{ form.state|add_class:"form-select" }}
             {% for err in form.state.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
         </div>
@@ -41,25 +47,31 @@
 
     {# ───────────────────── 2 · LOANS (SNOWBALL) ──────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-danger text-white"><h5 class="mb-0">Your Loans (Snowball)</h5></div>
+      <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">Your Loans (Snowball)</h5>
+      </div>
       <div class="card-body" id="loan-formset">
         {{ loan_formset.management_form }}
         {% for lf in loan_formset %}
           <div class="row gx-3 gy-2 align-items-end mb-2">
             <div class="col-md-3">
-              {{ lf.name.label_tag }} {{ lf.name|add_class:"form-control" }}
+              {{ lf.name.label_tag }}
+              {{ lf.name|add_class:"form-control" }}
               {% for err in lf.name.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
             </div>
             <div class="col-md-3">
-              {{ lf.balance.label_tag }} {{ lf.balance|add_class:"form-control" }}
+              {{ lf.balance.label_tag }}
+              {{ lf.balance|add_class:"form-control" }}
               {% for err in lf.balance.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
             </div>
             <div class="col-md-2">
-              {{ lf.interest_rate.label_tag }} {{ lf.interest_rate|add_class:"form-control" }}
+              {{ lf.interest_rate.label_tag }}
+              {{ lf.interest_rate|add_class:"form-control" }}
               {% for err in lf.interest_rate.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
             </div>
             <div class="col-md-2">
-              {{ lf.monthly_payment.label_tag }} {{ lf.monthly_payment|add_class:"form-control" }}
+              {{ lf.monthly_payment.label_tag }}
+              {{ lf.monthly_payment|add_class:"form-control" }}
               {% for err in lf.monthly_payment.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
             </div>
             <div class="col-md-2 text-center">
@@ -67,30 +79,35 @@
             </div>
           </div>
         {% endfor %}
-
         <button type="button" class="btn btn-outline-danger btn-sm mt-2" onclick="addLoan()">+ Add Another Loan</button>
       </div>
     </div>
 
     {# ───────────────────── 3 · 401(k) ────────────────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-primary text-white"><h5 class="mb-0">401(k) Parameters</h5></div>
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">401(k) Parameters</h5>
+      </div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
           <div class="col-md-3">
-            {{ form.current_age.label_tag }} {{ form.current_age|add_class:"form-control" }}
+            {{ form.current_age.label_tag }}
+            {{ form.current_age|add_class:"form-control" }}
             {% for err in form.current_age.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-3">
-            {{ form.retirement_age.label_tag }} {{ form.retirement_age|add_class:"form-control" }}
+            {{ form.retirement_age.label_tag }}
+            {{ form.retirement_age|add_class:"form-control" }}
             {% for err in form.retirement_age.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-3">
-            {{ form.init_401k_deposit.label_tag }} {{ form.init_401k_deposit|add_class:"form-control" }}
+            {{ form.init_401k_deposit.label_tag }}
+            {{ form.init_401k_deposit|add_class:"form-control" }}
             {% for err in form.init_401k_deposit.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-3">
-            {{ form.contribution_pct.label_tag }} {{ form.contribution_pct|add_class:"form-control" }}
+            {{ form.contribution_pct.label_tag }}
+            {{ form.contribution_pct|add_class:"form-control" }}
             {% for err in form.contribution_pct.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
         </div>
@@ -99,27 +116,34 @@
 
     {# ───────────────────── 4 · SAVINGS ───────────────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-warning text-dark"><h5 class="mb-0">Savings Parameters</h5></div>
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">Savings Parameters</h5>
+      </div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
           <div class="col-md-3">
-            {{ form.savings_initial.label_tag }} {{ form.savings_initial|add_class:"form-control" }}
+            {{ form.savings_initial.label_tag }}
+            {{ form.savings_initial|add_class:"form-control" }}
             {% for err in form.savings_initial.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-2">
-            {{ form.savings_years.label_tag }} {{ form.savings_years|add_class:"form-control" }}
+            {{ form.savings_years.label_tag }}
+            {{ form.savings_years|add_class:"form-control" }}
             {% for err in form.savings_years.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-3">
-            {{ form.savings_interest.label_tag }} {{ form.savings_interest|add_class:"form-control" }}
+            {{ form.savings_interest.label_tag }}
+            {{ form.savings_interest|add_class:"form-control" }}
             {% for err in form.savings_interest.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-2">
-            {{ form.savings_contribution.label_tag }} {{ form.savings_contribution|add_class:"form-control" }}
+            {{ form.savings_contribution.label_tag }}
+            {{ form.savings_contribution|add_class:"form-control" }}
             {% for err in form.savings_contribution.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-2">
-            {{ form.savings_goal.label_tag }} {{ form.savings_goal|add_class:"form-control" }}
+            {{ form.savings_goal.label_tag }}
+            {{ form.savings_goal|add_class:"form-control" }}
             {% for err in form.savings_goal.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
         </div>
@@ -128,23 +152,29 @@
 
     {# ───────────────────── 5 · MORTGAGE ──────────────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-info text-white"><h5 class="mb-0">Mortgage Details</h5></div>
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Mortgage Details</h5>
+      </div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
           <div class="col-md-3">
-            {{ form.home_price.label_tag }} {{ form.home_price|add_class:"form-control" }}
+            {{ form.home_price.label_tag }}
+            {{ form.home_price|add_class:"form-control" }}
             {% for err in form.home_price.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-3">
-            {{ form.down_payment_pct.label_tag }} {{ form.down_payment_pct|add_class:"form-control" }}
+            {{ form.down_payment_pct.label_tag }}
+            {{ form.down_payment_pct|add_class:"form-control" }}
             {% for err in form.down_payment_pct.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-3">
-            {{ form.mortgage_apr.label_tag }} {{ form.mortgage_apr|add_class:"form-control" }}
+            {{ form.mortgage_apr.label_tag }}
+            {{ form.mortgage_apr|add_class:"form-control" }}
             {% for err in form.mortgage_apr.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
           <div class="col-md-3">
-            {{ form.loan_term_years.label_tag }} {{ form.loan_term_years|add_class:"form-control" }}
+            {{ form.loan_term_years.label_tag }}
+            {{ form.loan_term_years|add_class:"form-control" }}
             {% for err in form.loan_term_years.errors %}<div class="text-danger small">{{ err }}</div>{% endfor %}
           </div>
         </div>
@@ -156,151 +186,302 @@
     </div>
   </form>
 
-  {# ───────────────────── RESULTS & CHARTS ───────────────────────────── #}
+  {# ───────────────────── RESULTS & CHARTS (Tabbed) ───────────────────────────── #}
   {% if result %}
-  <div class="row gy-5">
-    <!-- 401k -->
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white"><h5 class="mb-0">401(k) Projection</h5></div>
-        <div class="card-body">
-          <p><strong>Projected Balance:</strong> ${{ result.retirement.projected_balance }}</p>
-          <p><strong>Years to Retire:</strong> {{ result.retirement.years_to_retire }}</p>
-          <p><strong>Annual Contribution:</strong> ${{ result.retirement.annual_contribution }}</p>
-          <canvas id="chart401k" style="height:200px"></canvas>
+    <ul class="nav nav-tabs mb-3" id="resultTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="tab-401k" data-bs-toggle="tab" data-bs-target="#pane-401k" type="button" role="tab" aria-controls="pane-401k" aria-selected="true">401(k)</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-takehome" data-bs-toggle="tab" data-bs-target="#pane-takehome" type="button" role="tab" aria-controls="pane-takehome" aria-selected="false">Take-Home</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-savings" data-bs-toggle="tab" data-bs-target="#pane-savings" type="button" role="tab" aria-controls="pane-savings" aria-selected="false">Savings</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-mortgage" data-bs-toggle="tab" data-bs-target="#pane-mortgage" type="button" role="tab" aria-controls="pane-mortgage" aria-selected="false">Mortgage</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-debt" data-bs-toggle="tab" data-bs-target="#pane-debt" type="button" role="tab" aria-controls="pane-debt" aria-selected="false">Debt</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-budget" data-bs-toggle="tab" data-bs-target="#pane-budget" type="button" role="tab" aria-controls="pane-budget" aria-selected="false">Budget</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-overview" data-bs-toggle="tab" data-bs-target="#pane-overview" type="button" role="tab" aria-controls="pane-overview" aria-selected="false">Overview</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      {# 401(k) Tab Pane #}
+      <div class="tab-pane fade show active" id="pane-401k" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white"><h5 class="mb-0">401(k) Projection</h5></div>
+          <div class="card-body">
+            <p class="mb-2"><strong>Projected Balance:</strong> ${{ result.retirement.projected_balance }}</p>
+            <p class="mb-4"><strong>Years to Retire:</strong> {{ result.retirement.years_to_retire }}</p>
+            <div class="chart-container" style="position: relative; width:100%; height:350px;">
+              <canvas id="chart401k"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Take-Home Tab Pane #}
+      <div class="tab-pane fade" id="pane-takehome" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-secondary text-white"><h5 class="mb-0">Take-Home Pay</h5></div>
+          <div class="card-body">
+            <p class="mb-3"><strong>Net per Period:</strong> ${{ result.take_home.net_per_period }} ({{ result.take_home.pay_frequency|capfirst }})</p>
+            <p><strong>Monthly Take-Home Estimate:</strong> ${{ result.take_home.net_per_period|floatformat:2 }}</p>
+          </div>
+        </div>
+      </div>
+
+      {# Savings Tab Pane #}
+      <div class="tab-pane fade" id="pane-savings" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-warning text-dark"><h5 class="mb-0">Savings Growth</h5></div>
+          <div class="card-body">
+            <p class="mb-2"><strong>Final Balance:</strong> ${{ result.savings.final_balance }}</p>
+            {% if result.savings.goal_months %}
+              <p class="mb-3"><strong>Reached Goal in:</strong> {{ result.savings.goal_months }} months</p>
+            {% endif %}
+            <div class="chart-container" style="position: relative; width:100%; height:350px;">
+              <canvas id="chartSavings"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Mortgage Tab Pane #}
+      <div class="tab-pane fade" id="pane-mortgage" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-info text-white"><h5 class="mb-0">Mortgage Summary</h5></div>
+          <div class="card-body">
+            <p class="mb-2"><strong>Monthly Payment:</strong> ${{ result.mortgage.monthly_payment }}</p>
+            <p class="mb-2"><strong>Total Interest:</strong> ${{ result.mortgage.total_interest }}</p>
+            <p><strong>Payoff Date:</strong> {{ result.mortgage.payoff_date }}</p>
+          </div>
+        </div>
+      </div>
+
+      {# Debt Tab Pane #}
+      <div class="tab-pane fade" id="pane-debt" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-danger text-white"><h5 class="mb-0">Debt Payoff (Snowball)</h5></div>
+          <div class="card-body">
+            <p class="mb-2"><strong>Months to Payoff:</strong> {{ result.snowball.months_to_payoff }}</p>
+            <p class="mb-4"><strong>Total Paid:</strong> ${{ result.snowball.total_paid }}</p>
+            <div class="chart-container" style="position: relative; width:100%; height:350px;">
+              <canvas id="chartDebt"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Budget Tab Pane #}
+      <div class="tab-pane fade" id="pane-budget" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-secondary text-white"><h5 class="mb-0">Budget Breakdown (50/30/20)</h5></div>
+          <div class="card-body">
+            <p class="mb-3"><strong>Monthly Income (Net):</strong> ${{ result.budget.monthly_income }}</p>
+            <div class="chart-container" style="position: relative; width:100%; height:350px;">
+              <canvas id="budgetPieChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Overview Tab Pane #}
+      <div class="tab-pane fade" id="pane-overview" role="tabpanel">
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-dark text-white"><h5 class="mb-0">Combined Financial Overview</h5></div>
+          <div class="card-body">
+            <div class="chart-container" style="position: relative; width:100%; height:400px;">
+              <canvas id="ultimateBarChart"></canvas>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Take-Home -->
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-secondary text-white"><h5 class="mb-0">Take-Home Pay</h5></div>
-        <div class="card-body">
-          <p><strong>Net per Period:</strong> ${{ result.take_home.net_per_period }} ({{ result.take_home.pay_frequency|capfirst }})</p>
-          <p><strong>Monthly Take-Home Estimate:</strong> ${{ result.take_home.net_per_period|floatformat:2 }}</p>
-        </div>
-      </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      // Chart options globally
+      const baseOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return '$' + value.toLocaleString();
+              }
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: { boxWidth: 12, padding: 10 }
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let val = context.parsed.y ?? context.parsed;
+                return '$' + Number(val).toLocaleString();
+              }
+            }
+          }
+        }
+      };
 
-    <!-- Savings -->
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-warning text-dark"><h5 class="mb-0">Savings Growth</h5></div>
-        <div class="card-body">
-          <p><strong>Final Balance:</strong> ${{ result.savings.final_balance }}</p>
-          {% if result.savings.goal_months %}
-            <p><strong>Reached Goal in:</strong> {{ result.savings.goal_months }} months</p>
-          {% endif %}
-          <canvas id="chartSavings" style="height:200px"></canvas>
-        </div>
-      </div>
-    </div>
+      // 401(k) Chart
+      const d401k = JSON.parse('{{ result.retirement.data_json|escapejs }}');
+      new Chart(document.getElementById('chart401k'), {
+        type: 'line',
+        data: {
+          labels: d401k.map((_, i) => `Year ${i + 1}`),
+          datasets: [{
+            data: d401k,
+            label: '401(k) Balance',
+            borderColor: '#0d6efd',
+            backgroundColor: 'rgba(13,110,253,0.1)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: baseOptions
+      });
 
-    <!-- Mortgage -->
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-info text-white"><h5 class="mb-0">Mortgage Summary</h5></div>
-        <div class="card-body">
-          <p><strong>Monthly Payment:</strong> ${{ result.mortgage.monthly_payment }}</p>
-          <p><strong>Total Interest:</strong> ${{ result.mortgage.total_interest }}</p>
-          <p><strong>Payoff Date:</strong> {{ result.mortgage.payoff_date }}</p>
-        </div>
-      </div>
-    </div>
+      // Savings Chart
+      const dSav = JSON.parse('{{ result.savings.data_json|escapejs }}');
+      new Chart(document.getElementById('chartSavings'), {
+        type: 'line',
+        data: {
+          labels: dSav.map((_, i) => `Month ${i + 1}`),
+          datasets: [{
+            data: dSav,
+            label: 'Savings Balance',
+            borderColor: '#ffc107',
+            backgroundColor: 'rgba(255,193,7,0.1)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: baseOptions
+      });
 
-    <!-- Debt -->
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-danger text-white"><h5 class="mb-0">Debt Payoff (Snowball)</h5></div>
-        <div class="card-body">
-          <p><strong>Months to Payoff:</strong> {{ result.snowball.months_to_payoff }}</p>
-          <p><strong>Total Paid:</strong> ${{ result.snowball.total_paid }}</p>
-          <canvas id="chartDebt" style="height:200px"></canvas>
-        </div>
-      </div>
-    </div>
+      // Debt Chart
+      const dDebt = JSON.parse('{{ result.snowball.data_json|escapejs }}');
+      new Chart(document.getElementById('chartDebt'), {
+        type: 'line',
+        data: {
+          labels: dDebt.map((_, i) => `Month ${i + 1}`),
+          datasets: [{
+            data: dDebt,
+            label: 'Remaining Debt',
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220,53,69,0.1)',
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: baseOptions
+      });
 
-    <!-- Budget pie -->
-    <div class="col-md-6">
-      <div class="card shadow-sm">
-        <div class="card-header bg-secondary text-white"><h5 class="mb-0">Budget Breakdown (50/30/20)</h5></div>
-        <div class="card-body">
-          <p><strong>Monthly Income (Net):</strong> ${{ result.budget.monthly_income }}</p>
-          <canvas id="budgetPieChart" style="max-width:100%;height:300px"></canvas>
-        </div>
-      </div>
-    </div>
-  </div> <!-- /.row -->
+      // Budget Pie Chart
+      new Chart(document.getElementById('budgetPieChart'), {
+        type: 'pie',
+        data: {
+          labels: ["Mortgage","Debt","401(k)","Savings","Needs 50%","Wants 30%","Extra Savings 20%"],
+          datasets: [{
+            data: [
+              {{ result.budget.expenses.Mortgage }},
+              {{ result.budget.expenses.Debt }},
+              {{ result.budget.expenses.Retirement }},
+              {{ result.budget.expenses.Savings }},
+              {{ result.budget.needs }},
+              {{ result.budget.wants }},
+              {{ result.budget.additional_savings }}
+            ],
+            backgroundColor: ["#4e73df","#1cc88a","#36b9cc","#f6c23e","#e74a3b","#858796","#fd7e14"]
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } }
+          }
+        }
+      });
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    // 401(k)
-    const d401k = JSON.parse('{{ result.retirement.data_json|escapejs }}');
-    new Chart(document.getElementById('chart401k'),{
-      type:'line',
-      data:{labels:d401k.map((_,i)=>`Year ${i+1}`),
-            datasets:[{data:d401k,label:'401(k) Balance',borderColor:'#0d6efd',backgroundColor:'rgba(13,110,253,.1)',tension:.3,fill:true}]},
-      options:{responsive:true,scales:{y:{beginAtZero:true}}}
-    });
+      // Ultimate Bar Chart (all six)
+      const final401k = {{ result.retirement.projected_balance }};
+      const monthlyTakeHome = {{ result.take_home.net_per_period }};
+      const finalSavings = {{ result.savings.final_balance }};
+      const monthlyMortgage = {{ result.mortgage.monthly_payment }};
+      const totalDebtPaid = {{ result.snowball.total_paid }};
+      const monthlyIncome = {{ result.budget.monthly_income }};
 
-    // Savings
-    const dSav = JSON.parse('{{ result.savings.data_json|escapejs }}');
-    new Chart(document.getElementById('chartSavings'),{
-      type:'line',
-      data:{labels:dSav.map((_,i)=>`Month ${i+1}`),
-            datasets:[{data:dSav,label:'Savings Balance',borderColor:'#ffc107',backgroundColor:'rgba(255,193,7,.1)',tension:.3,fill:true}]},
-      options:{responsive:true,scales:{y:{beginAtZero:true}}}
-    });
-
-    // Debt
-    const dDebt = JSON.parse('{{ result.snowball.data_json|escapejs }}');
-    new Chart(document.getElementById('chartDebt'),{
-      type:'line',
-      data:{labels:dDebt.map((_,i)=>`Month ${i+1}`),
-            datasets:[{data:dDebt,label:'Remaining Debt',borderColor:'#dc3545',backgroundColor:'rgba(220,53,69,.1)',tension:.3,fill:true}]},
-      options:{responsive:true,scales:{y:{beginAtZero:true}}}
-    });
-
-    // Budget pie
-    new Chart(document.getElementById('budgetPieChart'),{
-      type:'pie',
-      data:{
-        labels:["Mortgage","Debt","401(k)","Savings","Needs 50%","Wants 30%","Extra Savings 20%"],
-        datasets:[{data:[
-          {{ result.budget.expenses.Mortgage }},
-          {{ result.budget.expenses.Debt }},
-          {{ result.budget.expenses.Retirement }},
-          {{ result.budget.expenses.Savings }},
-          {{ result.budget.needs }},
-          {{ result.budget.wants }},
-          {{ result.budget.additional_savings }}
-        ],backgroundColor:["#4e73df","#1cc88a","#36b9cc","#f6c23e","#e74a3b","#858796","#fd7e14"]}]},
-      options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:12,padding:10}}}}
-    });
-  </script>
+      new Chart(document.getElementById('ultimateBarChart'), {
+        type: 'bar',
+        data: {
+          labels: [
+            "401(k) Balance",
+            "Take-Home (Net)",
+            "Savings Balance",
+            "Mortgage Payment",
+            "Debt Paid",
+            "Monthly Income"
+          ],
+          datasets: [{
+            label: "Amount ($)",
+            data: [
+              final401k,
+              monthlyTakeHome,
+              finalSavings,
+              monthlyMortgage,
+              totalDebtPaid,
+              monthlyIncome
+            ],
+            backgroundColor: [
+              "#0d6efd",
+              "#6c757d",
+              "#ffc107",
+              "#0dcaf0",
+              "#dc3545",
+              "#198754"
+            ]
+          }]
+        },
+        options: baseOptions
+      });
+    </script>
   {% endif %}
 </div>
 
-<!-- helper that duplicates a loan row -->
 <script>
-function addLoan(){
-  const totalInput = document.getElementById('id_loans-TOTAL_FORMS');
-  const count      = parseInt(totalInput.value,10);
+  // helper that duplicates a loan row
+  function addLoan() {
+    const totalInput = document.getElementById('id_loans-TOTAL_FORMS');
+    const count = parseInt(totalInput.value, 10);
 
-  const rows  = document.querySelectorAll('#loan-formset .row');
-  const clone = rows[rows.length-1].cloneNode(true);
+    const rows = document.querySelectorAll('#loan-formset .row');
+    const clone = rows[rows.length - 1].cloneNode(true);
 
-  clone.querySelectorAll('input').forEach(inp=>{
-    inp.name = inp.name.replace(`-${count-1}-`,`-${count}-`);
-    inp.id   = inp.id.replace(`-${count-1}-`,`-${count}-`);
-    inp.value = (inp.type==='checkbox') ? '' : '';
-    if(inp.type==='checkbox') inp.checked=false;
-  });
+    clone.querySelectorAll('input').forEach(inp => {
+      inp.name = inp.name.replace(`-${count - 1}-`, `-${count}-`);
+      inp.id = inp.id.replace(`-${count - 1}-`, `-${count}-`);
+      inp.value = (inp.type === 'checkbox') ? '' : '';
+      if (inp.type === 'checkbox') inp.checked = false;
+    });
 
-  document.getElementById('loan-formset').appendChild(clone);
-  totalInput.value = count + 1;
-}
+    document.getElementById('loan-formset').appendChild(clone);
+    totalInput.value = count + 1;
+  }
 </script>
 {% endblock %}
