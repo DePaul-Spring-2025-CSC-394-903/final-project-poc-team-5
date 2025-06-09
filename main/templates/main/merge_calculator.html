@@ -16,9 +16,7 @@
 
     {# ───────────────────── 1 · PERSONAL & INCOME ─────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-success text-white">
-        <h5 class="mb-0">Personal &amp; Income Info</h5>
-      </div>
+      <div class="card-header bg-success text-white"><h5 class="mb-0">Personal & Income Info</h5></div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
           <div class="col-md-4">
@@ -47,9 +45,7 @@
 
     {# ───────────────────── 2 · LOANS (SNOWBALL) ──────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-danger text-white">
-        <h5 class="mb-0">Your Loans (Snowball)</h5>
-      </div>
+      <div class="card-header bg-danger text-white"><h5 class="mb-0">Your Loans (Snowball)</h5></div>
       <div class="card-body" id="loan-formset">
         {{ loan_formset.management_form }}
         {% for lf in loan_formset %}
@@ -85,9 +81,7 @@
 
     {# ───────────────────── 3 · 401(k) ────────────────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-primary text-white">
-        <h5 class="mb-0">401(k) Parameters</h5>
-      </div>
+      <div class="card-header bg-primary text-white"><h5 class="mb-0">401(k) Parameters</h5></div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
           <div class="col-md-3">
@@ -116,9 +110,7 @@
 
     {# ───────────────────── 4 · SAVINGS ───────────────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-warning text-dark">
-        <h5 class="mb-0">Savings Parameters</h5>
-      </div>
+      <div class="card-header bg-warning text-dark"><h5 class="mb-0">Savings Parameters</h5></div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
           <div class="col-md-3">
@@ -152,9 +144,7 @@
 
     {# ───────────────────── 5 · MORTGAGE ──────────────────────────────── #}
     <div class="card mb-4 shadow-sm">
-      <div class="card-header bg-info text-white">
-        <h5 class="mb-0">Mortgage Details</h5>
-      </div>
+      <div class="card-header bg-info text-white"><h5 class="mb-0">Mortgage Details</h5></div>
       <div class="card-body">
         <div class="row gx-3 gy-3">
           <div class="col-md-3">
@@ -188,173 +178,92 @@
 
   {# ───────────────────── RESULTS & CHARTS (Tabbed) ───────────────────────────── #}
   {% if result %}
-    <ul class="nav nav-tabs mb-3" id="resultTabs" role="tablist">
-      <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="tab-401k" data-bs-toggle="tab" data-bs-target="#pane-401k" type="button" role="tab" aria-controls="pane-401k" aria-selected="true">401(k)</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-takehome" data-bs-toggle="tab" data-bs-target="#pane-takehome" type="button" role="tab" aria-controls="pane-takehome" aria-selected="false">Take-Home</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-savings" data-bs-toggle="tab" data-bs-target="#pane-savings" type="button" role="tab" aria-controls="pane-savings" aria-selected="false">Savings</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-mortgage" data-bs-toggle="tab" data-bs-target="#pane-mortgage" type="button" role="tab" aria-controls="pane-mortgage" aria-selected="false">Mortgage</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-debt" data-bs-toggle="tab" data-bs-target="#pane-debt" type="button" role="tab" aria-controls="pane-debt" aria-selected="false">Debt</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-budget" data-bs-toggle="tab" data-bs-target="#pane-budget" type="button" role="tab" aria-controls="pane-budget" aria-selected="false">Budget</button>
-      </li>
-      <li class="nav-item" role="presentation">
-        <button class="nav-link" id="tab-overview" data-bs-toggle="tab" data-bs-target="#pane-overview" type="button" role="tab" aria-controls="pane-overview" aria-selected="false">Overview</button>
-      </li>
-    </ul>
-
-    <div class="tab-content">
-      {# 401(k) Tab Pane #}
-      <div class="tab-pane fade show active" id="pane-401k" role="tabpanel">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-primary text-white"><h5 class="mb-0">401(k) Projection</h5></div>
-          <div class="card-body">
-            <p class="mb-2"><strong>Projected Balance:</strong> ${{ result.retirement.projected_balance }}</p>
-            <p class="mb-4"><strong>Years to Retire:</strong> {{ result.retirement.years_to_retire }}</p>
-            <div class="chart-container" style="position: relative; width:100%; height:350px;">
-              <canvas id="chart401k"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {# Take-Home Tab Pane #}
-      <div class="tab-pane fade" id="pane-takehome" role="tabpanel">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-secondary text-white"><h5 class="mb-0">Take-Home Pay</h5></div>
-          <div class="card-body">
-            <p class="mb-3"><strong>Net per Period:</strong> ${{ result.take_home.net_per_period }} ({{ result.take_home.pay_frequency|capfirst }})</p>
-            <p><strong>Monthly Take-Home Estimate:</strong> ${{ result.take_home.net_per_period|floatformat:2 }}</p>
-          </div>
-        </div>
-      </div>
-
-      {# Savings Tab Pane #}
-      <div class="tab-pane fade" id="pane-savings" role="tabpanel">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-warning text-dark"><h5 class="mb-0">Savings Growth</h5></div>
-          <div class="card-body">
-            <p class="mb-2"><strong>Final Balance:</strong> ${{ result.savings.final_balance }}</p>
-            {% if result.savings.goal_months %}
-              <p class="mb-3"><strong>Reached Goal in:</strong> {{ result.savings.goal_months }} months</p>
-            {% endif %}
-            <div class="chart-container" style="position: relative; width:100%; height:350px;">
-              <canvas id="chartSavings"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {# Mortgage Tab Pane #}
-      <div class="tab-pane fade" id="pane-mortgage" role="tabpanel">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-info text-white"><h5 class="mb-0">Mortgage Summary</h5></div>
-          <div class="card-body">
-            <p class="mb-2"><strong>Monthly Payment:</strong> ${{ result.mortgage.monthly_payment }}</p>
-            <p class="mb-2"><strong>Total Interest:</strong> ${{ result.mortgage.total_interest }}</p>
-            <p><strong>Payoff Date:</strong> {{ result.mortgage.payoff_date }}</p>
-          </div>
-        </div>
-      </div>
-
-      {# Debt Tab Pane #}
-      <div class="tab-pane fade" id="pane-debt" role="tabpanel">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-danger text-white"><h5 class="mb-0">Debt Payoff (Snowball)</h5></div>
-          <div class="card-body">
-            <p class="mb-2"><strong>Months to Payoff:</strong> {{ result.snowball.months_to_payoff }}</p>
-            <p class="mb-4"><strong>Total Paid:</strong> ${{ result.snowball.total_paid }}</p>
-            <div class="chart-container" style="position: relative; width:100%; height:350px;">
-              <canvas id="chartDebt"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {# Budget Tab Pane #}
-      <div class="tab-pane fade" id="pane-budget" role="tabpanel">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-secondary text-white"><h5 class="mb-0">Budget Breakdown (50/30/20)</h5></div>
-          <div class="card-body">
-            <p class="mb-3"><strong>Monthly Income (Net):</strong> ${{ result.budget.monthly_income }}</p>
-            <div class="chart-container" style="position: relative; width:100%; height:350px;">
-              <canvas id="budgetPieChart"></canvas>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {# Overview Tab Pane #}
-      <div class="tab-pane fade" id="pane-overview" role="tabpanel">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-dark text-white"><h5 class="mb-0">Combined Financial Overview</h5></div>
-          <div class="card-body">
-            <div class="chart-container" style="position: relative; width:100%; height:400px;">
-              <canvas id="ultimateBarChart"></canvas>
-            </div>
-          </div>
+  <div class="row gy-5">
+    <!-- 401k -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white"><h5 class="mb-0">401(k) Projection</h5></div>
+        <div class="card-body">
+          <p><strong>Projected Balance:</strong> ${{ result.retirement.projected_balance }}</p>
+          <p><strong>Years to Retire:</strong> {{ result.retirement.years_to_retire }}</p>
+          <p><strong>Annual Contribution:</strong> ${{ result.retirement.annual_contribution }}</p>
+          <canvas id="chart401k" style="height:200px"></canvas>
         </div>
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-      // Chart options globally
-      const baseOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              callback: function(value) {
-                return '$' + value.toLocaleString();
-              }
-            }
-          }
-        },
-        plugins: {
-          legend: {
-            position: 'bottom',
-            labels: { boxWidth: 12, padding: 10 }
-          },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                let val = context.parsed.y ?? context.parsed;
-                return '$' + Number(val).toLocaleString();
-              }
-            }
-          }
-        }
-      };
+    <!-- Take-Home -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white"><h5 class="mb-0">Take-Home Pay</h5></div>
+        <div class="card-body">
+          <p><strong>Net per Period:</strong> ${{ result.take_home.net_per_period }} ({{ result.take_home.pay_frequency|capfirst }})</p>
+          <p><strong>Monthly Take-Home Estimate:</strong> ${{ result.take_home.net_per_period|floatformat:2 }}</p>
+        </div>
+      </div>
+    </div>
 
-      // 401(k) Chart
-      const d401k = JSON.parse('{{ result.retirement.data_json|escapejs }}');
-      new Chart(document.getElementById('chart401k'), {
-        type: 'line',
-        data: {
-          labels: d401k.map((_, i) => `Year ${i + 1}`),
-          datasets: [{
-            data: d401k,
-            label: '401(k) Balance',
-            borderColor: '#0d6efd',
-            backgroundColor: 'rgba(13,110,253,0.1)',
-            tension: 0.3,
-            fill: true
-          }]
-        },
-        options: baseOptions
-      });
+    <!-- Savings -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-warning text-dark"><h5 class="mb-0">Savings Growth</h5></div>
+        <div class="card-body">
+          <p><strong>Final Balance:</strong> ${{ result.savings.final_balance }}</p>
+          {% if result.savings.goal_months %}
+            <p><strong>Reached Goal in:</strong> {{ result.savings.goal_months }} months</p>
+          {% endif %}
+          <canvas id="chartSavings" style="height:200px"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mortgage -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-info text-white"><h5 class="mb-0">Mortgage Summary</h5></div>
+        <div class="card-body">
+          <p><strong>Monthly Payment:</strong> ${{ result.mortgage.monthly_payment }}</p>
+          <p><strong>Total Interest:</strong> ${{ result.mortgage.total_interest }}</p>
+          <p><strong>Payoff Date:</strong> {{ result.mortgage.payoff_date }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Debt -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white"><h5 class="mb-0">Debt Payoff (Snowball)</h5></div>
+        <div class="card-body">
+          <p><strong>Months to Payoff:</strong> {{ result.snowball.months_to_payoff }}</p>
+          <p><strong>Total Paid:</strong> ${{ result.snowball.total_paid }}</p>
+          <canvas id="chartDebt" style="height:200px"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget pie -->
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white"><h5 class="mb-0">Budget Breakdown (50/30/20)</h5></div>
+        <div class="card-body">
+          <p><strong>Monthly Income (Net):</strong> ${{ result.budget.monthly_income }}</p>
+          <canvas id="budgetPieChart" style="max-width:100%;height:300px"></canvas>
+        </div>
+      </div>
+    </div>
+  </div> <!-- /.row -->
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // 401(k)
+    const d401k = JSON.parse('{{ result.retirement.data_json|escapejs }}');
+    new Chart(document.getElementById('chart401k'),{
+      type:'line',
+      data:{labels:d401k.map((_,i)=>`Year ${i+1}`),
+            datasets:[{data:d401k,label:'401(k) Balance',borderColor:'#0d6efd',backgroundColor:'rgba(13,110,253,.1)',tension:.3,fill:true}]},
+      options:{responsive:true,scales:{y:{beginAtZero:true}}}
+    });
 
       // Savings Chart
       const dSav = JSON.parse('{{ result.savings.data_json|escapejs }}');
@@ -485,3 +394,4 @@
   }
 </script>
 {% endblock %}
+
