@@ -1490,10 +1490,7 @@ def merge_calculator(request):
     else:
         form = MergeForm()
         loan_formset = LoanFormSet(prefix="loans")
-    else:  
-        form          = MergeForm()
-        loan_formset  = LoanFormSet(prefix="loans")
-
+   
     return render(
         request,
         "main/merge_calculator.html",
