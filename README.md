@@ -57,3 +57,4 @@ CREATE DATABASE postgres;
 \q
 
 sudo docker-compose exec web python manage.py migrate
+"# CapStone" 
